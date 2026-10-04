@@ -64,6 +64,23 @@ Rules:
 - Mention known limitations and decisions taken.
 - Show the full message to the user before committing.
 
+## Token economy
+
+- Reports are short: a results table, the decisions the user must take, and the commit
+  message. Do not repeat what is already in the commit message or the docs.
+- Filter output before reading it (grep, tail, head); never print whole library source
+  files, full test outputs or long tracebacks when one line is enough.
+- Check a library's API (one grep in site-packages or its docs) before writing code
+  against it.
+- Never leave a command running that looks stuck: stop it after 2 minutes without output
+  and investigate.
+- Verification defaults, unless the user asks for more:
+  - during development, run only the tests of the module being changed;
+  - one full serial test run at the end of the step (no --parallel or --keepdb checks);
+  - no screenshots;
+  - wheel checks on the 3 platforms only for newly added dependencies;
+  - measure only what the docs or the commit message will state.
+
 ## Project
 
 Backend for the competition "AI Challenge – Serving Islamic Content". The service answers
