@@ -42,6 +42,28 @@ These rules apply to every change, without asking.
   (`data/processed/`).
 - Never print the contents of `.env` or any secret.
 
+## Commit messages
+
+Every commit message follows this pattern:
+
+    <Title: the outcome of the commit, imperative mood, one line, no trailing period>
+
+    <One short paragraph: what changed and why it matters.>
+
+    <Group heading>:
+    - detail, with the reason when it is not obvious
+
+    Documentation: <pages added or updated>.
+
+    Tests: <count> (was <previous count>).
+
+Rules:
+- The title states what the commit achieves, never "update files".
+- The body explains why; details are grouped by area.
+- Every number is measured, never estimated.
+- Mention known limitations and decisions taken.
+- Show the full message to the user before committing.
+
 ## Project
 
 Backend for the competition "AI Challenge – Serving Islamic Content". The service answers
