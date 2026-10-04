@@ -132,6 +132,8 @@ UNFOLD = {
                 'items': [
                     _nav_item(_('API Keys'), 'vpn_key', 'admin:core_apicredential_changelist',
                               'core.view_apicredential'),
+                    _nav_item(_('AI settings'), 'smart_toy', 'admin:core_aisettings_changelist',
+                              'core.view_aisettings'),
                 ],
             },
             {

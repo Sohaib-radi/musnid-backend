@@ -5,6 +5,7 @@ Every model and shared building block is re-exported here, so the rest of the
 code imports from ``core.models`` and never from the submodules.
 """
 
+from .ai_settings import AISettings
 from .base import BaseModel, CenterLinkedModel, CenterQuerySet, CreatedByMixin
 from .center import Center, CenterStatusQuerySet
 from .choices import Language
@@ -13,6 +14,7 @@ from .membership import Membership, MembershipQuerySet
 from .user import User, UserManager
 
 __all__ = [
+    'AISettings',
     'ApiCredential',
     'BaseModel',
     'Center',

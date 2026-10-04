@@ -45,7 +45,8 @@ VENDOR_LOCALE = settings.BASE_DIR / 'locale_vendor' / 'unfold'
 # identical in French is treated as untranslated.
 FRENCH_SAME_AS_ENGLISH = {
     'API', 'Action', 'Configuration', 'Contact', 'Date', 'Dates', 'Permissions', 'Question', 'Service', 'URL',
-    'document',
+    'document', 'Agents', 'session', 'question', 'questions', 'citations', 'interaction', 'interactions',
+    'verdict',
     'avatar', 'description', 'logo',
 }
 
@@ -201,7 +202,7 @@ class ExtractionTests(SimpleTestCase):
     def test_project_catalog_is_up_to_date(self):
         with tempfile.TemporaryDirectory() as tmp:
             copy = Path(tmp)
-            for name in ('config', 'core', 'api', 'knowledge'):
+            for name in ('config', 'core', 'api', 'knowledge', 'qa', 'agents'):
                 shutil.copytree(settings.BASE_DIR / name, copy / name, ignore=shutil.ignore_patterns('__pycache__', 'static'))
             extracted = self.extract(copy, MAKEMESSAGES_IGNORES)
             for language in LANGUAGES:

@@ -15,6 +15,8 @@ description: Migration history of the project and the conventions for writing mi
 | `core` | `0002_center_review` | 2026-10-04 | Adds `status` (default `approved`, so existing centers become approved), `reviewed_at`, `reviewed_by`, `rejection_reason`, the help text of `is_active`, and the constraint `default_center_must_be_approved`. |
 | `core` | `0003_api_credentials` | 2026-10-04 | Creates `ApiCredential` with `one_active_credential_per_provider` and `credential_active_matches_revoked_at`. |
 | `knowledge` | `0001_initial` | 2026-10-04 | `SourceDocument`, `SourceChunk` (1536-dimension embedding, HNSW cosine index). Depends on `core.0001` for the `vector` extension. |
+| `core` | `0004_ai_settings`, `0005_ai_settings_verifier_model` | 2026-10-04 | `AISettings` singleton (chat model, temperature), then `verifier_model`. |
+| `qa` | `0001_initial` | 2026-10-04 | `Question` (center-owned, anonymous), `Interaction` (one per question), `HumanLabel`. |
 
 Third-party apps bring their own migrations (`auth`, `admin`, `contenttypes`,
 `sessions`, `token_blacklist`). `django_countries`, `pgvector.django`, `rest_framework`,

@@ -120,6 +120,8 @@ core/              domain app
 knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embeddings, services/search
   extraction/      PDF text repair and Bayyinat parsing (never imports PyMuPDF)
   management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
+qa/                Question, Interaction, HumanLabel (records of every answer)
+agents/            CrewAI: flow.py (steps, routing, fixed replies), services.py (ask), crews/ (YAML)
 api/               REST API, no models
   v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)
   v1/views/mixins.py  CenterScopedMixin: non-members get 404
@@ -235,6 +237,10 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
 - **RAG:** extraction findings, decisions, validation and limitations go in `docs/rag/`
   with measured numbers only. PyMuPDF stays in `requirements-tools.txt` (AGPL). The
   writer only ever receives `get_evidence()` chunks, never question chunks.
+- **Agents:** answers come only from `get_evidence()`; the verifier must return quotes, checked
+  in code; decisions and fixed replies are code, never generated. Flow handler names must
+  differ from router labels. Change prompts in the crews' YAML (the prompt version follows).
+  Model choice lives in AISettings (verifier on gpt-4o).
 - **Center review:** never edit `Center.status` directly; use
   `core.services.centers.approve`/`reject`. Center-admin endpoints require an operational
   center (approved and active).

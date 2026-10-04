@@ -1,0 +1,22 @@
+classify:
+  description: >
+    Classify this question:
+
+    {question}
+
+    language: the language the question is written in: ar, en, fr, or other. This is the
+    asker's language, not the language of search_query.
+
+    level, one of:
+    - A: a basic, settled fact about Islam (beliefs, pillars, history).
+    - B: an explanation or argument about Islam (wisdom, objections, comparisons).
+    - C: a matter on which recognized scholars differ.
+    - D: a personal religious ruling (fatwa) about the asker's own situation, family,
+      marriage, money or circumstances. Always D when the asker describes their own case.
+    - out_of_scope: not about Islam (general knowledge, other topics, small talk).
+
+    search_query: the question rewritten in clear Modern Standard Arabic, without
+    personal details, as a searcher would type it. Keep the meaning; do not answer.
+  expected_output: >
+    language, level and search_query.
+  agent: classifier

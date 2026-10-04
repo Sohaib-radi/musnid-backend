@@ -128,6 +128,12 @@ Sidebar group **Knowledge base**: Source documents (with chunk counts) and Sourc
 (filters: kind, document; search: title, text, question number). Read-only: no add, edit
 or delete; the embedding is not displayed. Content comes from `ingest_bayyinat`.
 
+## AI settings (`AISettingsAdmin`)
+
+**Configuration > AI settings**: one row (chat model, verifier model, temperature); no
+add once it exists, no delete. Defaults: gpt-4o-mini, empty verifier model (= chat model).
+Set on 2026-10-04: verifier model gpt-4o ([ADR 0016](../architecture/decisions/0016-question-answering-flow.md)).
+
 ## Tokens (`api/admin.py`)
 
 SimpleJWT's `OutstandingTokenAdmin` and `BlacklistedTokenAdmin` combined with Unfold's

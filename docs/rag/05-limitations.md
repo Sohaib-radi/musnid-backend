@@ -16,6 +16,10 @@ description: Known limitations of the extraction and retrieval.
 - Letter spacing in the PDF can leave a stray space inside a word, e.g. the title of
   #246 "أتب اعِ" for "أتباعِ".
 - `LOW_THRESHOLD` (0.30) rests on three queries until the 60-question evaluation.
+- The quote check proves that a quote exists in the evidence, not that it states the
+  sentence: 1 unsupported claim in 12 sentences remained with gpt-4o as verifier.
+- Coverage strictness ("full" for questions the book does not ask exactly) is calibrated
+  on 2026-10-06.
 - `keywords` is empty: the book has no keyword lists.
 - Numbers come from order, not from the garbled "المسألة (n)" labels.
 - 2 questions have no separate question text, 2 no summary, 1 no detailed answer (as in

@@ -16,3 +16,9 @@ description: Problems met while building the RAG pipeline and how they were fixe
 | 2026-10-04 | ﷺ dropped from a title (set in a body font on the title line) | Title keeps every character except the "المسألة" label |
 | 2026-10-04 | Validator flagged 255 questions for "unrepaired ligatures" | It matched the correct "الأ…"; it now flags two adjacent alefs |
 | 2026-10-04 | "الدَّلاالت" in 3 questions | In-word "لاال" repaired to "لالا" |
+| 2026-10-04 | CrewAI's first-run "view traces? [y/N]" prompt blocked `ask_test` despite the telemetry switches | Decline recorded with `mark_first_execution_done(user_consented=False)` at import |
+| 2026-10-04 | Flow never ended | Listener methods named like router labels (`answer`, `refer`, `abstain`) re-triggered themselves; renamed |
+| 2026-10-04 | gpt-4o-mini returned the JSON schema instead of a classification | Structured outputs (`response_format`) |
+| 2026-10-04 | Verifier dropped every `[Q<n>]` citation, so every answer became a referral | Field description requiring the markers; later replaced by sentences with quotes |
+| 2026-10-04 | Unsupported claims kept by the verifier | Sentences with quotes checked in code; verifier on gpt-4o |
+| 2026-10-04 | Flow tests found no data; test database not droppable | CrewAI runs steps in worker threads: `TransactionTestCase`, and worker connections closed after retrieval |

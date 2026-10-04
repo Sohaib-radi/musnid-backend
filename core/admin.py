@@ -41,7 +41,7 @@ from unfold.decorators import action, display
 from core.forms import (
     AdminPasswordChangeForm, ApiCredentialAddForm, CenterAdminForm, MembershipAdminForm, UserChangeForm, UserCreationForm,
 )
-from core.models import ApiCredential, Center, Membership, User
+from core.models import AISettings, ApiCredential, Center, Membership, User
 from core.services import centers, credentials, memberships
 
 admin.site.unregister(Group)
@@ -438,3 +438,17 @@ class ApiCredentialAdmin(ModelAdmin):
         self.message_user(request, ngettext(
             '%(count)d API key was revoked.', '%(count)d API keys were revoked.', count,
         ) % {'count': count}, messages.SUCCESS)
+
+
+@admin.register(AISettings)
+class AISettingsAdmin(ModelAdmin):
+    """The single AI settings row: chat model and temperature of the crews."""
+
+    list_display = ['chat_model', 'temperature', 'updated_at']
+    fields = ['chat_model', 'verifier_model', 'temperature']
+
+    def has_add_permission(self, request):
+        return not AISettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False

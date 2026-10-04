@@ -13,6 +13,7 @@ live in ``config.env``. Every variable is documented in
 See https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
@@ -59,6 +60,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'core',
     'knowledge',
+    'qa',
+    'agents',
     'api',
 ]
 
@@ -171,6 +174,13 @@ LOW_THRESHOLD = 0.30
 # The writer receives the evidence (summary and answer chunks) of this many
 # distinct top questions; the verifier then decides full / partial / none.
 EVIDENCE_QUESTIONS = 3
+
+
+# CrewAI (ADR 0016): no telemetry, no tracing, and so no interactive
+# first-run prompt (it blocks a server process). Set before CrewAI is imported.
+for _name, _value in (('CREWAI_DISABLE_TELEMETRY', 'true'), ('OTEL_SDK_DISABLED', 'true'),
+                      ('CREWAI_TRACING_ENABLED', 'false')):
+    os.environ.setdefault(_name, _value)
 
 
 # Secrets at rest (ADR 0014)

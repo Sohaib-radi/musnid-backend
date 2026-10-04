@@ -1,0 +1,49 @@
+write:
+  description: >
+    Question: {question}
+
+    Answer language: {language}. Level: {level}.
+
+    Evidence (each passage starts with its reference [Q<n>]):
+
+    {evidence}
+
+    Rules:
+    - Answer ONLY from the evidence above. If it does not answer the question, say so briefly.
+    - Write in the answer language ({language}).
+    - Cite every claim with the reference of the passage it comes from, e.g. [Q229].
+      Use only references that appear in the evidence.
+    - NEVER quote the Quran or hadith from memory. Where the evidence shows [آية], refer to
+      the verse ("as stated in a verse") without reconstructing its text.
+    - If the level is C: state that scholars differ, and make no absolute claims.
+    - Be concise: a few short paragraphs.
+  expected_output: >
+    The answer, with [Q<n>] citations.
+  agent: writer
+
+verify:
+  description: >
+    Question: {question}
+
+    Level: {level}.
+
+    Evidence:
+
+    {evidence}
+
+    Check the writer's draft against the evidence, sentence by sentence:
+    - For each sentence, find an exact passage of the evidence that states what the
+      sentence says, and copy it word for word as the quote.
+    - A sentence is supported only if the quote states it. Conclusions, inferences,
+      generalizations or details that the evidence does not state are NOT supported.
+    - Keep only supported sentences, each with its quote and its [Q<n>] citation exactly
+      as written. Drop every other sentence. Do not add anything.
+    - If the level is C, keep the sentence saying that scholars differ.
+    - Keep the draft's language.
+    Then judge coverage: full (the evidence answers the question), partial (it answers part
+    of it) or none (it does not answer it).
+  expected_output: >
+    The supported sentences, each with its quote, and the coverage.
+  agent: verifier
+  context:
+    - write

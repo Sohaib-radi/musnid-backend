@@ -104,3 +104,133 @@ which satisfies every wheel listed.
 | Package | Version | Role | Notes |
 | --- | --- | --- | --- |
 | `crewai` | 1.9.3 | AI agent orchestration. | Not installed yet. Constrains Python to `>=3.10,<3.14` and python-dotenv to `~=1.1.1`. |
+
+
+## CrewAI and its dependencies
+
+`crewai` 1.9.3 runs the agents ([ADR 0016](architecture/decisions/0016-question-answering-flow.md)).
+Installing it added the 118 packages below (generated from each package's metadata on
+2026-10-04). All have wheels for macOS 12 Intel, Linux x86_64 and Linux aarch64; on macOS 12
+`onnxruntime` resolves to 1.19.2 as predicted by ADR 0001. Except `crewai`, `openai` and
+`pydantic`, they are transitive. Telemetry and tracing are disabled in settings.
+
+| Package | Version | License |
+| --- | --- | --- |
+| `aiohappyeyeballs` | 2.7.1 | Python Software Foundation License |
+| `aiohttp` | 3.14.3 | Apache-2.0 AND MIT |
+| `aiosignal` | 1.4.0 | Apache Software License |
+| `aiosqlite` | 0.21.0 | MIT License |
+| `annotated-doc` | 0.0.5 | MIT |
+| `annotated-types` | 0.8.0 | MIT |
+| `anyio` | 4.15.1 | MIT |
+| `appdirs` | 1.4.4 | MIT License |
+| `backoff` | 2.2.1 | MIT License |
+| `bcrypt` | 5.0.0 | Apache Software License |
+| `build` | 1.6.1 | MIT |
+| `certifi` | 2026.7.22 | Mozilla Public License 2.0 (MPL 2.0) |
+| `cfgv` | 3.5.0 | MIT |
+| `charset-normalizer` | 3.5.2 | MIT |
+| `chromadb` | 1.1.1 | Apache Software License |
+| `click` | 8.1.8 | BSD License |
+| `coloredlogs` | 15.0.1 | MIT License |
+| `crewai` | 1.9.3 | MIT (from the repository's LICENSE; the wheel declares none) |
+| `diskcache` | 5.6.3 | Apache Software License |
+| `distlib` | 0.4.3 | Python Software Foundation License |
+| `distro` | 1.9.0 | Apache Software License |
+| `docstring_parser` | 0.18.0 | MIT License |
+| `durationpy` | 0.11 | MIT |
+| `et_xmlfile` | 2.0.0 | MIT License |
+| `filelock` | 4.0.10 | MIT |
+| `flatbuffers` | 25.12.19 | Apache Software License |
+| `frozenlist` | 1.8.0 | Apache-2.0 |
+| `fsspec` | 2026.9.0 | BSD-3-Clause |
+| `googleapis-common-protos` | 1.75.0 | Apache Software License |
+| `grpcio` | 1.84.0 | Apache-2.0 |
+| `h11` | 0.16.0 | MIT License |
+| `hf-xet` | 1.6.0 | Apache-2.0 |
+| `httpcore` | 1.0.9 | BSD-3-Clause |
+| `httptools` | 0.8.0 | MIT |
+| `httpx` | 0.28.1 | BSD License |
+| `httpx-sse` | 0.4.3 | MIT |
+| `huggingface_hub` | 0.36.2 | Apache Software License |
+| `humanfriendly` | 10.0 | MIT License |
+| `identify` | 2.6.20 | MIT |
+| `idna` | 3.20 | BSD-3-Clause |
+| `importlib_metadata` | 8.7.1 | Apache-2.0 |
+| `importlib_resources` | 7.1.0 | Apache-2.0 |
+| `instructor` | 1.12.0 | MIT |
+| `Jinja2` | 3.1.6 | BSD License |
+| `jiter` | 0.10.0 | MIT License |
+| `json5` | 0.10.0 | Apache Software License |
+| `json_repair` | 0.25.3 | MIT License |
+| `jsonref` | 1.1.0 | MIT |
+| `kubernetes` | 36.0.3 | Apache Software License |
+| `markdown-it-py` | 4.2.0 | MIT License |
+| `MarkupSafe` | 3.0.4 | BSD-3-Clause |
+| `mcp` | 1.23.3 | MIT License |
+| `mdurl` | 0.1.2 | MIT License |
+| `mmh3` | 5.3.1 | MIT License |
+| `mpmath` | 1.3.0 | BSD License |
+| `multidict` | 6.9.1 | Apache License 2.0 |
+| `nodeenv` | 1.11.0 | BSD License |
+| `numpy` | 2.5.3 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |
+| `oauthlib` | 4.0.0 | BSD-3-Clause |
+| `onnxruntime` | 1.19.2 | MIT License |
+| `openai` | 1.83.0 | Apache Software License |
+| `openpyxl` | 3.1.5 | MIT License |
+| `opentelemetry-api` | 1.34.1 | Apache Software License |
+| `opentelemetry-exporter-otlp-proto-common` | 1.34.1 | Apache Software License |
+| `opentelemetry-exporter-otlp-proto-grpc` | 1.34.1 | Apache Software License |
+| `opentelemetry-exporter-otlp-proto-http` | 1.34.1 | Apache Software License |
+| `opentelemetry-proto` | 1.34.1 | Apache Software License |
+| `opentelemetry-sdk` | 1.34.1 | Apache Software License |
+| `opentelemetry-semantic-conventions` | 0.55b1 | Apache Software License |
+| `orjson` | 3.12.0 | MPL-2.0 AND (Apache-2.0 OR MIT) |
+| `overrides` | 7.7.0 | Apache License, Version 2.0 |
+| `packaging` | 26.3 | Apache-2.0 OR BSD-2-Clause |
+| `pdfminer.six` | 20260107 | MIT |
+| `pdfplumber` | 0.11.10 | MIT License |
+| `platformdirs` | 4.12.3 | MIT |
+| `portalocker` | 2.7.0 | BSD-3-Clause |
+| `posthog` | 5.4.0 | MIT License |
+| `pre_commit` | 4.6.2 | MIT |
+| `propcache` | 0.5.4 | Apache-2.0 |
+| `protobuf` | 5.29.6 | 3-Clause BSD License |
+| `pybase64` | 1.5.0 | BSD-2-Clause |
+| `pydantic` | 2.11.10 | MIT |
+| `pydantic-settings` | 2.10.1 | MIT |
+| `pydantic_core` | 2.33.2 | MIT License |
+| `Pygments` | 2.21.0 | BSD-2-Clause |
+| `pypdfium2` | 5.11.0 | BSD-3-Clause, Apache-2.0, dependency lic |
+| `PyPika` | 0.51.1 | Apache Software License |
+| `pyproject_hooks` | 1.3.3 | MIT |
+| `python-dateutil` | 2.9.0.post0 | BSD License, Apache Software License |
+| `python-discovery` | 1.6.1 | MIT License |
+| `python-multipart` | 0.0.32 | Apache-2.0 |
+| `regex` | 2024.9.11 | Apache Software License |
+| `requests` | 2.34.2 | Apache Software License |
+| `requests-oauthlib` | 2.0.0 | BSD License |
+| `rich` | 14.3.4 | MIT License |
+| `shellingham` | 1.5.4 | ISC License (ISCL) |
+| `six` | 1.17.0 | MIT License |
+| `sniffio` | 1.3.1 | MIT License, Apache Software License |
+| `sse-starlette` | 3.5.0 | BSD-3-Clause |
+| `starlette` | 1.7.0 | BSD-3-Clause |
+| `sympy` | 1.14.0 | BSD License |
+| `tenacity` | 9.1.4 | Apache Software License |
+| `tokenizers` | 0.20.3 | Apache Software License |
+| `tomli` | 2.0.2 | MIT License |
+| `tomli_w` | 1.1.0 | MIT License |
+| `tqdm` | 4.70.1 | MPL-2.0 AND MIT |
+| `typer` | 0.27.2 | MIT |
+| `typing-inspection` | 0.4.4 | MIT |
+| `urllib3` | 2.8.0 | MIT |
+| `uv` | 0.9.30 | MIT License, Apache Software License |
+| `uvicorn` | 0.54.0 | BSD-3-Clause |
+| `uvloop` | 0.23.0 | Apache Software License, MIT License |
+| `virtualenv` | 21.14.5 | MIT |
+| `watchfiles` | 1.3.0 | MIT License |
+| `websocket-client` | 1.9.2 | Apache-2.0 |
+| `websockets` | 17.2 | BSD-3-Clause |
+| `yarl` | 1.25.1 | Apache-2.0 |
+| `zipp` | 4.1.1 | MIT |

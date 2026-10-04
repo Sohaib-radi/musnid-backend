@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 12:28+0000\n"
+"POT-Creation-Date: 2026-10-04 14:17+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -12,6 +12,41 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: agents/apps.py:11
+msgid "Agents"
+msgstr "الوكلاء"
+
+#: agents/flow.py:49
+msgid ""
+"This service only answers questions about Islam. Please ask a question about "
+"Islam."
+msgstr ""
+"هذه الخدمة تجيب عن الأسئلة المتعلقة بالإسلام فقط. يُرجى طرح سؤال عن الإسلام."
+
+#: agents/flow.py:51
+msgid ""
+"Your question needs a specialist. It has been referred to a center of "
+"specialists, who will answer you."
+msgstr "سؤالك يحتاج إلى مختص، وقد أُحيل إلى مركز من المختصين ليجيبك."
+
+#: agents/flow.py:53
+msgid ""
+"We could not find an answer to this question in our sources. Please rephrase "
+"it or ask a center of specialists."
+msgstr ""
+"لم نجد جوابًا لهذا السؤال في مصادرنا. يُرجى إعادة صياغته أو سؤال مركز من "
+"المختصين."
+
+#: agents/flow.py:55
+msgid "Note: our sources answer this question only in part."
+msgstr "ملاحظة: مصادرنا تجيب عن هذا السؤال جزئيًّا فقط."
+
+#: agents/flow.py:56
+msgid ""
+"This matter involves scholarly disagreement; consult a specialist for your "
+"situation."
+msgstr "في هذه المسألة خلاف بين العلماء؛ استشر مختصًّا في حالتك."
 
 #: api/apps.py:11
 msgid "API"
@@ -46,15 +81,15 @@ msgstr "يوجد مركز بهذا الاسم بالفعل."
 msgid "Unknown country code."
 msgstr "رمز الدولة غير معروف."
 
-#: config/settings.py:136 core/models/choices.py:16
+#: config/settings.py:139 core/models/choices.py:16
 msgid "Arabic"
 msgstr "العربية"
 
-#: config/settings.py:137 core/models/choices.py:17
+#: config/settings.py:140 core/models/choices.py:17
 msgid "English"
 msgstr "الإنجليزية"
 
-#: config/settings.py:138 core/models/choices.py:18
+#: config/settings.py:141 core/models/choices.py:18
 msgid "French"
 msgstr "الفرنسية"
 
@@ -98,15 +133,20 @@ msgstr "الإعدادات"
 msgid "API Keys"
 msgstr "مفاتيح API"
 
-#: config/unfold.py:138
+#: config/unfold.py:135 core/models/ai_settings.py:31
+#: core/models/ai_settings.py:32
+msgid "AI settings"
+msgstr "إعدادات الذكاء الاصطناعي"
+
+#: config/unfold.py:140
 msgid "Security"
 msgstr "الأمان"
 
-#: config/unfold.py:141
+#: config/unfold.py:143
 msgid "Outstanding tokens"
 msgstr "الرموز الصادرة"
 
-#: config/unfold.py:143
+#: config/unfold.py:145
 msgid "Blacklisted tokens"
 msgstr "الرموز الملغاة"
 
@@ -240,6 +280,26 @@ msgstr[2] "عدد مفاتيح API التي أُلغيت: %(count)d."
 msgstr[3] "عدد مفاتيح API التي أُلغيت: %(count)d."
 msgstr[4] "عدد مفاتيح API التي أُلغيت: %(count)d."
 msgstr[5] "عدد مفاتيح API التي أُلغيت: %(count)d."
+
+#: core/models/ai_settings.py:21
+msgid "chat model"
+msgstr "نموذج المحادثة"
+
+#: core/models/ai_settings.py:22
+msgid "OpenAI model used by the crews, for example gpt-4o-mini."
+msgstr "نموذج OpenAI الذي تستخدمه الفرق، مثل ⁦gpt-4o-mini⁩."
+
+#: core/models/ai_settings.py:24
+msgid "temperature"
+msgstr "درجة الحرارة"
+
+#: core/models/ai_settings.py:26
+msgid "verifier model"
+msgstr "نموذج المدقق"
+
+#: core/models/ai_settings.py:27
+msgid "Model for the verifier step only, e.g. gpt-4o. Empty: the chat model."
+msgstr "نموذج لخطوة التدقيق فقط، مثل ⁦gpt-4o⁩. إن تُرك فارغًا: نموذج المحادثة."
 
 #: core/models/base.py:28
 msgid "created at"
@@ -563,12 +623,12 @@ msgid "Cancel"
 msgstr "إلغاء"
 
 #: core/templates/admin/core/center/review_buttons.html:5
-#: core/templates/admin/core/center/review_buttons.html:17
+#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:84
 msgid "Approve"
 msgstr "موافقة"
 
 #: core/templates/admin/core/center/review_buttons.html:7
-#: core/templates/admin/core/center/review_buttons.html:31
+#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:86
 msgid "Reject"
 msgstr "رفض"
 
@@ -595,7 +655,7 @@ msgstr "المقاطع"
 msgid "title"
 msgstr "العنوان"
 
-#: knowledge/models.py:24 knowledge/models.py:51
+#: knowledge/models.py:24 knowledge/models.py:51 qa/models.py:19
 msgid "language"
 msgstr "اللغة"
 
@@ -623,7 +683,7 @@ msgstr "السؤال"
 msgid "Summary"
 msgstr "الملخص"
 
-#: knowledge/models.py:44
+#: knowledge/models.py:44 qa/models.py:45
 msgid "Answer"
 msgstr "الجواب"
 
@@ -639,7 +699,7 @@ msgstr "رقم السؤال"
 msgid "kind"
 msgstr "النوع"
 
-#: knowledge/models.py:53
+#: knowledge/models.py:53 qa/models.py:18
 msgid "text"
 msgstr "النص"
 
@@ -662,3 +722,131 @@ msgstr "مقطع مصدر"
 #: knowledge/models.py:60
 msgid "source chunks"
 msgstr "مقاطع المصادر"
+
+#: qa/apps.py:11
+msgid "Questions and answers"
+msgstr "الأسئلة والأجوبة"
+
+#: qa/models.py:20
+msgid "session"
+msgstr "الجلسة"
+
+#: qa/models.py:23 qa/models.py:52
+msgid "question"
+msgstr "سؤال"
+
+#: qa/models.py:24
+msgid "questions"
+msgstr "الأسئلة"
+
+#: qa/models.py:40 qa/models.py:49
+msgid "Out of scope"
+msgstr "خارج النطاق"
+
+#: qa/models.py:46
+msgid "Partial answer"
+msgstr "جواب جزئي"
+
+#: qa/models.py:47
+msgid "Abstain"
+msgstr "امتناع"
+
+#: qa/models.py:48
+msgid "Referred to a center"
+msgstr "أُحيل إلى مركز"
+
+#: qa/models.py:54
+msgid "level"
+msgstr "المستوى"
+
+#: qa/models.py:55
+msgid "search query"
+msgstr "عبارة البحث"
+
+#: qa/models.py:56
+msgid "retrieved"
+msgstr "نتائج الاسترجاع"
+
+#: qa/models.py:57
+msgid "Ranked results: question number, score, chunk kind."
+msgstr "النتائج مرتبة: رقم السؤال، الدرجة، نوع المقطع."
+
+#: qa/models.py:58
+msgid "evidence question numbers"
+msgstr "أرقام أسئلة الأدلة"
+
+#: qa/models.py:59
+msgid "answer"
+msgstr "الجواب"
+
+#: qa/models.py:60
+msgid "citations"
+msgstr "الإحالات"
+
+#: qa/models.py:61
+msgid "decision"
+msgstr "القرار"
+
+#: qa/models.py:62
+msgid "verifier verdict"
+msgstr "حكم المدقق"
+
+#: qa/models.py:63
+msgid "model"
+msgstr "النموذج"
+
+#: qa/models.py:64
+msgid "prompt version"
+msgstr "إصدار التعليمات"
+
+#: qa/models.py:65
+msgid "latency (ms)"
+msgstr "زمن الاستجابة (ملّي ثانية)"
+
+#: qa/models.py:66
+msgid "input tokens"
+msgstr "رموز الإدخال"
+
+#: qa/models.py:67
+msgid "output tokens"
+msgstr "رموز الإخراج"
+
+#: qa/models.py:68
+msgid "error"
+msgstr "الخطأ"
+
+#: qa/models.py:71 qa/models.py:89
+msgid "interaction"
+msgstr "تفاعل"
+
+#: qa/models.py:72
+msgid "interactions"
+msgstr "التفاعلات"
+
+#: qa/models.py:85
+msgid "Correct"
+msgstr "تصحيح"
+
+#: qa/models.py:93
+msgid "reviewer"
+msgstr "المراجع"
+
+#: qa/models.py:95
+msgid "verdict"
+msgstr "الحكم"
+
+#: qa/models.py:96
+msgid "corrected answer"
+msgstr "الجواب المصحَّح"
+
+#: qa/models.py:97
+msgid "reason"
+msgstr "السبب"
+
+#: qa/models.py:100
+msgid "human label"
+msgstr "تقييم بشري"
+
+#: qa/models.py:101
+msgid "human labels"
+msgstr "التقييمات البشرية"

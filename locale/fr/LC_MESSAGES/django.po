@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 12:28+0000\n"
+"POT-Creation-Date: 2026-10-04 14:17+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: French\n"
@@ -12,6 +12,46 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: agents/apps.py:11
+msgid "Agents"
+msgstr "Agents"
+
+#: agents/flow.py:49
+msgid ""
+"This service only answers questions about Islam. Please ask a question about "
+"Islam."
+msgstr ""
+"Ce service répond uniquement aux questions sur l’islam. Veuillez poser une "
+"question sur l’islam."
+
+#: agents/flow.py:51
+msgid ""
+"Your question needs a specialist. It has been referred to a center of "
+"specialists, who will answer you."
+msgstr ""
+"Votre question nécessite un spécialiste. Elle a été transmise à un centre de "
+"spécialistes, qui vous répondra."
+
+#: agents/flow.py:53
+msgid ""
+"We could not find an answer to this question in our sources. Please rephrase "
+"it or ask a center of specialists."
+msgstr ""
+"Nous n’avons pas trouvé de réponse à cette question dans nos sources. "
+"Veuillez la reformuler ou interroger un centre de spécialistes."
+
+#: agents/flow.py:55
+msgid "Note: our sources answer this question only in part."
+msgstr "Remarque : nos sources ne répondent qu’en partie à cette question."
+
+#: agents/flow.py:56
+msgid ""
+"This matter involves scholarly disagreement; consult a specialist for your "
+"situation."
+msgstr ""
+"Cette question fait l’objet de divergences entre savants ; consultez un "
+"spécialiste pour votre situation."
 
 #: api/apps.py:11
 msgid "API"
@@ -48,15 +88,15 @@ msgstr "Un centre portant ce nom existe déjà."
 msgid "Unknown country code."
 msgstr "Code de pays inconnu."
 
-#: config/settings.py:136 core/models/choices.py:16
+#: config/settings.py:139 core/models/choices.py:16
 msgid "Arabic"
 msgstr "Arabe"
 
-#: config/settings.py:137 core/models/choices.py:17
+#: config/settings.py:140 core/models/choices.py:17
 msgid "English"
 msgstr "Anglais"
 
-#: config/settings.py:138 core/models/choices.py:18
+#: config/settings.py:141 core/models/choices.py:18
 msgid "French"
 msgstr "Français"
 
@@ -100,15 +140,20 @@ msgstr "Configuration"
 msgid "API Keys"
 msgstr "Clés d’API"
 
-#: config/unfold.py:138
+#: config/unfold.py:135 core/models/ai_settings.py:31
+#: core/models/ai_settings.py:32
+msgid "AI settings"
+msgstr "Paramètres IA"
+
+#: config/unfold.py:140
 msgid "Security"
 msgstr "Sécurité"
 
-#: config/unfold.py:141
+#: config/unfold.py:143
 msgid "Outstanding tokens"
 msgstr "Jetons émis"
 
-#: config/unfold.py:143
+#: config/unfold.py:145
 msgid "Blacklisted tokens"
 msgstr "Jetons révoqués"
 
@@ -222,6 +267,28 @@ msgid "%(count)d API key was revoked."
 msgid_plural "%(count)d API keys were revoked."
 msgstr[0] "%(count)d clé d’API a été révoquée."
 msgstr[1] "%(count)d clés d’API ont été révoquées."
+
+#: core/models/ai_settings.py:21
+msgid "chat model"
+msgstr "modèle de conversation"
+
+#: core/models/ai_settings.py:22
+msgid "OpenAI model used by the crews, for example gpt-4o-mini."
+msgstr "Modèle OpenAI utilisé par les équipes, par exemple gpt-4o-mini."
+
+#: core/models/ai_settings.py:24
+msgid "temperature"
+msgstr "température"
+
+#: core/models/ai_settings.py:26
+msgid "verifier model"
+msgstr "modèle du vérificateur"
+
+#: core/models/ai_settings.py:27
+msgid "Model for the verifier step only, e.g. gpt-4o. Empty: the chat model."
+msgstr ""
+"Modèle pour l’étape de vérification uniquement, par exemple gpt-4o. Vide : le"
+" modèle de conversation."
 
 #: core/models/base.py:28
 msgid "created at"
@@ -548,12 +615,12 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: core/templates/admin/core/center/review_buttons.html:5
-#: core/templates/admin/core/center/review_buttons.html:17
+#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:84
 msgid "Approve"
 msgstr "Approuver"
 
 #: core/templates/admin/core/center/review_buttons.html:7
-#: core/templates/admin/core/center/review_buttons.html:31
+#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:86
 msgid "Reject"
 msgstr "Refuser"
 
@@ -582,7 +649,7 @@ msgstr "extraits"
 msgid "title"
 msgstr "titre"
 
-#: knowledge/models.py:24 knowledge/models.py:51
+#: knowledge/models.py:24 knowledge/models.py:51 qa/models.py:19
 msgid "language"
 msgstr "langue"
 
@@ -610,7 +677,7 @@ msgstr "Question"
 msgid "Summary"
 msgstr "Résumé"
 
-#: knowledge/models.py:44
+#: knowledge/models.py:44 qa/models.py:45
 msgid "Answer"
 msgstr "Réponse"
 
@@ -626,7 +693,7 @@ msgstr "numéro de la question"
 msgid "kind"
 msgstr "type"
 
-#: knowledge/models.py:53
+#: knowledge/models.py:53 qa/models.py:18
 msgid "text"
 msgstr "texte"
 
@@ -649,3 +716,131 @@ msgstr "extrait de source"
 #: knowledge/models.py:60
 msgid "source chunks"
 msgstr "extraits de sources"
+
+#: qa/apps.py:11
+msgid "Questions and answers"
+msgstr "Questions et réponses"
+
+#: qa/models.py:20
+msgid "session"
+msgstr "session"
+
+#: qa/models.py:23 qa/models.py:52
+msgid "question"
+msgstr "question"
+
+#: qa/models.py:24
+msgid "questions"
+msgstr "questions"
+
+#: qa/models.py:40 qa/models.py:49
+msgid "Out of scope"
+msgstr "Hors champ"
+
+#: qa/models.py:46
+msgid "Partial answer"
+msgstr "Réponse partielle"
+
+#: qa/models.py:47
+msgid "Abstain"
+msgstr "Abstention"
+
+#: qa/models.py:48
+msgid "Referred to a center"
+msgstr "Transmise à un centre"
+
+#: qa/models.py:54
+msgid "level"
+msgstr "niveau"
+
+#: qa/models.py:55
+msgid "search query"
+msgstr "requête de recherche"
+
+#: qa/models.py:56
+msgid "retrieved"
+msgstr "résultats récupérés"
+
+#: qa/models.py:57
+msgid "Ranked results: question number, score, chunk kind."
+msgstr "Résultats classés : numéro de question, score, type d’extrait."
+
+#: qa/models.py:58
+msgid "evidence question numbers"
+msgstr "numéros des questions de preuve"
+
+#: qa/models.py:59
+msgid "answer"
+msgstr "réponse"
+
+#: qa/models.py:60
+msgid "citations"
+msgstr "citations"
+
+#: qa/models.py:61
+msgid "decision"
+msgstr "décision"
+
+#: qa/models.py:62
+msgid "verifier verdict"
+msgstr "verdict du vérificateur"
+
+#: qa/models.py:63
+msgid "model"
+msgstr "modèle"
+
+#: qa/models.py:64
+msgid "prompt version"
+msgstr "version des consignes"
+
+#: qa/models.py:65
+msgid "latency (ms)"
+msgstr "latence (ms)"
+
+#: qa/models.py:66
+msgid "input tokens"
+msgstr "jetons d’entrée"
+
+#: qa/models.py:67
+msgid "output tokens"
+msgstr "jetons de sortie"
+
+#: qa/models.py:68
+msgid "error"
+msgstr "erreur"
+
+#: qa/models.py:71 qa/models.py:89
+msgid "interaction"
+msgstr "interaction"
+
+#: qa/models.py:72
+msgid "interactions"
+msgstr "interactions"
+
+#: qa/models.py:85
+msgid "Correct"
+msgstr "Corriger"
+
+#: qa/models.py:93
+msgid "reviewer"
+msgstr "réviseur"
+
+#: qa/models.py:95
+msgid "verdict"
+msgstr "verdict"
+
+#: qa/models.py:96
+msgid "corrected answer"
+msgstr "réponse corrigée"
+
+#: qa/models.py:97
+msgid "reason"
+msgstr "motif"
+
+#: qa/models.py:100
+msgid "human label"
+msgstr "évaluation humaine"
+
+#: qa/models.py:101
+msgid "human labels"
+msgstr "évaluations humaines"
