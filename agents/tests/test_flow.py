@@ -125,6 +125,12 @@ class AnswerTests(FlowTestCase):
         ]))
         self.assertEqual(interaction.answer_text, 'جملة مدعومة [Q1].')
 
+    def test_translated_quote_counts_as_missing(self):
+        interaction = self.run_ask(classified(language='en'), answered([
+            ('Islam did not spread by the sword [Q1].', 'Islam did not spread by the sword.'),
+        ]))
+        self.assertEqual(interaction.decision, 'refer')
+
     def test_quote_matching_ignores_diacritics_and_punctuation(self):
         interaction = self.run_ask(classified(), answered(quote='لَمْ يَنتشرِ الإسلامُ - بالسيف'))
         self.assertEqual(interaction.decision, 'answer')

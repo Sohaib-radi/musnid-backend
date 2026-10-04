@@ -80,7 +80,7 @@ class QAState(BaseModel):
     error: str = ''
     tokens_in: int = 0
     tokens_out: int = 0
-    dropped_sentences: int = 0
+    dropped: list[dict] = []  # sentences removed by the quote check, with their quote
 
 
 class AskFlow(Flow[QAState]):
@@ -187,12 +187,17 @@ class AskFlow(Flow[QAState]):
         Quotes are compared after Arabic normalization and with punctuation
         removed, so diacritics or punctuation differences do not matter; a quote
         shorter than ``MIN_QUOTE_CHARS`` or absent from the evidence drops its
-        sentence. The level-C sentence is the writer's, so it needs a quote too.
+        sentence. Quotes must be in the evidence's language (Arabic): a translated
+        or paraphrased quote cannot match, so it counts as missing. The level-C sentence is the writer's, so it needs a quote too.
         """
         evidence = _comparable(self.state.evidence)
-        kept = [s.text.strip() for s in sentences
-                if len(_comparable(s.quote)) >= MIN_QUOTE_CHARS and _comparable(s.quote) in evidence]
-        self.state.dropped_sentences = len(sentences) - len(kept)
+        kept = []
+        for sentence in sentences:
+            quote = _comparable(sentence.quote)
+            if len(quote) >= MIN_QUOTE_CHARS and quote in evidence:
+                kept.append(sentence.text.strip())
+            else:
+                self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote})
         return ' '.join(kept)
 
     def decide(self, answer, coverage):

@@ -37,8 +37,10 @@ class SupportedSentence(BaseModel):
         'e.g. "Islam spread through invitation [Q229]."'
     ))
     quote: str = Field(description=(
-        'An exact, contiguous passage copied from the evidence (in the evidence language) that '
-        'states what the sentence says. Empty if there is none: the sentence will be dropped.'
+        'An exact, contiguous passage copied word for word from the evidence, in the evidence\'s '
+        'original language (Arabic), even when the sentence is in English or French. Never translate '
+        'or paraphrase it: a translated or paraphrased quote counts as missing and the sentence is '
+        'dropped. Empty if there is none.'
     ))
 
 

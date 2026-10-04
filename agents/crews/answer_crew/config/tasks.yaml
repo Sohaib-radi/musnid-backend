@@ -33,7 +33,9 @@ verify:
 
     Check the writer's draft against the evidence, sentence by sentence:
     - For each sentence, find an exact passage of the evidence that states what the
-      sentence says, and copy it word for word as the quote.
+      sentence says, and copy it word for word as the quote, in the evidence's original
+      language (Arabic), even when the answer is in English or French. Never translate or
+      paraphrase the quote: a translated or paraphrased quote counts as missing.
     - A sentence is supported only if the quote states it. Conclusions, inferences,
       generalizations or details that the evidence does not state are NOT supported.
     - Keep only supported sentences, each with its quote and its [Q<n>] citation exactly

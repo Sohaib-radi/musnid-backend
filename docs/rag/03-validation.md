@@ -60,6 +60,13 @@ Each sentence was matched by hand to the evidence (#229's 7 chunks, 1,789 words)
 | gpt-4o-mini, quotes + code check | Arabic 1 of 2, English 5 of 5 | English: "promise of safety and respect for their rights"; "predominantly peaceful" with a quote about the Ottoman conquest |
 | gpt-4o, quotes + code check | Arabic 4 of 4, English 7 of 8 | Arabic: "لم يفرض الجزية إلا بعد أن استقر الدين في معظم القبائل" (the evidence only dates the jizya to year 8 or 9 AH) |
 
+Re-run after requiring quotes in the evidence's original language (Arabic), 2026-10-04,
+verifier gpt-4o: 0 sentences dropped in either answer (every quote was a real Arabic
+passage), yet unsupported claims were kept: Arabic "…لم يفرض الجزية إلا بعد أن استقر
+الإسلام في معظم المناطق… مما يدل على عدم الإكراه في الدين"; English "the migration to Medina…
+allowed for the peaceful propagation of Islam". The quote check enforces provenance, not
+entailment.
+
 Decisions from these results: `LOW_THRESHOLD = 0.30` as a starting value;
 `EVIDENCE_QUESTIONS = 3`. Calibration with the 60-question evaluation is planned for
 2026-10-06.
