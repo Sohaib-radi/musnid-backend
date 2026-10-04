@@ -15,7 +15,8 @@ updating this page in the same commit.
 | Component | Version | Role | License |
 | --- | --- | --- | --- |
 | Python | 3.12 (image `python:3.12-slim`) | Language runtime. Version chosen in [ADR 0001](architecture/decisions/0001-python-3-12.md). | PSF-2.0 |
-| PostgreSQL with pgvector | image `pgvector/pgvector:pg17` | Primary database; pgvector stores and searches embeddings. | PostgreSQL License |
+| PostgreSQL with pgvector | image `pgvector/pgvector:pg17` (pgvector 0.8.7 measured) | Primary database; pgvector stores and searches embeddings. | PostgreSQL License |
+| GNU gettext | 0.26 on the development machine | `makemessages` and `compilemessages`; development only, not in the image. | GPL-3.0-or-later |
 | Docker Compose | v2 | Runs the `db` and `web` services locally. | Apache-2.0 |
 
 ## Python packages
@@ -26,6 +27,8 @@ The file is the output of `pip freeze`, so it also pins transitive dependencies.
 | Package | Version | Role | License |
 | --- | --- | --- | --- |
 | `Django` | 6.0.8 | Web framework: ORM, admin, migrations, test runner. | BSD-3-Clause |
+| `django-countries` | 9.1.0 | `CountryField` (ISO 3166-1 codes) for `Center.country`, with country names translated into Arabic and French. | MIT |
+| `Pillow` | 12.3.0 | Image processing required by Django's `ImageField` (`User.avatar`, `Center.logo`). | MIT-CMU |
 | `asgiref` | 3.12.1 | ASGI support; required by Django. | BSD-3-Clause |
 | `sqlparse` | 0.6.0 | SQL formatting; required by Django. | BSD-3-Clause |
 | `psycopg` | 3.3.6 | PostgreSQL driver (psycopg 3) used by Django's PostgreSQL backend. | LGPL-3.0-only |
@@ -44,13 +47,13 @@ obligations on this project's own code.
 
 Every pin was checked for a prebuilt CPython 3.12 wheel with
 `pip download --only-binary=:all: --no-deps --python-version 3.12 --platform ...`
-on 2026-10-04. All nine packages resolved on all three platforms.
+on 2026-10-04. All eleven packages resolved on all three platforms.
 
 | Platform | Platform tag passed | `psycopg-binary` wheel found | Other packages |
 | --- | --- | --- | --- |
-| macOS 12 Intel | `macosx_12_0_x86_64` | `macosx_10_13_x86_64` | pure Python (`py3-none-any`) |
-| Linux x86_64 | `manylinux_2_17` to `manylinux_2_36`, `manylinux2014` | `manylinux_2_17_x86_64` | pure Python |
-| Linux aarch64 | `manylinux_2_17` to `manylinux_2_36`, `manylinux2014` | `manylinux_2_28_aarch64` | pure Python |
+| macOS 12 Intel | `macosx_12_0_x86_64` | `macosx_10_13_x86_64` | Pillow `macosx_10_13_x86_64`; others pure Python (`py3-none-any`) |
+| Linux x86_64 | `manylinux_2_17` to `manylinux_2_36`, `manylinux2014` | `manylinux_2_17_x86_64` | Pillow `manylinux_2_28_x86_64`; others pure Python |
+| Linux aarch64 | `manylinux_2_17` to `manylinux_2_36`, `manylinux2014` | `manylinux_2_28_aarch64` | Pillow `manylinux_2_28_aarch64`; others pure Python |
 
 `pip download --platform` accepts only the exact tags given and does not expand to
 older glibc tags. A single `--platform manylinux_2_28_x86_64` therefore misses the

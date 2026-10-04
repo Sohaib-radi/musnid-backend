@@ -19,16 +19,19 @@ written as Docusaurus content; this repository holds the Markdown only.
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Project skeleton | Done | Django 6.0 project `config`, app `core` (empty). |
+| Project skeleton | Done | Django 6.0 project `config`, app `core`. |
 | Configuration | Done | Environment variables, optional `.env`; see [Configuration](getting-started/configuration.md). |
 | Database | Done | PostgreSQL 17 with pgvector, via Docker Compose on port 5435. |
 | Docker | Done | `db` service always; `web` service (gunicorn) under the `web` profile on port 8011. |
-| Tests | Done | 22 tests against a real PostgreSQL test database; see [Testing](development/testing.md). |
+| Domain models | Done | `User` (email login), `Center` (single default), `Membership` (roles, history); see [Models](reference/models.md). |
+| Center scoping | Done | Explicit `for_center()`; see [Tenancy](architecture/tenancy.md). |
+| Membership rules | Done | `add_member`, `change_role`, `offboard`; a center keeps one active admin. |
+| Tests | Done | 119 tests against a real PostgreSQL test database; see [Testing](development/testing.md). |
 | Static files in Docker | Known limitation | gunicorn does not serve `/static/` yet; use `runserver` for development. WhiteNoise or nginx comes with deployment. |
-| Internationalisation (Arabic, French) | Not started | Required for every user-facing string once such strings exist. |
+| Internationalisation (Arabic, French) | Done | 50 strings, fully translated; see [Translations](development/translations.md). |
 | Source ingestion and RAG | Not started | Will be documented under `docs/rag/`. |
 | AI agents (CrewAI) | Not started | CrewAI 1.9.3 is planned; it constrains the Python version (ADR 0001). |
-| Specialist centers | Not started | |
+| Admin and API | Not started | |
 
 ## Where to go next
 
@@ -36,4 +39,6 @@ written as Docusaurus content; this repository holds the Markdown only.
 - [Docker](getting-started/docker.md): run the database and the application in containers.
 - [Configuration](getting-started/configuration.md): every environment variable.
 - [Technology stack](technology-stack.md): dependencies, versions and licenses.
-- [ADR 0001](architecture/decisions/0001-python-3-12.md): why Python 3.12.
+- [Models](reference/models.md) and [Data model](architecture/data-model.md).
+- [Tenancy](architecture/tenancy.md): how data is scoped to centers.
+- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0007.

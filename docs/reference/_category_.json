@@ -1,0 +1,8 @@
+{
+  "label": "Reference",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Exact definitions: models, fields, constraints and services."
+  }
+}

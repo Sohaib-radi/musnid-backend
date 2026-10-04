@@ -78,12 +78,25 @@ config/            Django project package
   settings.py      all settings, read from the environment
   env.py           typed env readers (required, optional, flag, csv_list)
   urls.py, wsgi.py, asgi.py
-core/              shared app (no models yet)
-  tests/           test package; one module per concern
+core/              domain app
+  models/          one module per concern, all re-exported from core/models/__init__.py
+    base.py        BaseModel, CenterLinkedModel, CenterQuerySet, CreatedByMixin
+    choices.py     Language (must match settings.LANGUAGES)
+    user.py        User, UserManager (email login)
+    center.py      Center (single default)
+    membership.py  Membership, MembershipQuerySet
+  services/        rules spanning several objects (memberships.py)
+  migrations/      0001_initial enables pgvector first
+  tests/           one test_*.py per module
+    support.py     factories (make_user, make_center, make_membership) and test-only models
+    runner.py      TEST_RUNNER: test-only tables, fast password hasher
+    parallel.py    --parallel worker setup; must never import models
+locale/            ar and fr catalogs (.po and .mo, both committed)
 docs/              Docusaurus content (Markdown only)
   getting-started/ local development, Docker, configuration
   architecture/decisions/  ADRs (NNNN-kebab-title.md)
-  development/     testing and other practices
+  reference/       models: every field, method, queryset, constraint
+  development/     testing, translations, migrations
   technology-stack.md      every dependency: version, role, license
 data/raw/, data/processed/ source books and extracted text (git-ignored)
 Dockerfile, docker-compose.yml, .dockerignore
@@ -114,6 +127,8 @@ docker compose up -d db                        # start PostgreSQL + pgvector
 .venv/bin/python manage.py check
 .venv/bin/python manage.py migrate
 .venv/bin/python manage.py test                # needs the db service running
+.venv/bin/python manage.py makemessages -l ar -l fr --ignore=.venv --ignore=docs --ignore=staticfiles --ignore=media --ignore=data
+.venv/bin/python manage.py compilemessages --ignore=.venv
 .venv/bin/python manage.py runserver
 docker compose --profile web up -d --build     # app in Docker (gunicorn)
 docker compose --profile web down
@@ -130,4 +145,28 @@ docker compose --profile web down
 Other projects on the development machine use 5432, 5433, 6379, 8000, 8001 and 5555, and
 the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
 
-<!-- Sections to be added as the project grows: Conventions. -->
+## Conventions
+
+- **User model:** `AUTH_USER_MODEL = 'core.User'`. Refer to it as `settings.AUTH_USER_MODEL`
+  in foreign keys and `get_user_model()` in code, never `django.contrib.auth.models.User`.
+  Login is by email, case-insensitive; look users up with `email__iexact`.
+- **Public identifiers:** never expose integer primary keys outside the backend (URLs,
+  API payloads, Telegram callbacks). Use the model's `uuid` field.
+- **Models:** concrete models subclass `BaseModel`. A model with its own `Meta` writes
+  `class Meta(BaseModel.Meta):` to keep the `-created_at` ordering.
+- **`updated_at`:** `save(update_fields=[...])` must include `'updated_at'`, and
+  `QuerySet.update()` must set `updated_at=timezone.now()`; `auto_now` does not run otherwise.
+- **Center scoping:** center-owned models subclass `CenterLinkedModel`. Its default manager is
+  not scoped: every query on behalf of a center calls `for_center(center)` explicitly (ADR 0005).
+- **Memberships:** users reach centers only through `Membership`. Change memberships through
+  `core.services.memberships` (`add_member`, `change_role`, `offboard`), never by direct
+  saves; deactivate (`offboard`), never delete.
+- **Services:** rules spanning several objects go in `core/services/`, run in a transaction
+  with row locks where needed, and raise `ValidationError` with a `code`.
+- **Constraints:** name every database constraint and give it a translated
+  `violation_error_message`.
+- **Tests:** create objects with the factories in `core/tests/support.py`. A test-only model
+  goes in `support.py` and in `TEST_ONLY_MODELS`.
+- **Translations:** wrap user-facing strings with `gettext_lazy as _`, named placeholders
+  only. Workflow and glossary: `docs/development/translations.md`. Developer-facing
+  exceptions stay in English.

@@ -1,0 +1,221 @@
+# Arabic translation of the Musnid backend.
+msgid ""
+msgstr ""
+"Project-Id-Version: musnid-backend\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-04 08:17+0000\n"
+"PO-Revision-Date: 2026-10-04 08:30+0000\n"
+"Last-Translator: Musnid team\n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: config/settings.py:123 core/models/choices.py:16
+msgid "Arabic"
+msgstr "العربية"
+
+#: config/settings.py:124 core/models/choices.py:17
+msgid "English"
+msgstr "الإنجليزية"
+
+#: config/settings.py:125 core/models/choices.py:18
+msgid "French"
+msgstr "الفرنسية"
+
+#: core/models/base.py:28
+msgid "created at"
+msgstr "تاريخ الإنشاء"
+
+#: core/models/base.py:29
+msgid "updated at"
+msgstr "تاريخ التحديث"
+
+#: core/models/base.py:74 core/models/center.py:50
+msgid "center"
+msgstr "المركز"
+
+#: core/models/base.py:98
+msgid "created by"
+msgstr "أنشأه"
+
+#: core/models/center.py:21
+msgid "name"
+msgstr "الاسم"
+
+#: core/models/center.py:22
+msgid "slug"
+msgstr "المعرّف في الرابط"
+
+#: core/models/center.py:23
+msgid "country"
+msgstr "الدولة"
+
+#: core/models/center.py:24
+msgid "logo"
+msgstr "الشعار"
+
+#: core/models/center.py:25
+msgid "description"
+msgstr "الوصف"
+
+#: core/models/center.py:26
+msgid "contact email"
+msgstr "البريد الإلكتروني للتواصل"
+
+#: core/models/center.py:27
+msgid "website"
+msgstr "الموقع الإلكتروني"
+
+#: core/models/center.py:29
+msgid "Telegram Group ID"
+msgstr "معرّف مجموعة Telegram"
+
+#: core/models/center.py:33
+msgid ""
+"Telegram group where referred questions are sent, for example -1001234567890."
+msgstr "مجموعة Telegram التي تُرسَل إليها الأسئلة المُحالة، مثل -1001234567890."
+
+#: core/models/center.py:38
+msgid "languages served"
+msgstr "اللغات المخدومة"
+
+#: core/models/center.py:43
+msgid "default center"
+msgstr "المركز الافتراضي"
+
+#: core/models/center.py:45
+msgid "Receives referred questions when no other center is selected."
+msgstr "يستقبل الأسئلة المُحالة عندما لا يُحدَّد مركز آخر."
+
+#: core/models/center.py:47 core/models/membership.py:63
+#: core/models/user.py:107
+msgid "active"
+msgstr "نشط"
+
+#: core/models/center.py:51
+msgid "centers"
+msgstr "المراكز"
+
+#: core/models/center.py:57
+msgid "Only one center can be the default center."
+msgstr "يمكن أن يكون مركز واحد فقط هو المركز الافتراضي."
+
+#: core/models/membership.py:50
+msgid "Specialist"
+msgstr "مختص"
+
+#: core/models/membership.py:51
+msgid "Center admin"
+msgstr "مسؤول المركز"
+
+#: core/models/membership.py:54 core/models/user.py:84
+msgid "public identifier"
+msgstr "المعرّف العام"
+
+#: core/models/membership.py:60 core/models/user.py:129
+msgid "user"
+msgstr "المستخدم"
+
+#: core/models/membership.py:62
+msgid "role"
+msgstr "الدور"
+
+#: core/models/membership.py:64
+msgid "left at"
+msgstr "تاريخ المغادرة"
+
+#: core/models/membership.py:69
+msgid "membership"
+msgstr "العضوية"
+
+#: core/models/membership.py:70
+msgid "memberships"
+msgstr "العضويات"
+
+#: core/models/membership.py:76 core/services/memberships.py:59
+msgid "This user is already an active member of this center."
+msgstr "هذا المستخدم عضو نشط في هذا المركز بالفعل."
+
+#: core/models/membership.py:85
+msgid ""
+"An active membership cannot have a leaving date, and an inactive membership "
+"must have one."
+msgstr "لا يمكن أن يكون للعضوية النشطة تاريخ مغادرة، ويجب أن يكون للعضوية غير النشطة تاريخ مغادرة."
+
+#: core/models/user.py:87
+msgid "email address"
+msgstr "البريد الإلكتروني"
+
+#: core/models/user.py:89 core/models/user.py:135
+msgid "A user with this email address already exists."
+msgstr "يوجد مستخدم بهذا البريد الإلكتروني بالفعل."
+
+#: core/models/user.py:91
+msgid "full name"
+msgstr "الاسم الكامل"
+
+#: core/models/user.py:93
+msgid "preferred language"
+msgstr "اللغة المفضلة"
+
+#: core/models/user.py:98
+msgid "avatar"
+msgstr "الصورة الشخصية"
+
+#: core/models/user.py:100
+msgid "Telegram chat ID"
+msgstr "معرّف محادثة Telegram"
+
+#: core/models/user.py:104
+msgid "Set when the user links their Telegram account."
+msgstr "يُعيَّن عندما يربط المستخدم حسابه على Telegram."
+
+#: core/models/user.py:109
+msgid ""
+"Inactive users cannot log in. Deactivate accounts instead of deleting them."
+msgstr "لا يمكن للمستخدمين غير النشطين تسجيل الدخول. عطّل الحسابات بدلًا من حذفها."
+
+#: core/models/user.py:112
+msgid "staff status"
+msgstr "حالة طاقم الإدارة"
+
+#: core/models/user.py:114
+msgid "Whether the user can log in to the administration site."
+msgstr "يحدد ما إذا كان بإمكان المستخدم الدخول إلى موقع الإدارة."
+
+#: core/models/user.py:117
+msgid "email verified"
+msgstr "البريد الإلكتروني مؤكَّد"
+
+#: core/models/user.py:119
+msgid "Whether the user has confirmed their email address."
+msgstr "يحدد ما إذا كان المستخدم قد أكّد بريده الإلكتروني."
+
+#: core/models/user.py:130
+msgid "users"
+msgstr "المستخدمون"
+
+#: core/services/memberships.py:49
+msgid "No user exists with this email address."
+msgstr "لا يوجد مستخدم بهذا البريد الإلكتروني."
+
+#: core/services/memberships.py:51
+msgid "This user account is deactivated."
+msgstr "حساب هذا المستخدم معطَّل."
+
+#: core/services/memberships.py:119
+#, python-format
+msgid "“%(role)s” is not a valid role."
+msgstr "«%(role)s» ليس دورًا صالحًا."
+
+#: core/services/memberships.py:148
+msgid "This membership has already ended."
+msgstr "انتهت هذه العضوية بالفعل."
+
+#: core/services/memberships.py:156
+msgid "A center must keep at least one active center admin."
+msgstr "يجب أن يحتفظ المركز بمسؤول مركز نشط واحد على الأقل."

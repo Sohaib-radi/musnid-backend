@@ -15,6 +15,7 @@ See https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
+from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
 from config import env
@@ -44,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
+    'django_countries',
     'pgvector.django',
     'core',
 ]
@@ -51,6 +54,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # After sessions (it may read the language from the session), before
+    # CommonMiddleware (which may redirect using the active language).
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -94,7 +100,10 @@ DATABASES = {
 }
 
 
-# Password validation
+# Authentication
+# Custom user identified by email (ADR 0002, ADR 0006).
+
+AUTH_USER_MODEL = 'core.User'
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -105,8 +114,18 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
+# LANGUAGES must match core.models.choices.Language (enforced by a test).
+# Translation workflow: docs/development/translations.md
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
+
+LANGUAGES = [
+    ('ar', _('Arabic')),
+    ('en', _('English')),
+    ('fr', _('French')),
+]
+
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 TIME_ZONE = 'UTC'
 
@@ -124,3 +143,9 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Tests
+# Creates the tables of test-only models (core/tests/support.py).
+
+TEST_RUNNER = 'core.tests.runner.TestRunner'

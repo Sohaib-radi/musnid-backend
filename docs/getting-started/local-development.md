@@ -14,6 +14,7 @@ The application runs from a local virtualenv; PostgreSQL (with pgvector) runs in
 - Python 3.12, available as `python3.12`. The version is fixed by
   [ADR 0001](../architecture/decisions/0001-python-3-12.md).
 - Docker with Docker Compose v2.
+- GNU gettext, to update translations (`brew install gettext` on macOS).
 
 ## First-time setup
 
@@ -47,7 +48,8 @@ package ships a prebuilt wheel for the supported platforms; see
 | Apply migrations | `.venv/bin/python manage.py migrate` |
 | Run the tests | `.venv/bin/python manage.py test` |
 | Development server | `.venv/bin/python manage.py runserver` |
-| Create an admin user | `.venv/bin/python manage.py createsuperuser` |
+| Create an admin user | `.venv/bin/python manage.py createsuperuser` (asks for email and full name) |
+| Update translations | see [Translations](../development/translations.md) |
 
 The development server listens on `http://127.0.0.1:8000/`. Set `DJANGO_DEBUG=True` in
 `.env` for local work so that `runserver` serves static files and shows error pages.
