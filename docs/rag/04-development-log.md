@@ -17,6 +17,7 @@ description: Problems met while building the RAG pipeline and how they were fixe
 | 2026-10-04 | Validator flagged 255 questions for "unrepaired ligatures" | It matched the correct "الأ…"; it now flags two adjacent alefs |
 | 2026-10-04 | "الدَّلاالت" in 3 questions | In-word "لاال" repaired to "لالا" |
 | 2026-10-04 | CrewAI's first-run "view traces? [y/N]" prompt blocked `ask_test` despite the telemetry switches | Decline recorded with `mark_first_execution_done(user_consented=False)` at import |
+| 2026-10-04 | The Docker answer to the demo question lost its key sentence "الإسلام لم ينتشر بالسيف": its quote was slightly reworded | Quote match loosened to 90% of words, in order, in one passage (`quote_matches`); entailment still judges support |
 | 2026-10-04 | The prompt came back in a fresh Docker container (twice in one `ask_test`, up to 20 s each) | CrewAI decides when it is imported, before the decline in `agents/flow.py` ran; `AgentsConfig.ready()` now writes the decline before any CrewAI import (`agents/tracing.py`) |
 | 2026-10-04 | Flow never ended | Listener methods named like router labels (`answer`, `refer`, `abstain`) re-triggered themselves; renamed |
 | 2026-10-04 | gpt-4o-mini returned the JSON schema instead of a classification | Structured outputs (`response_format`) |

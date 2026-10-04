@@ -15,6 +15,8 @@ Any failure ends in the fixed abstain, with the error saved and keys masked.
 
 import re
 import threading
+from collections import Counter
+from difflib import SequenceMatcher
 from types import SimpleNamespace
 
 from crewai.flow.flow import Flow, listen, router, start
@@ -35,6 +37,10 @@ CITATION = re.compile(r'\s*\[Q(\d+)\]')
 SECRET = re.compile(r'(sk-[A-Za-z0-9_\-]{4})[A-Za-z0-9_\-]+|(Bearer\s+)\S+')
 REPLY_LANGUAGES = {'ar', 'en', 'fr'}
 MIN_QUOTE_CHARS = 15
+# A quote matches when this share of its words appears, in order, in one passage of
+# the evidence: the writer may fix an extraction typo or change a word or two. A
+# quote under 10 words must still match exactly. Entailment checks support anyway.
+QUOTE_MATCH_PERCENT = 90
 NON_WORD = re.compile(r'[^\w\s]|_')
 
 
@@ -198,16 +204,18 @@ class AskFlow(Flow[QAState]):
         Keep the sentences whose quote really is in the evidence.
 
         Quotes are compared after Arabic normalization and with punctuation
-        removed, so diacritics or punctuation differences do not matter; a quote
-        shorter than ``MIN_QUOTE_CHARS`` or absent from the evidence drops its
-        sentence. Quotes must be in the evidence's language (Arabic): a translated
-        or paraphrased quote cannot match, so it counts as missing. The level-C sentence is the writer's, so it needs a quote too.
+        removed, so diacritics or punctuation differences do not matter, and
+        ``quote_matches`` tolerates a few changed words. A quote shorter than
+        ``MIN_QUOTE_CHARS`` or not found drops its sentence. Quotes must be in the
+        evidence's language (Arabic): a translated or paraphrased quote cannot
+        match, so it counts as missing. The level-C sentence is the writer's, so it
+        needs a quote too.
         """
         evidence = _comparable(self.state.evidence)
         kept = []
         for sentence in sentences:
             quote = _comparable(sentence.quote)
-            if len(quote) >= MIN_QUOTE_CHARS and quote in evidence:
+            if len(quote) >= MIN_QUOTE_CHARS and quote_matches(quote, evidence):
                 kept.append(sentence)
             else:
                 self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote, 'reason': 'quote'})
@@ -270,6 +278,34 @@ class AskFlow(Flow[QAState]):
         usage = getattr(output, 'token_usage', None)
         self.state.tokens_in += getattr(usage, 'prompt_tokens', 0) or 0
         self.state.tokens_out += getattr(usage, 'completion_tokens', 0) or 0
+
+
+def quote_matches(quote, evidence):
+    """
+    True when ``QUOTE_MATCH_PERCENT`` of the quote's words appear, in order, in one
+    passage of ``evidence``. Both arguments are ``_comparable`` text.
+
+    The passage may hold as many extra words as the quote may miss, so a match is
+    a lightly reworded copy of one place, never words gathered from across the
+    evidence. Words are matched in order with ``difflib.SequenceMatcher``; windows
+    without enough shared words are skipped before it runs.
+    """
+    if quote in evidence:
+        return True
+    words, source = quote.split(), evidence.split()
+    needed = -(-len(words) * QUOTE_MATCH_PERCENT // 100)  # ceiling, in integers
+    if needed >= len(words):
+        return False
+    width = len(words) + (len(words) - needed)
+    wanted = Counter(words)
+    for start in range(max(1, len(source) - width + 1)):
+        window = source[start:start + width]
+        if window[0] not in wanted or sum((wanted & Counter(window)).values()) < needed:
+            continue
+        matcher = SequenceMatcher(None, words, window, autojunk=False)
+        if sum(block.size for block in matcher.get_matching_blocks()) >= needed:
+            return True
+    return False
 
 
 def _comparable(text):

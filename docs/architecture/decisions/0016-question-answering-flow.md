@@ -25,9 +25,12 @@ review and future fine-tuning.
   out of scope → fixed refusal; level D (personal ruling) → fixed referral; else
   `search(k=8)`; best score below `LOW_THRESHOLD` → fixed abstain; else the evidence of
   the top `EVIDENCE_QUESTIONS` (3) questions goes to the writer, then the verifier.
-- **Verifier with quotes**: it returns each kept sentence with an exact supporting quote;
-  the code drops sentences whose quote (≥ 15 characters, normalized) is not in the
-  evidence. A support check on 2026-10-04 found 3 unsupported claims out of 7 sentences
+- **Verifier with quotes**: it returns each kept sentence with a supporting quote copied
+  from the evidence; the code drops sentences whose quote (≥ 15 characters, normalized)
+  is not found. Found means at least 90% of the quote's words appear, in order, in one
+  passage of the evidence (`QUOTE_MATCH_PERCENT`; quotes under 10 words must match
+  exactly). The match was exact until 2026-10-04, when it dropped correct sentences whose
+  quote the writer had reworded slightly; the entailment check below still judges support. A support check on 2026-10-04 found 3 unsupported claims out of 7 sentences
   with gpt-4o-mini as verifier and 1 out of 12 with gpt-4o, so `AISettings.verifier_model`
   is `gpt-4o` (writer and classifier stay on `chat_model`, gpt-4o-mini).
 - **Entailment check**: after the quote check, ONE batched request to the verifier model

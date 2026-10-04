@@ -2,11 +2,11 @@
 
 from types import SimpleNamespace
 
-from django.test import TestCase, TransactionTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 from django.utils import translation
 
 from agents.crews import prompt_version
-from agents.flow import fixed_reply, mask_secrets, script_language
+from agents.flow import _comparable, fixed_reply, mask_secrets, quote_matches, script_language
 from agents.services import ask
 from agents.tests.support import QUOTE, FakeCrew, answered, classified
 from core.tests.support import make_center
@@ -238,3 +238,40 @@ class FixedReplyTests(TestCase):
         self.assertNotIn('abcdefghij', masked)
         self.assertNotIn('abc.def', masked)
         self.assertIn('sk-proj…', masked)
+
+
+class QuoteMatchTests(SimpleTestCase):
+    """``quote_matches``: 90% of the quote's words, in order, in one passage."""
+
+    EVIDENCE = _comparable(
+        'مقدمة لا علاقة لها. الإسلامُ لم ينتشِرْ بالسيف، وإنما انتشَرَ بالدعوةِ والحُجَّة، '
+        'وإذا كان للفتحِ أثرٌ في انتشارِ الإسلامِ، فمِن جهةِ أنَّ فتحَ البلادِ يستدعي قصدَ كثيرٍ '
+        'مِن المسلِمين للرحلةِ إليها. خاتمة أخرى عن موضوع مختلف تماما.')
+    # 10 words of the evidence, copied exactly.
+    TEN = 'الإسلام لم ينتشر بالسيف وإنما انتشر بالدعوة والحجة وإذا كان'
+
+    def matches(self, quote):
+        return quote_matches(_comparable(quote), self.EVIDENCE)
+
+    def test_exact_copy_matches(self):
+        self.assertTrue(self.matches(self.TEN))
+
+    def test_one_changed_word_in_ten_matches(self):
+        self.assertTrue(self.matches(self.TEN.replace('والحجة', 'والبرهان')))
+
+    def test_one_dropped_word_in_ten_matches(self):
+        self.assertTrue(self.matches(self.TEN.replace(' وإنما', '')
+                                     + ' للفتح'))
+
+    def test_two_changed_words_in_ten_do_not_match(self):
+        self.assertFalse(self.matches(self.TEN.replace('والحجة', 'والبرهان').replace('كان', 'صار')))
+
+    def test_short_quote_must_be_exact(self):
+        self.assertTrue(self.matches('الإسلام لم ينتشر بالسيف'))
+        self.assertFalse(self.matches('لم ينتشر الإسلام بالسيف'))
+
+    def test_words_gathered_from_across_the_evidence_do_not_match(self):
+        self.assertFalse(self.matches('مقدمة لا علاقة لها خاتمة أخرى عن موضوع مختلف تماما'))
+
+    def test_invented_text_does_not_match(self):
+        self.assertFalse(self.matches('الإسلام انتشر بالقوة والإكراه في جميع البلاد التي فتحها المسلمون'))

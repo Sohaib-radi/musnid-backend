@@ -81,6 +81,25 @@ drops correct sentences whose quote is slightly reworded. The English question w
 "ar" by the classifier and got the Arabic partial note; the language is now decided by
 script for Arabic.
 
+### Quote match at 90% of words
+
+Because the exact match dropped correct, slightly reworded sentences, a quote now matches
+when 90% of its words appear in order in one passage of the evidence (ADR 0016). Measured
+on 2026-10-04 against the evidence of #229, #246 and #230 (4,105 words after
+normalization), with quotes built from the passage "الإسلامُ لم ينتشِرْ بالسيف، وإنما
+انتشَرَ بالدعوةِ والحُجَّة، …":
+
+| Quote | Result | Time |
+| --- | --- | --- |
+| Exact copy | match | 0.3 ms |
+| 14 words, 1 changed ("دور" for "أثر") | match | 0.7 ms |
+| 12 words, 1 dropped | match | 0.5 ms |
+| 14 words, 2 changed | no match | 3.6 ms |
+| 4 words reordered ("لم ينتشر الإسلام بالسيف") | no match (under 10 words: exact only) | 0.5 ms |
+| Invented sentence | no match | 3.2 ms |
+
+The end-to-end question has not been re-run with the new match yet.
+
 Decisions from these results: `LOW_THRESHOLD = 0.30` as a starting value;
 `EVIDENCE_QUESTIONS = 3`. Calibration with the 60-question evaluation is planned for
 2026-10-06.

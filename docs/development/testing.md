@@ -99,8 +99,8 @@ field is handled in one place.
 | `api/tests/test_memberships.py` | 11 | List, add by email, change role, offboard, service codes, no DELETE, other centers 404, permissions, pending center blocked. |
 | `api/tests/test_schema.py` | 3 | Schema without warnings, public identifiers only, docs page on sidecar assets. |
 | `knowledge/tests/` (6 files) | 42 | Text repair, Bayyinat parsing and validation, PyMuPDF isolation, normalization rules by Unicode name, chunking, ingestion (idempotent, failure-safe), search (best chunk per question, `ef_search`), evidence, read-only admin; with a fake embedder. |
-| `agents/tests/` (2 files) | 38 | Every route (out of scope, level D, low score, failures of each step, unreadable output), evidence only for the writer, citation stripping, quote check (translated quotes count as missing), batched entailment check, script-based language, partial note, level-C notice, saving and version stamp, fixed replies in 3 languages, key masking, crew YAML, LLM and verifier model from AISettings, CrewAI switches. |
-| **Total** | **370** | |
+| `agents/tests/` (3 files) | 52 | Every route (out of scope, level D, low score, failures of each step, unreadable output), evidence only for the writer, citation stripping, quote check (translated quotes count as missing; 90% word match in one passage, short quotes exact), CrewAI trace prompt declined before import (fresh interpreter), batched entailment check, script-based language, partial note, level-C notice, saving and version stamp, fixed replies in 3 languages, key masking, crew YAML, LLM and verifier model from AISettings, CrewAI switches. |
+| **Total** | **384** | |
 
 Last full run: 263 tests, all passing, 43.0 s serial, on 2026-10-04 (step 4). Flow tests use `TransactionTestCase`: CrewAI runs steps in worker threads, which do not
 see data inside a `TestCase` transaction.

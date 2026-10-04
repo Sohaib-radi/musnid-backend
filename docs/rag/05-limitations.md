@@ -18,6 +18,10 @@ description: Known limitations of the extraction and retrieval.
 - `LOW_THRESHOLD` (0.30) rests on three queries until the 60-question evaluation.
 - The quote check proves that a quote exists in the evidence, not that it states the
   sentence: 1 unsupported claim in 12 sentences remained with gpt-4o as verifier.
+- Quotes under 10 words must still match exactly (90% of fewer than 10 words leaves no
+  room), so a short quote with reordered words drops its sentence.
+- Sentences dropped by the quote or entailment check are kept in the flow state only, not
+  saved on the `Interaction`, so a past drop cannot be inspected afterwards.
 - Coverage strictness ("full" for questions the book does not ask exactly) is calibrated
   on 2026-10-06.
 - `keywords` is empty: the book has no keyword lists.
