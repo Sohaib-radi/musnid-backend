@@ -39,11 +39,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Folded block (>): keep every line at the same indentation. A more-indented
+    # line keeps its line break, and sh would run it as a separate command.
     command: >
       sh -c "python manage.py migrate --noinput &&
              python manage.py createcachetable &&
-             exec gunicorn config.wsgi:application --bind 0.0.0.0:8000
-                  --workers 3 --threads 2 --timeout 120"
+             exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2 --timeout 120"
     restart: unless-stopped
 
 volumes:

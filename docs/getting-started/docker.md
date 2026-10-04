@@ -74,16 +74,32 @@ With CrewAI (2026-10-04): image **1.18 GB** (375 MB before), build about 14 minu
 Checked in the container: `migrate` (37 applied, none pending), admin on port 8011, and
 `ask_test "هل انتشر الإسلام بالسيف؟"` (answer citing #229, 32,613 / 2,497 tokens, 32.2 s).
 
+With the ask API (2026-10-04): image **1.18 GB**, build 13 min 10 s (pip install 558.3 s,
+layer export 204.4 s; the dependency layer was rebuilt because the CrewAI `ENV` lines
+precede it). Checked in the container:
+
+| Check | Result |
+| --- | --- |
+| Start-up | `migrate` (nothing pending), `createcachetable`, admin 200 on port 8011 |
+| gunicorn (`/proc/1/cmdline`) | `--workers 3 --threads 2 --timeout 120`, worker class `gthread`, 3 workers booted |
+| `ask_test "هل انتشر الإسلام بالسيف؟"` in a new container | answer, level B, 6 sentences kept (all #229, key sentence "الإسلام لم ينتشر بالسيف" first), 0 dropped, 31,852 / 1,730 tokens, 32.2 s; command wall time 63 s including start-up |
+| CrewAI trace prompt | not shown |
+
+The first start of this image ran gunicorn without its options: the options sat on a
+more-indented line of the folded `command: >` block in `docker-compose.yml`, which YAML
+keeps as a separate line, so `sh` never passed them. The command is now on one line.
+
 ## Known limitations
 
-- **CrewAI first-run prompt in containers (fixed, not yet re-checked in a rebuilt
-  image).** In a fresh container CrewAI showed "view your execution traces? [y/N] (20s
+- **CrewAI first-run prompt in containers (fixed, checked 2026-10-04).** In a fresh container CrewAI showed "view your execution traces? [y/N] (20s
   timeout)" on the first crew runs of each process (seen twice in one `ask_test`), adding
   up to 20 s each. CrewAI decides when it is imported, so the decline that `agents/flow.py`
   recorded came too late. `AgentsConfig.ready()` now records it in every process before
   CrewAI is imported (`agents/tracing.py`), and the image sets CrewAI's telemetry and
   tracing switches off ([Configuration](configuration.md#crewai-switches)). The decline
-  lives in the home directory of user `app`; a fresh container writes it again on start.
+  lives in the home directory of user `app` (`~/.local/share/app/.crewai_user.json`); a
+  fresh container writes it again on start. Checked in the rebuilt image: no prompt in a
+  brand-new container whose first process was `ask_test`.
 
 - **Static files are not served by gunicorn yet.** `collectstatic` runs at build time,
   but gunicorn does not serve `/static/`, so `/static/admin/css/base.css` returns 404 and

@@ -107,6 +107,12 @@ Re-run of the demo question with the new match (2026-10-04, local, verifier gpt-
 Dropped sentences were not saved at the time, so whether the writer omitted the key
 sentence or a check removed it is unknown; `Interaction.dropped` now records every drop.
 
+Run in the rebuilt Docker image (2026-10-04, verifier gpt-4o): answer, level B, coverage
+full, 6 sentences kept (all #229), 0 dropped, 31,852 / 1,730 tokens, 32.2 s. The key
+sentence was kept: "الإسلام لم ينتشر بالسيف، وإنما انتشر بالدعوة والحجة.", and the
+reworded "فذلك من جهة" sentence that the exact match had dropped now passed. With no drop
+recorded, the earlier absences cannot be attributed to the writer or to a check.
+
 Decisions from these results: `LOW_THRESHOLD = 0.30` as a starting value;
 `EVIDENCE_QUESTIONS = 3`. Calibration with the 60-question evaluation is planned for
 2026-10-06.
