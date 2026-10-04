@@ -98,7 +98,8 @@ field is handled in one place.
 | `api/tests/test_me.py` | 8 | Profile GET and PATCH, no PUT, memberships with center states, countries translated. |
 | `api/tests/test_memberships.py` | 11 | List, add by email, change role, offboard, service codes, no DELETE, other centers 404, permissions, pending center blocked. |
 | `api/tests/test_schema.py` | 3 | Schema without warnings, public identifiers only, docs page on sidecar assets. |
-| **Total** | **290** | |
+| `knowledge/tests/` (6 files) | 42 | Text repair, Bayyinat parsing and validation, PyMuPDF isolation, normalization rules by Unicode name, chunking, ingestion (idempotent, failure-safe), search (best chunk per question, `ef_search`), evidence, read-only admin; with a fake embedder. |
+| **Total** | **332** | |
 
 Last full run: 263 tests, all passing, 43.0 s serial, on 2026-10-04 (step 4). Since step 5,
 tests run only with the user's permission and only the ones the user names (CLAUDE.md,

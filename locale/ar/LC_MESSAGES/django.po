@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 11:52+0000\n"
+"POT-Creation-Date: 2026-10-04 12:28+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -46,15 +46,15 @@ msgstr "يوجد مركز بهذا الاسم بالفعل."
 msgid "Unknown country code."
 msgstr "رمز الدولة غير معروف."
 
-#: config/settings.py:135 core/models/choices.py:16
+#: config/settings.py:136 core/models/choices.py:16
 msgid "Arabic"
 msgstr "العربية"
 
-#: config/settings.py:136 core/models/choices.py:17
+#: config/settings.py:137 core/models/choices.py:17
 msgid "English"
 msgstr "الإنجليزية"
 
-#: config/settings.py:137 core/models/choices.py:18
+#: config/settings.py:138 core/models/choices.py:18
 msgid "French"
 msgstr "الفرنسية"
 
@@ -78,23 +78,35 @@ msgstr "المستخدمون"
 msgid "Groups"
 msgstr "المجموعات"
 
-#: config/unfold.py:120
+#: config/unfold.py:120 knowledge/apps.py:11
+msgid "Knowledge base"
+msgstr "قاعدة المعرفة"
+
+#: config/unfold.py:123
+msgid "Source documents"
+msgstr "المصادر"
+
+#: config/unfold.py:125
+msgid "Source chunks"
+msgstr "مقاطع المصادر"
+
+#: config/unfold.py:130
 msgid "Configuration"
 msgstr "الإعدادات"
 
-#: config/unfold.py:123
+#: config/unfold.py:133
 msgid "API Keys"
 msgstr "مفاتيح API"
 
-#: config/unfold.py:128
+#: config/unfold.py:138
 msgid "Security"
 msgstr "الأمان"
 
-#: config/unfold.py:131
+#: config/unfold.py:141
 msgid "Outstanding tokens"
 msgstr "الرموز الصادرة"
 
-#: config/unfold.py:133
+#: config/unfold.py:143
 msgid "Blacklisted tokens"
 msgstr "الرموز الملغاة"
 
@@ -261,7 +273,7 @@ msgstr "مرفوض"
 msgid "name"
 msgstr "الاسم"
 
-#: core/models/center.py:52
+#: core/models/center.py:52 knowledge/models.py:22
 msgid "slug"
 msgstr "المعرّف في الرابط"
 
@@ -574,3 +586,79 @@ msgstr "سيصبح «%(name)s» مفعَّلًا وسيحصل مسؤولوه ع�
 #: core/templates/admin/core/center/review_buttons.html:26
 msgid "Reject this center?"
 msgstr "رفض هذا المركز؟"
+
+#: knowledge/admin.py:35
+msgid "chunks"
+msgstr "المقاطع"
+
+#: knowledge/models.py:23 knowledge/models.py:52
+msgid "title"
+msgstr "العنوان"
+
+#: knowledge/models.py:24 knowledge/models.py:51
+msgid "language"
+msgstr "اللغة"
+
+#: knowledge/models.py:25
+msgid "URL"
+msgstr "الرابط"
+
+#: knowledge/models.py:26
+msgid "license note"
+msgstr "ملاحظة الترخيص"
+
+#: knowledge/models.py:29
+msgid "source document"
+msgstr "مصدر"
+
+#: knowledge/models.py:30
+msgid "source documents"
+msgstr "المصادر"
+
+#: knowledge/models.py:42
+msgid "Question"
+msgstr "السؤال"
+
+#: knowledge/models.py:43
+msgid "Summary"
+msgstr "الملخص"
+
+#: knowledge/models.py:44
+msgid "Answer"
+msgstr "الجواب"
+
+#: knowledge/models.py:47
+msgid "document"
+msgstr "المصدر"
+
+#: knowledge/models.py:49
+msgid "question number"
+msgstr "رقم السؤال"
+
+#: knowledge/models.py:50
+msgid "kind"
+msgstr "النوع"
+
+#: knowledge/models.py:53
+msgid "text"
+msgstr "النص"
+
+#: knowledge/models.py:54
+msgid "normalized text"
+msgstr "النص الموحَّد"
+
+#: knowledge/models.py:55
+msgid "embedding"
+msgstr "التضمين الدلالي"
+
+#: knowledge/models.py:56
+msgid "metadata"
+msgstr "البيانات الوصفية"
+
+#: knowledge/models.py:59
+msgid "source chunk"
+msgstr "مقطع مصدر"
+
+#: knowledge/models.py:60
+msgid "source chunks"
+msgstr "مقاطع المصادر"

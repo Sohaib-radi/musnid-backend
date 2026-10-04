@@ -1,0 +1,4 @@
+# Development and data-preparation tools. Never installed in Docker or production.
+# PyMuPDF is AGPL-3.0: it must stay out of requirements.txt (see docs/technology-stack.md).
+# Install with: .venv/bin/pip install --only-binary=:all: -r requirements-tools.txt
+PyMuPDF==1.28.2

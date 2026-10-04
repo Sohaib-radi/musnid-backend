@@ -122,6 +122,12 @@ Sidebar: **Configuration > API Keys** (icon `vpn_key`, permission `core.view_api
 
 Details: [Provider API keys](api-keys.md).
 
+## Knowledge base (`knowledge/admin.py`)
+
+Sidebar group **Knowledge base**: Source documents (with chunk counts) and Source chunks
+(filters: kind, document; search: title, text, question number). Read-only: no add, edit
+or delete; the embedding is not displayed. Content comes from `ingest_bayyinat`.
+
 ## Tokens (`api/admin.py`)
 
 SimpleJWT's `OutstandingTokenAdmin` and `BlacklistedTokenAdmin` combined with Unfold's

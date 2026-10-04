@@ -130,6 +130,7 @@ class SidebarTests(TestCase):
         self.assertEqual(layout, [
             (['Centers', 'Memberships'], 'Centers'),
             (['Users', 'Groups'], 'Accounts'),
+            (['Source documents', 'Source chunks'], 'Knowledge base'),
             (['API Keys'], 'Configuration'),
             (['Outstanding tokens', 'Blacklisted tokens'], 'Security'),
         ])
@@ -139,6 +140,7 @@ class SidebarTests(TestCase):
             '/admin/core/center/', '/admin/core/membership/', '/admin/core/user/', '/admin/auth/group/',
             '/admin/token_blacklist/outstandingtoken/', '/admin/token_blacklist/blacklistedtoken/',
             '/admin/core/apicredential/',
+            '/admin/knowledge/sourcedocument/', '/admin/knowledge/sourcechunk/',
         }
         seen = set()
         for group in UNFOLD['SIDEBAR']['navigation']:
@@ -153,6 +155,6 @@ class SidebarTests(TestCase):
         request = RequestFactory().get('/admin/')
         items = [item for group in UNFOLD['SIDEBAR']['navigation'] for item in group['items']]
         request.user = make_user(is_staff=True)
-        self.assertEqual([item['permission'](request) for item in items], [False] * 7)
+        self.assertEqual([item['permission'](request) for item in items], [False] * 9)
         request.user = make_user(is_staff=True, is_superuser=True)
-        self.assertEqual([item['permission'](request) for item in items], [True] * 7)
+        self.assertEqual([item['permission'](request) for item in items], [True] * 9)

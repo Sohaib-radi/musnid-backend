@@ -117,6 +117,16 @@ UNFOLD = {
                 ],
             },
             {
+                'title': _('Knowledge base'),
+                'separator': True,
+                'items': [
+                    _nav_item(_('Source documents'), 'menu_book', 'admin:knowledge_sourcedocument_changelist',
+                              'knowledge.view_sourcedocument'),
+                    _nav_item(_('Source chunks'), 'segment', 'admin:knowledge_sourcechunk_changelist',
+                              'knowledge.view_sourcechunk'),
+                ],
+            },
+            {
                 'title': _('Configuration'),
                 'separator': True,
                 'items': [

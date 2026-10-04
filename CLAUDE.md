@@ -117,6 +117,9 @@ core/              domain app
     support.py     factories (make_user, make_center, make_membership) and test-only models
     runner.py      TEST_RUNNER: test-only tables, fast password hasher
     parallel.py    --parallel worker setup; must never import models
+knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embeddings, services/search
+  extraction/      PDF text repair and Bayyinat parsing (never imports PyMuPDF)
+  management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
 api/               REST API, no models
   v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)
   v1/views/mixins.py  CenterScopedMixin: non-members get 404
@@ -229,6 +232,9 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
   put one in an exception message. Provider keys only through `core.services.credentials`
   (`add_credential`, `revoke`, `get_openai_key`); mark functions holding one with
   `sensitive_variables`. Encryption keys come from `FIELD_ENCRYPTION_KEYS`, never `SECRET_KEY`.
+- **RAG:** extraction findings, decisions, validation and limitations go in `docs/rag/`
+  with measured numbers only. PyMuPDF stays in `requirements-tools.txt` (AGPL). The
+  writer only ever receives `get_evidence()` chunks, never question chunks.
 - **Center review:** never edit `Center.status` directly; use
   `core.services.centers.approve`/`reject`. Center-admin endpoints require an operational
   center (approved and active).

@@ -81,6 +81,18 @@ older glibc tags. A single `--platform manylinux_2_28_x86_64` therefore misses t
 the full tag range up to glibc 2.36. The `python:3.12-slim` image measured at glibc 2.41,
 which satisfies every wheel listed.
 
+## Tools (not installed in production)
+
+| Package | Version | Role | License |
+| --- | --- | --- | --- |
+| `PyMuPDF` | 1.28.2 | PDF text extraction in `extract_bayyinat`, from `requirements-tools.txt` only. | AGPL-3.0 (dual-licensed): never in `requirements.txt` or the Docker image |
+
+## External services
+
+| Service | Model | Role |
+| --- | --- | --- |
+| OpenAI embeddings | `text-embedding-3-small` (1536 dimensions) | Embeddings of chunks and queries ([ADR 0015](architecture/decisions/0015-knowledge-base-and-retrieval.md)); called over HTTPS with the standard library. |
+
 ## Bundled assets
 
 | Asset | Version | Role | License |

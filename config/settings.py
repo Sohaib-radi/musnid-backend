@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'drf_spectacular_sidecar',
     'corsheaders',
     'core',
+    'knowledge',
     'api',
 ]
 
@@ -160,6 +161,16 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Retrieval (docs/rag/, ADR 0015)
+# A best search score below LOW_THRESHOLD means the sources do not cover the
+# question. 0.30 is a starting value from 3 queries; it is calibrated with the
+# 60-question evaluation planned for 2026-10-06.
+LOW_THRESHOLD = 0.30
+# The writer receives the evidence (summary and answer chunks) of this many
+# distinct top questions; the verifier then decides full / partial / none.
+EVIDENCE_QUESTIONS = 3
 
 
 # Secrets at rest (ADR 0014)
