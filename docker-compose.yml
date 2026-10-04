@@ -1,0 +1,51 @@
+# Local services for the Musnid backend.
+#
+#   docker compose up -d db                  # PostgreSQL + pgvector only
+#   docker compose --profile web up -d --build   # also the Django app (gunicorn)
+#
+# Both services read .env. Ports are published on 127.0.0.1 only.
+# Reference: docs/getting-started/docker.md
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: musnid_backend_postgres
+    env_file: .env
+    ports:
+      - "127.0.0.1:5435:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # $$ escapes Compose interpolation so the container's own variables are used.
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: musnid_backend_web
+    profiles: ["web"]
+    env_file: .env
+    environment:
+      # Inside the Compose network the database is the "db" service on its
+      # internal port, not the host-published 5435.
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+    ports:
+      - "127.0.0.1:8011:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    # Explicit name: musnid_db / musnid_backend_db already exist on the
+    # development machine and must not be reused.
+    name: musnid_backend_pgdata

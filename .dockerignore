@@ -1,0 +1,21 @@
+# Secrets: injected at runtime by Compose, never baked into the image.
+.env
+.env.*
+
+# Local environments, data and generated output.
+.venv/
+venv/
+data/
+media/
+staticfiles/
+__pycache__/
+*.py[cod]
+
+# Not needed at runtime.
+.git/
+.gitignore
+docs/
+*.md
+.idea/
+.vscode/
+.DS_Store
