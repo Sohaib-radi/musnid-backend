@@ -1,0 +1,35 @@
+{% load i18n %}
+{# Approve / Reject buttons for one pending center, each opening a confirmation dialog. #}
+<div class="musnid-review">
+    <button type="button" class="musnid-btn musnid-btn-primary"
+            onclick="document.getElementById('approve-{{ center.pk }}').showModal()">{% translate "Approve" %}</button>
+    <button type="button" class="musnid-btn musnid-btn-outline"
+            onclick="document.getElementById('reject-{{ center.pk }}').showModal()">{% translate "Reject" %}</button>
+
+    <dialog id="approve-{{ center.pk }}" class="musnid-dialog">
+        <form method="post" action="{{ approve_url }}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <h2>{% translate "Approve this center?" %}</h2>
+            <p>{% blocktranslate with name=center.name %}“{{ name }}” will become operational and its center admins will get access to their dashboard.{% endblocktranslate %}</p>
+            <div class="musnid-dialog-actions">
+                <button type="button" class="musnid-btn musnid-btn-outline" onclick="this.closest('dialog').close()">{% translate "Cancel" %}</button>
+                <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Approve" %}</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="reject-{{ center.pk }}" class="musnid-dialog">
+        <form method="post" action="{{ reject_url }}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <h2>{% translate "Reject this center?" %}</h2>
+            <label for="reason-{{ center.pk }}">{% translate "Reason (shown to the applicant)" %}</label>
+            <textarea id="reason-{{ center.pk }}" name="rejection_reason" rows="4" required></textarea>
+            <div class="musnid-dialog-actions">
+                <button type="button" class="musnid-btn musnid-btn-outline" onclick="this.closest('dialog').close()">{% translate "Cancel" %}</button>
+                <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Reject" %}</button>
+            </div>
+        </form>
+    </dialog>
+</div>

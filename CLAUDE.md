@@ -95,6 +95,7 @@ config/            Django project package
   settings.py      all settings, read from the environment
   env.py           typed env readers (required, optional, flag, csv_list)
   unfold.py        UNFOLD settings: brand colours, sidebar, login image (the only place for colours)
+  api.py           REST_FRAMEWORK, SIMPLE_JWT, SPECTACULAR_SETTINGS
   urls.py, wsgi.py, asgi.py
 core/              domain app
   models/          one module per concern, all re-exported from core/models/__init__.py
@@ -103,7 +104,7 @@ core/              domain app
     user.py        User, UserManager (email login)
     center.py      Center (single default)
     membership.py  Membership, MembershipQuerySet
-  services/        rules spanning several objects (memberships.py)
+  services/        rules spanning several objects (memberships.py, centers.py: registration and review)
   admin.py         Unfold admins: User, Center, Membership, Group
   forms.py         admin forms (Unfold user forms rebound to core.User, center, membership)
   static/core/     admin.css (font, accent, RTL fixes), fonts/readex-pro/, img/login.svg
@@ -112,6 +113,13 @@ core/              domain app
     support.py     factories (make_user, make_center, make_membership) and test-only models
     runner.py      TEST_RUNNER: test-only tables, fast password hasher
     parallel.py    --parallel worker setup; must never import models
+api/               REST API, no models
+  v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)
+  v1/views/mixins.py  CenterScopedMixin: non-members get 404
+  permissions.py   IsCenterMember, IsCenterAdmin, IsOperationalCenter (each with a code)
+  exceptions.py    EXCEPTION_HANDLER: "code" next to "detail", "codes" for field errors
+  admin.py         token blacklist admins with Unfold
+  tests/base.py    APITestCase: url(), authenticate(), assertError(); clears the throttle cache
 locale/            ar and fr catalogs (.po and .mo, both committed)
 locale_vendor/unfold/  our ar and fr translations of Unfold's strings (Unfold ships none)
 docs/              Docusaurus content (Markdown only)
@@ -154,6 +162,7 @@ docker compose up -d db                        # start PostgreSQL + pgvector
 .venv/bin/python manage.py runserver
 docker compose --profile web up -d --build     # app in Docker (gunicorn)
 docker compose --profile web down
+.venv/bin/python manage.py spectacular --validate --fail-on-warn --file /dev/null   # API schema check
 ```
 
 ## Ports
@@ -206,6 +215,15 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
 - **Colours:** defined only in `config/unfold.py` (ADR 0008). The single exception is the
   turquoise accent in `core/static/core/css/admin.css`, used only on navy. Any palette
   change must keep WCAG AA; `core/tests/test_unfold.py` measures it.
+- **API:** under `/api/v1/`, public identifiers only (user `uuid`, center `slug`,
+  membership `uuid`). Views stay thin; serializers validate and call `core.services`.
+  Center endpoints use `CenterScopedMixin` (404 for non-members) and permissions with
+  codes (403). Every error carries a `code`; clients branch on codes. `PATCH` only, no
+  `PUT`, no `DELETE`. New endpoints must keep `spectacular --validate --fail-on-warn`
+  clean (annotate with `extend_schema`). Reference: `docs/reference/api.md`.
+- **Center review:** never edit `Center.status` directly; use
+  `core.services.centers.approve`/`reject`. Center-admin endpoints require an operational
+  center (approved and active).
 - **Right-to-left:** check admin changes in Arabic. Fix Unfold's physical left/right
   spacing in `admin.css` under `html[dir="rtl"]`; wrap LTR values inside Arabic text in
   U+2066 … U+2069.

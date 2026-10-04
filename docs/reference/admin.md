@@ -37,6 +37,11 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 | Centers | Memberships | `badge` | `admin:core_membership_changelist` | `core.view_membership` |
 | Accounts | Users | `person` | `admin:core_user_changelist` | `core.view_user` |
 | Accounts | Groups | `group` | `admin:auth_group_changelist` | `auth.view_group` |
+| Security | Outstanding tokens | `key` | `admin:token_blacklist_outstandingtoken_changelist` | `token_blacklist.view_outstandingtoken` |
+| Security | Blacklisted tokens | `block` | `admin:token_blacklist_blacklistedtoken_changelist` | `token_blacklist.view_blacklistedtoken` |
+
+The Centers item shows a badge with the number of pending centers
+(`core.admin.pending_centers_badge`), empty when there are none.
 
 The user menu at the bottom of the sidebar has a language switcher
 (`UNFOLD["SHOW_LANGUAGES"]`) for Arabic, English and French. It posts to Django's
@@ -70,20 +75,42 @@ The password change page keeps Django's URL name `admin:auth_user_password_chang
 | Aspect | Definition |
 | --- | --- |
 | Form | `CenterAdminForm`: the languages served are checkboxes (Arabic, English, French) instead of a comma-separated text field. |
-| List columns | name, country, active, default, created at |
-| Filters | active, default, country |
+| List columns | name, country, review status (badge: amber pending, green approved, red rejected), active, default, created at, and "Review" for users with the change permission |
+| Filters | review status, active, default, country |
 | Search | name, slug, contact email |
 | Slug | prepopulated from the name |
-| Fieldsets | main (name, slug, country, logo, description); Contact (contact email, website, Telegram group ID); Service (languages, active, default); Dates |
+| Fieldsets | main (name, slug, country, logo, description); Contact (contact email, website, Telegram group ID); Service (languages, active, default); Review (status, rejection reason, reviewed at, reviewed by: all read-only); Dates |
 | Inline | the center's memberships, read-only, with a link to each |
-| Action | **Make selected center the default** |
+| Actions | **Approve selected centers**, **Reject selected centers**, **Make selected center the default** |
 
 **Make selected center the default** requires exactly one selected center. With more
 or fewer, it shows the error "Select exactly one center to make it the default." and
 changes nothing. Otherwise it calls `Center.make_default()` and reports the new default.
 
-Saving a center as default while another one is default fails form validation with
-the translated message of `only_one_default_center`; use the action to move the default.
+Saving a center as default while another one is default, or while it is not approved,
+fails form validation with the constraint's translated message; use the action to move
+the default. The action refuses a non-approved center.
+
+### Review
+
+Reviews go through `core.services.centers` ([ADR 0013](../architecture/decisions/0013-center-registration-with-review.md)).
+
+- **Review column**: Approve and Reject buttons on pending rows only (Unfold's row actions
+  would show on every row). Hidden without the change permission.
+- **Change page**: the same buttons at the top of a pending center's page.
+- **Dialogs**: each button opens a confirmation dialog (native `dialog` element). The
+  Reject dialog requires a reason, shown to the applicant. They post to
+  `admin:core_center_approve` and `admin:core_center_reject` (POST only; 405 otherwise;
+  403 without the change permission), which redirect back (to a same-host URL only).
+- **Bulk actions**: **Approve selected centers** reviews every selected pending center;
+  **Reject selected centers** first shows a page asking for the reason. Centers that are
+  not pending are skipped and reported. Messages use `ngettext`.
+
+## Tokens (`api/admin.py`)
+
+SimpleJWT's `OutstandingTokenAdmin` and `BlacklistedTokenAdmin` combined with Unfold's
+`ModelAdmin`, registered in place of SimpleJWT's own, with unchanged behaviour (outstanding
+tokens are read-only).
 
 ## Memberships (`MembershipAdmin`)
 

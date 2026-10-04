@@ -27,6 +27,20 @@ The file is the output of `pip freeze`, so it also pins transitive dependencies.
 | Package | Version | Role | License |
 | --- | --- | --- | --- |
 | `Django` | 6.0.8 | Web framework: ORM, admin, migrations, test runner. | BSD-3-Clause |
+| `djangorestframework` | 3.18.1 | REST API framework ([ADR 0011](architecture/decisions/0011-api-design.md)). | BSD-3-Clause |
+| `djangorestframework_simplejwt` | 5.5.1 | JWT access and refresh tokens, with its `token_blacklist` app ([ADR 0010](architecture/decisions/0010-jwt-authentication.md)). | MIT |
+| `drf-spectacular` | 0.30.0 | OpenAPI 3 schema at `/api/schema/` and Swagger UI at `/api/docs/`. | BSD-3-Clause |
+| `drf-spectacular-sidecar` | 2026.10.1 | Self-hosted Swagger UI and Redoc assets (no CDN). | BSD |
+| `django-cors-headers` | 4.9.0 | CORS for `/api/` ([ADR 0012](architecture/decisions/0012-cors-policy.md)). | MIT |
+| `PyJWT` | 2.15.1 | Transitive: token encoding for SimpleJWT. | MIT |
+| `PyYAML` | 6.0.3 | Transitive: YAML schema output for drf-spectacular. | MIT |
+| `jsonschema` | 4.26.0 | Transitive: schema validation for drf-spectacular. | MIT |
+| `jsonschema-specifications` | 2025.9.1 | Transitive: for jsonschema. | MIT |
+| `referencing` | 0.37.0 | Transitive: for jsonschema. | MIT |
+| `rpds-py` | 2026.6.3 | Transitive: for referencing. | MIT |
+| `attrs` | 26.1.0 | Transitive: for jsonschema and referencing. | MIT |
+| `inflection` | 0.5.1 | Transitive: for drf-spectacular. | MIT |
+| `uritemplate` | 4.2.0 | Transitive: for drf-spectacular. | BSD-3-Clause OR Apache-2.0 |
 | `django-unfold` | 0.108.0 | Admin theme: styled templates, sidebar, language switcher ([ADR 0008](architecture/decisions/0008-unfold-admin-theme.md)). Ships no ar/fr translations; see `locale_vendor/unfold`. | MIT |
 | `django-countries` | 9.1.0 | `CountryField` (ISO 3166-1 codes) for `Center.country`, with country names translated into Arabic and French. | MIT |
 | `Pillow` | 12.3.0 | Image processing required by Django's `ImageField` (`User.avatar`, `Center.logo`). | MIT-CMU |
@@ -48,7 +62,9 @@ obligations on this project's own code.
 
 Every pin was checked for a prebuilt CPython 3.12 wheel with
 `pip download --only-binary=:all: --no-deps --python-version 3.12 --platform ...`
-on 2026-10-04. All twelve packages resolved on all three platforms.
+on 2026-10-04. All packages resolved on all three platforms; the native ones added in
+the API step (`PyYAML`, `rpds-py`) ship `macosx_10_12`/`10_13_x86_64`, `manylinux_2_17_x86_64`
+and `manylinux_2_17_aarch64` wheels.
 
 | Platform | Platform tag passed | `psycopg-binary` wheel found | Other packages |
 | --- | --- | --- | --- |

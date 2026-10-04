@@ -106,3 +106,39 @@ class DefaultCenterTests(TestCase):
         center = make_center(is_default=True)
         center.make_default()
         self.assertEqual(list(Center.objects.filter(is_default=True)), [center])
+
+
+class ReviewStatusTests(TestCase):
+    """Review status, operational centers and the approved-default rule."""
+
+    def test_admin_created_centers_default_to_approved(self):
+        self.assertEqual(make_center().status, Center.Status.APPROVED)
+
+    def test_operational_means_approved_and_active(self):
+        operational = make_center()
+        make_center(is_active=False)
+        make_center(status=Center.Status.PENDING)
+        make_center(status=Center.Status.REJECTED)
+        self.assertEqual(list(Center.objects.operational()), [operational])
+        self.assertTrue(operational.is_operational)
+
+    def test_pending(self):
+        pending = make_center(status=Center.Status.PENDING)
+        make_center()
+        self.assertEqual(list(Center.objects.pending()), [pending])
+
+    def test_default_center_must_be_approved(self):
+        with self.assertRaises(ValidationError) as caught:
+            make_center(status=Center.Status.PENDING, is_default=True)
+        self.assertEqual(caught.exception.messages, ['Only an approved center can be the default center.'])
+        center = make_center(status=Center.Status.PENDING)
+        with self.assertRaises(IntegrityError) as caught, transaction.atomic():
+            Center.objects.filter(pk=center.pk).update(is_default=True)
+        self.assertIn('default_center_must_be_approved', str(caught.exception))
+
+    def test_make_default_refuses_a_non_approved_center(self):
+        center = make_center(status=Center.Status.PENDING)
+        with self.assertRaises(ValidationError) as caught:
+            center.make_default()
+        self.assertEqual(caught.exception.code, 'center_not_approved')
+        self.assertFalse(Center.objects.filter(is_default=True).exists())

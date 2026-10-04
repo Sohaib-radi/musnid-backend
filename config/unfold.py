@@ -63,13 +63,17 @@ def _has_perm(permission):
     return check
 
 
-def _nav_item(title, icon, url_name, permission):
-    return {
+def _nav_item(title, icon, url_name, permission, badge=None):
+    item = {
         'title': title,
         'icon': icon,
         'link': reverse_lazy(url_name),
         'permission': _has_perm(permission),
     }
+    if badge:
+        # Dotted path to a callable(request) returning the badge text.
+        item['badge'] = badge
+    return item
 
 
 UNFOLD = {
@@ -99,7 +103,8 @@ UNFOLD = {
                 'title': _('Centers'),
                 'separator': True,
                 'items': [
-                    _nav_item(_('Centers'), 'apartment', 'admin:core_center_changelist', 'core.view_center'),
+                    _nav_item(_('Centers'), 'apartment', 'admin:core_center_changelist', 'core.view_center',
+                              badge='core.admin.pending_centers_badge'),
                     _nav_item(_('Memberships'), 'badge', 'admin:core_membership_changelist', 'core.view_membership'),
                 ],
             },
@@ -109,6 +114,16 @@ UNFOLD = {
                 'items': [
                     _nav_item(_('Users'), 'person', 'admin:core_user_changelist', 'core.view_user'),
                     _nav_item(_('Groups'), 'group', 'admin:auth_group_changelist', 'auth.view_group'),
+                ],
+            },
+            {
+                'title': _('Security'),
+                'separator': True,
+                'items': [
+                    _nav_item(_('Outstanding tokens'), 'key', 'admin:token_blacklist_outstandingtoken_changelist',
+                              'token_blacklist.view_outstandingtoken'),
+                    _nav_item(_('Blacklisted tokens'), 'block', 'admin:token_blacklist_blacklistedtoken_changelist',
+                              'token_blacklist.view_blacklistedtoken'),
                 ],
             },
         ],

@@ -1,12 +1,14 @@
 """Tests for ``core/admin.py`` and ``core/forms.py``: the Unfold admin."""
 
 from django.contrib import admin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from unfold.admin import StackedInline, TabularInline
 
+from core.admin import pending_centers_badge
 from core.models import Center, Membership, User
 from core.tests.support import make_center, make_membership, make_user
 
@@ -32,7 +34,10 @@ class UnfoldEverywhereTests(TestCase):
                     self.assertTrue(issubclass(inline, (TabularInline, StackedInline)))
 
     def test_expected_models_are_registered(self):
-        self.assertEqual(set(admin.site._registry), {User, Center, Membership, Group})
+        self.assertEqual(
+            set(admin.site._registry),
+            {User, Center, Membership, Group, OutstandingToken, BlacklistedToken},
+        )
 
 
 class AdminTestCase(TestCase):
@@ -245,3 +250,99 @@ class MembershipAdminTests(AdminTestCase):
         response = self.client.get(self.url(Membership, 'changelist'))
         self.assertNotIn('delete_selected', response.context['action_form'].fields['action'].choices.__repr__())
         self.assertEqual(self.client.get(self.url(Membership, 'delete', membership.pk)).status_code, 403)
+
+
+class CenterReviewAdminTests(AdminTestCase):
+    """Review badge, Review column, dialogs, review URLs, bulk actions, sidebar badge."""
+
+    def setUp(self):
+        super().setUp()
+        self.pending = make_center(name='Pending Center', status=Center.Status.PENDING)
+        self.approved = make_center(name='Approved Center')
+
+    def review_url(self, center, kind):
+        return reverse(f'admin:core_center_{kind}', args=[center.pk])
+
+    def test_badge_shows_the_translated_status(self):
+        response = self.client.get(self.url(Center, 'changelist'))
+        self.assertContains(response, 'Pending review')
+        self.assertContains(response, 'Approved')
+
+    def test_buttons_and_dialogs_on_pending_rows_only(self):
+        response = self.client.get(self.url(Center, 'changelist'))
+        self.assertContains(response, f'id="approve-{self.pending.pk}"')
+        self.assertContains(response, f'id="reject-{self.pending.pk}"')
+        self.assertNotContains(response, f'id="approve-{self.approved.pk}"')
+        self.assertContains(response, 'name="rejection_reason" rows="4" required')
+
+    def test_buttons_on_the_pending_change_page_only(self):
+        self.assertContains(self.client.get(self.url(Center, 'change', self.pending.pk)),
+                            f'action="{self.review_url(self.pending, "approve")}"')
+        self.assertNotContains(self.client.get(self.url(Center, 'change', self.approved.pk)),
+                               f'id="approve-{self.approved.pk}"')
+
+    def test_approve(self):
+        response = self.client.post(self.review_url(self.pending, 'approve'), {'next': '/admin/core/center/'}, follow=True)
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.status, Center.Status.APPROVED)
+        self.assertEqual(self.pending.reviewed_by, self.superuser)
+        self.assertEqual(self.messages(response), ['“Pending Center” was approved.'])
+
+    def test_reject_requires_a_reason(self):
+        response = self.client.post(self.review_url(self.pending, 'reject'), {'rejection_reason': ' '}, follow=True)
+        self.assertEqual(self.messages(response), ['A reason is required to reject a center.'])
+        self.client.post(self.review_url(self.pending, 'reject'), {'rejection_reason': 'Incomplete.'})
+        self.pending.refresh_from_db()
+        self.assertEqual((self.pending.status, self.pending.rejection_reason), (Center.Status.REJECTED, 'Incomplete.'))
+
+    def test_reviewing_a_non_pending_center_is_refused(self):
+        response = self.client.post(self.review_url(self.approved, 'approve'), follow=True)
+        self.assertEqual(self.messages(response), ['Only a pending center can be reviewed.'])
+
+    def test_review_urls_are_post_only(self):
+        self.assertEqual(self.client.get(self.review_url(self.pending, 'approve')).status_code, 405)
+
+    def test_unsafe_next_falls_back_to_the_changelist(self):
+        response = self.client.post(self.review_url(self.pending, 'approve'), {'next': 'https://evil.example/'})
+        self.assertRedirects(response, self.url(Center, 'changelist'), fetch_redirect_response=False)
+
+    def test_view_only_staff_get_no_buttons_and_403(self):
+        viewer = make_user(is_staff=True)
+        viewer.user_permissions.add(Permission.objects.get(codename='view_center'))
+        self.client.force_login(viewer)
+        response = self.client.get(self.url(Center, 'changelist'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, f'id="approve-{self.pending.pk}"')
+        self.assertEqual(self.client.post(self.review_url(self.pending, 'approve')).status_code, 403)
+
+    def run_action(self, action, centers, **extra):
+        return self.client.post(self.url(Center, 'changelist'), {
+            'action': action, '_selected_action': [center.pk for center in centers], **extra,
+        }, follow=True)
+
+    def test_bulk_approve(self):
+        response = self.run_action('approve_selected', [self.pending, self.approved])
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.status, Center.Status.APPROVED)
+        self.assertEqual(self.messages(response), [
+            '1 center was reviewed.',
+            '1 center could not be reviewed: Approved Center: Only a pending center can be reviewed.',
+        ])
+
+    def test_bulk_reject_asks_for_a_reason_first(self):
+        response = self.run_action('reject_selected', [self.pending])
+        self.assertContains(response, 'name="rejection_reason" rows="4" required')
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.status, Center.Status.PENDING)
+        self.run_action('reject_selected', [self.pending], apply='1', rejection_reason='Incomplete.')
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.status, Center.Status.REJECTED)
+
+    def test_make_default_refuses_a_pending_center(self):
+        response = self.run_action('make_default', [self.pending])
+        self.assertEqual(self.messages(response), ['Only an approved center can be the default center.'])
+
+    def test_sidebar_badge_counts_pending_centers(self):
+        self.assertEqual(pending_centers_badge(None), '1')
+        Center.objects.update(status=Center.Status.APPROVED)
+        self.assertEqual(pending_centers_badge(None), '')

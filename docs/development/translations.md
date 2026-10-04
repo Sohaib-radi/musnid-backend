@@ -28,7 +28,7 @@ Two catalogs, each in Arabic and French, committed as `.po` and compiled `.mo`
 
 | Catalog | Files | Strings (2026-10-04) |
 | --- | --- | --- |
-| Project | `locale/<lang>/LC_MESSAGES/django.po` | 67 |
+| Project | `locale/<lang>/LC_MESSAGES/django.po` | 105 |
 | Unfold vendor | `locale_vendor/unfold/<lang>/LC_MESSAGES/django.po` | 131 |
 
 The project catalog comes first in `LOCALE_PATHS`, so for a msgid present in both, the
@@ -94,7 +94,7 @@ French catalog uses 3; entries reused from it were cut to 2.
 
 A French translation equal to its English msgid is treated as untranslated, except for
 the words in `FRENCH_SAME_AS_ENGLISH` in `core/tests/test_translations.py`: `Action`,
-`Contact`, `Date`, `Dates`, `Permissions`, `Service`, `avatar`, `description`, `logo`.
+`API`, `Contact`, `Date`, `Dates`, `Permissions`, `Service`, `avatar`, `description`, `logo`.
 Add a word only when French genuinely spells it the same; the test also fails when an
 allowlisted word no longer occurs.
 

@@ -26,13 +26,14 @@ written as Docusaurus content; this repository holds the Markdown only.
 | Domain models | Done | `User` (email login), `Center` (single default), `Membership` (roles, history); see [Models](reference/models.md). |
 | Center scoping | Done | Explicit `for_center()`; see [Tenancy](architecture/tenancy.md). |
 | Membership rules | Done | `add_member`, `change_role`, `offboard`; a center keeps one active admin. |
-| Tests | Done | 177 tests against a real PostgreSQL test database; see [Testing](development/testing.md). |
+| Tests | Done | 263 tests against a real PostgreSQL test database; see [Testing](development/testing.md). |
 | Static files in Docker | Known limitation | gunicorn does not serve `/static/` yet, so the themed admin renders unstyled at port 8011; use `runserver` for development. WhiteNoise or nginx comes with deployment. |
-| Internationalisation (Arabic, French) | Done | Project catalog 67 strings and Unfold vendor catalog 131 strings, fully translated and enforced by tests; see [Translations](development/translations.md). |
+| Internationalisation (Arabic, French) | Done | Project catalog 105 strings and Unfold vendor catalog 131 strings, fully translated and enforced by tests; see [Translations](development/translations.md). |
 | Source ingestion and RAG | Not started | Will be documented under `docs/rag/`. |
 | AI agents (CrewAI) | Not started | CrewAI 1.9.3 is planned; it constrains the Python version (ADR 0001). |
 | Admin | Done | Unfold theme with the Musnid brand, sidebar, language switcher; users, centers, memberships, groups; see [Admin](reference/admin.md). |
-| API | Not started | |
+| REST API | Done | JWT auth, registration of askers and centers, profile, centers, memberships, countries; OpenAPI at `/api/docs/`; see [REST API](reference/api.md) and [Frontend](frontend/authentication.md). |
+| Center review | Done | Self-registered centers start pending; staff approve or reject in the admin ([ADR 0013](architecture/decisions/0013-center-registration-with-review.md)). |
 
 ## Where to go next
 
@@ -43,4 +44,5 @@ written as Docusaurus content; this repository holds the Markdown only.
 - [Models](reference/models.md) and [Data model](architecture/data-model.md).
 - [Tenancy](architecture/tenancy.md): how data is scoped to centers.
 - [Admin](reference/admin.md): every admin page and the sidebar.
-- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0009.
+- [REST API](reference/api.md) and the [frontend contract](frontend/authentication.md).
+- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0013.

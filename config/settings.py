@@ -19,6 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
 from config import env
+from config.api import REST_FRAMEWORK, SIMPLE_JWT, SPECTACULAR_SETTINGS  # noqa: F401
 from config.unfold import UNFOLD  # noqa: F401  (read by Unfold from settings)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,11 +52,19 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django_countries',
     'pgvector.django',
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+    'corsheaders',
     'core',
+    'api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Before any middleware that can return a response, so error responses get CORS headers too.
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # After sessions (it may read the language from the session), before
     # CommonMiddleware (which may redirect using the active language).
@@ -151,6 +160,15 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# CORS (ADR 0012)
+# Only listed origins, only on /api/, no cookies: the API authenticates with
+# JWT in the Authorization header.
+
+CORS_ALLOWED_ORIGINS = env.csv_list('DJANGO_CORS_ALLOWED_ORIGINS')
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ALLOW_CREDENTIALS = False
 
 
 # Tests

@@ -42,8 +42,12 @@ erDiagram
         varchar website
         bigint telegram_chat_id "nullable, Telegram group"
         varchar_array languages
-        bool is_default "at most one true"
-        bool is_active
+        bool is_default "at most one true, approved only"
+        bool is_active "false suspends"
+        varchar status "pending | approved | rejected"
+        timestamptz reviewed_at
+        bigint reviewed_by FK "nullable"
+        text rejection_reason
         timestamptz created_at
         timestamptz updated_at
     }
@@ -70,6 +74,7 @@ erDiagram
 | `Membership.user` | `User` | `CASCADE` | A membership has no meaning without its user. Users are deactivated, not deleted, in normal operation. |
 | `Membership.center` (via `CenterLinkedModel`) | `Center` | `CASCADE` | Every center-owned row belongs to the center; deleting a center removes its data. Centers are deactivated in normal operation. |
 | `created_by` (via `CreatedByMixin`) | `User` | `SET_NULL` | Content must survive the deletion of its author. Not yet used by a concrete model. |
+| `Center.reviewed_by` | `User` | `SET_NULL` | The review outcome must survive the reviewer's deletion. |
 
 ## Database constraints
 
@@ -85,14 +90,20 @@ by `full_clean()`.
 | `core_user` | `telegram_chat_id` unique | unique | One account per Telegram chat; several NULLs allowed. |
 | `core_center` | `name`, `slug` unique | unique | |
 | `core_center` | `only_one_default_center` | partial unique | `UNIQUE (is_default) WHERE is_default`. |
+| `core_center` | `default_center_must_be_approved` | check | `NOT is_default OR status = 'approved'`. |
 | `core_membership` | `uuid` unique | unique | |
 | `core_membership` | `unique_active_membership` | partial unique | `UNIQUE (user_id, center_id) WHERE is_active`. |
 | `core_membership` | `membership_active_matches_left_at` | check | Active with no `left_at`, or inactive with `left_at`. |
 
+SimpleJWT's `token_blacklist` app adds `OutstandingToken` (issued refresh tokens) and
+`BlacklistedToken` (revoked ones); see [ADR 0010](decisions/0010-jwt-authentication.md).
+
 ## Rules outside the database
 
 "A center keeps at least one active center admin" involves several rows and is enforced
-by `core.services.memberships` under row locks, not by a constraint.
+by `core.services.memberships` under row locks, not by a constraint. "Only pending
+centers are reviewed" and "a rejection has a reason" are enforced by
+`core.services.centers`.
 
 ## Extensions
 

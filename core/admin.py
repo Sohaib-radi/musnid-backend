@@ -13,23 +13,34 @@ Memberships change only through ``core.services.memberships`` (ADR 0007):
   deletion is disabled.
 * The membership inlines on users and centers are read-only, with a link to
   the membership's own page.
+
+Center review (ADR 0013) goes through ``core.services.centers``: bulk actions,
+and Approve/Reject buttons that open confirmation dialogs, shown only on
+pending centers and only to users with the change permission.
 """
 
 from django.contrib import admin, messages
+from django.contrib.admin.utils import unquote
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.http import HttpResponseNotAllowed, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from unfold.admin import ModelAdmin, TabularInline
-from unfold.decorators import action
+from unfold.decorators import action, display
 
 from core.forms import (
     AdminPasswordChangeForm, CenterAdminForm, MembershipAdminForm, UserChangeForm, UserCreationForm,
 )
 from core.models import Center, Membership, User
-from core.services import memberships
+from core.services import centers, memberships
 
 admin.site.unregister(Group)
 
@@ -111,25 +122,160 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
     ]
 
 
+def pending_centers_badge(request):
+    """Sidebar badge: the number of centers waiting for review (empty when none)."""
+    count = Center.objects.pending().count()
+    return str(count) if count else ''
+
+
 @admin.register(Center)
 class CenterAdmin(ModelAdmin):
-    """Centers of specialists, with the default-center action."""
+    """Centers of specialists: review, default center, settings."""
 
     form = CenterAdminForm
-    list_display = ['name', 'country', 'is_active', 'is_default', 'created_at']
-    list_filter = ['is_active', 'is_default', 'country']
+    change_form_template = 'admin/core/center/change_form.html'
+    list_filter = ['status', 'is_active', 'is_default', 'country']
     search_fields = ['name', 'slug', 'contact_email']
     prepopulated_fields = {'slug': ['name']}
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['status', 'reviewed_at', 'reviewed_by', 'created_at', 'updated_at']
     inlines = [CenterMembershipInline]
-    actions = ['make_default']
+    actions = ['approve_selected', 'reject_selected', 'make_default']
 
     fieldsets = [
         (None, {'fields': ['name', 'slug', 'country', 'logo', 'description']}),
         (_('Contact'), {'fields': ['contact_email', 'website', 'telegram_chat_id']}),
         (_('Service'), {'fields': ['languages', 'is_active', 'is_default']}),
+        (_('Review'), {'fields': ['status', 'rejection_reason', 'reviewed_at', 'reviewed_by']}),
         (_('Dates'), {'fields': ['created_at', 'updated_at']}),
     ]
+
+    def get_list_display(self, request):
+        columns = ['name', 'country', 'review_status', 'is_active', 'is_default', 'created_at']
+        if self.has_change_permission(request):
+            columns.append(self._review_column(request))
+        return columns
+
+    def get_readonly_fields(self, request, obj=None):
+        # The reason is part of the review: written by reject(), never edited afterwards.
+        return [*super().get_readonly_fields(request, obj), 'rejection_reason']
+
+    @display(
+        description=_('Review status'),
+        label={
+            Center.Status.PENDING: 'warning',
+            Center.Status.APPROVED: 'success',
+            Center.Status.REJECTED: 'danger',
+        },
+    )
+    def review_status(self, center):
+        """Coloured badge: amber pending, green approved, red rejected."""
+        return center.status, center.get_status_display()
+
+    def _review_column(self, request):
+        """
+        Build the "Review" column for this request.
+
+        A closure over ``request`` (needed for the CSRF token in the dialogs)
+        keeps the admin instance free of per-request state.
+        """
+        def review(center):
+            if center.status != Center.Status.PENDING:
+                return ''
+            return self.review_buttons(request, center)
+        review.short_description = _('Review')
+        return review
+
+    def review_buttons(self, request, center):
+        """Approve and Reject buttons with their confirmation dialogs."""
+        return render_to_string('admin/core/center/review_buttons.html', {
+            'center': center,
+            'approve_url': reverse('admin:core_center_approve', args=[center.pk]),
+            'reject_url': reverse('admin:core_center_reject', args=[center.pk]),
+            'next': request.get_full_path(),
+        }, request=request)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        center = self.get_object(request, unquote(object_id))
+        extra_context = extra_context or {}
+        if center and center.status == Center.Status.PENDING and self.has_change_permission(request, center):
+            extra_context['review_buttons'] = self.review_buttons(request, center)
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def get_urls(self):
+        review_urls = [
+            path('<path:object_id>/approve/', self.admin_site.admin_view(self.approve_view),
+                 name='core_center_approve'),
+            path('<path:object_id>/reject/', self.admin_site.admin_view(self.reject_view),
+                 name='core_center_reject'),
+        ]
+        return review_urls + super().get_urls()
+
+    def approve_view(self, request, object_id):
+        """POST: approve one pending center (from a row or the change page)."""
+        return self._review_view(request, object_id, lambda center: centers.approve(center, request.user),
+                                 _('“%(center)s” was approved.'))
+
+    def reject_view(self, request, object_id):
+        """POST: reject one pending center with the reason typed in the dialog."""
+        reason = request.POST.get('rejection_reason', '')
+        return self._review_view(request, object_id, lambda center: centers.reject(center, request.user, reason),
+                                 _('“%(center)s” was rejected.'))
+
+    def _review_view(self, request, object_id, review, success_message):
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+        center = get_object_or_404(Center, pk=unquote(object_id))
+        if not self.has_change_permission(request, center):
+            raise PermissionDenied
+        try:
+            review(center)
+            self.message_user(request, success_message % {'center': center}, messages.SUCCESS)
+        except ValidationError as error:
+            self.message_user(request, ' '.join(error.messages), messages.ERROR)
+        target = request.POST.get('next', '')
+        if not url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}):
+            target = reverse('admin:core_center_changelist')
+        return HttpResponseRedirect(target)
+
+    @action(description=_('Approve selected centers'), permissions=['change'])
+    def approve_selected(self, request, queryset):
+        """Approve every selected pending center; others are skipped and counted."""
+        self._bulk_review(request, queryset, lambda center: centers.approve(center, request.user))
+
+    @action(description=_('Reject selected centers'), permissions=['change'])
+    def reject_selected(self, request, queryset):
+        """Ask for a reason on an intermediate page, then reject every selected pending center."""
+        if 'apply' not in request.POST:
+            return TemplateResponse(request, 'admin/core/center/reject_selected.html', {
+                **self.admin_site.each_context(request),
+                'title': _('Reject selected centers'),
+                'opts': self.model._meta,
+                'centers': queryset,
+                'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
+            })
+        reason = request.POST.get('rejection_reason', '')
+        self._bulk_review(request, queryset, lambda center: centers.reject(center, request.user, reason))
+        return None
+
+    def _bulk_review(self, request, queryset, review):
+        """Apply ``review`` to each center; report successes and refusals with ngettext."""
+        done, refused = [], []
+        for center in queryset:
+            try:
+                review(center)
+                done.append(center)
+            except ValidationError as error:
+                refused.append(f'{center}: {" ".join(error.messages)}')
+        if done:
+            self.message_user(request, ngettext(
+                '%(count)d center was reviewed.', '%(count)d centers were reviewed.', len(done),
+            ) % {'count': len(done)}, messages.SUCCESS)
+        if refused:
+            self.message_user(request, ngettext(
+                '%(count)d center could not be reviewed: %(reasons)s',
+                '%(count)d centers could not be reviewed: %(reasons)s',
+                len(refused),
+            ) % {'count': len(refused), 'reasons': '; '.join(refused)}, messages.ERROR)
 
     @action(description=_('Make selected center the default'))
     def make_default(self, request, queryset):
@@ -140,7 +286,11 @@ class CenterAdmin(ModelAdmin):
             )
             return
         center = queryset.get()
-        center.make_default()
+        try:
+            center.make_default()
+        except ValidationError as error:
+            self.message_user(request, ' '.join(error.messages), messages.ERROR)
+            return
         self.message_user(
             request,
             _('“%(center)s” is now the default center.') % {'center': center},

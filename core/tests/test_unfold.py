@@ -127,11 +127,16 @@ class SidebarTests(TestCase):
             ([str(item['title']) for item in group['items']], str(group['title']))
             for group in UNFOLD['SIDEBAR']['navigation']
         ]
-        self.assertEqual(layout, [(['Centers', 'Memberships'], 'Centers'), (['Users', 'Groups'], 'Accounts')])
+        self.assertEqual(layout, [
+            (['Centers', 'Memberships'], 'Centers'),
+            (['Users', 'Groups'], 'Accounts'),
+            (['Outstanding tokens', 'Blacklisted tokens'], 'Security'),
+        ])
 
     def test_every_item_has_icon_link_and_permission(self):
         links = {
             '/admin/core/center/', '/admin/core/membership/', '/admin/core/user/', '/admin/auth/group/',
+            '/admin/token_blacklist/outstandingtoken/', '/admin/token_blacklist/blacklistedtoken/',
         }
         seen = set()
         for group in UNFOLD['SIDEBAR']['navigation']:
@@ -146,6 +151,6 @@ class SidebarTests(TestCase):
         request = RequestFactory().get('/admin/')
         items = [item for group in UNFOLD['SIDEBAR']['navigation'] for item in group['items']]
         request.user = make_user(is_staff=True)
-        self.assertEqual([item['permission'](request) for item in items], [False] * 4)
+        self.assertEqual([item['permission'](request) for item in items], [False] * 6)
         request.user = make_user(is_staff=True, is_superuser=True)
-        self.assertEqual([item['permission'](request) for item in items], [True] * 4)
+        self.assertEqual([item['permission'](request) for item in items], [True] * 6)

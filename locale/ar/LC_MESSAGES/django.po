@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 08:48+0000\n"
+"POT-Creation-Date: 2026-10-04 11:18+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -13,80 +13,174 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: config/settings.py:126 core/models/choices.py:16
+#: api/apps.py:11
+msgid "API"
+msgstr "واجهة البرمجة"
+
+#: api/permissions.py:19
+msgid "You are not a member of this center."
+msgstr "لست عضوًا في هذا المركز."
+
+#: api/permissions.py:29
+msgid "Only a center admin can do this."
+msgstr "لا يستطيع القيام بهذا إلا مسؤول المركز."
+
+#: api/permissions.py:40
+msgid ""
+"This center is not operational: it is pending review, rejected or suspended."
+msgstr "هذا المركز غير مفعَّل: إما قيد المراجعة أو مرفوض أو موقوف."
+
+#: api/v1/serializers/auth.py:27
+msgid "Whether a Telegram account is linked."
+msgstr "هل حساب Telegram مربوط."
+
+#: api/v1/serializers/auth.py:57 core/models/user.py:89 core/models/user.py:135
+msgid "A user with this email address already exists."
+msgstr "يوجد مستخدم بهذا البريد الإلكتروني بالفعل."
+
+#: api/v1/serializers/auth.py:114
+msgid "A center with this name already exists."
+msgstr "يوجد مركز بهذا الاسم بالفعل."
+
+#: api/v1/serializers/auth.py:120
+msgid "Unknown country code."
+msgstr "رمز الدولة غير معروف."
+
+#: config/settings.py:135 core/models/choices.py:16
 msgid "Arabic"
 msgstr "العربية"
 
-#: config/settings.py:127 core/models/choices.py:17
+#: config/settings.py:136 core/models/choices.py:17
 msgid "English"
 msgstr "الإنجليزية"
 
-#: config/settings.py:128 core/models/choices.py:18
+#: config/settings.py:137 core/models/choices.py:18
 msgid "French"
 msgstr "الفرنسية"
 
-#: config/unfold.py:99 config/unfold.py:102
+#: config/unfold.py:103 config/unfold.py:106
 msgid "Centers"
 msgstr "المراكز"
 
-#: config/unfold.py:103
+#: config/unfold.py:108
 msgid "Memberships"
 msgstr "العضويات"
 
-#: config/unfold.py:107
+#: config/unfold.py:112
 msgid "Accounts"
 msgstr "الحسابات"
 
-#: config/unfold.py:110
+#: config/unfold.py:115
 msgid "Users"
 msgstr "المستخدمون"
 
-#: config/unfold.py:111
+#: config/unfold.py:116
 msgid "Groups"
 msgstr "المجموعات"
 
-#: core/admin.py:96
+#: config/unfold.py:120
+msgid "Security"
+msgstr "الأمان"
+
+#: config/unfold.py:123
+msgid "Outstanding tokens"
+msgstr "الرموز الصادرة"
+
+#: config/unfold.py:125
+msgid "Blacklisted tokens"
+msgstr "الرموز الملغاة"
+
+#: core/admin.py:107
 msgid "Profile"
 msgstr "الملف الشخصي"
 
-#: core/admin.py:99
+#: core/admin.py:110
 msgid "Status"
 msgstr "الحالة"
 
-#: core/admin.py:100
+#: core/admin.py:111
 msgid "Permissions"
 msgstr "الصلاحيات"
 
-#: core/admin.py:104 core/admin.py:131
+#: core/admin.py:115 core/admin.py:149
 msgid "Dates"
 msgstr "التواريخ"
 
-#: core/admin.py:129
+#: core/admin.py:146
 msgid "Contact"
 msgstr "التواصل"
 
-#: core/admin.py:130
+#: core/admin.py:147
 msgid "Service"
 msgstr "الخدمة"
 
-#: core/admin.py:134
+#: core/admin.py:148 core/admin.py:185
+msgid "Review"
+msgstr "المراجعة"
+
+#: core/admin.py:163
+msgid "Review status"
+msgstr "حالة المراجعة"
+
+#: core/admin.py:216
+#, python-format
+msgid "“%(center)s” was approved."
+msgstr "تمت الموافقة على «%(center)s»."
+
+#: core/admin.py:222
+#, python-format
+msgid "“%(center)s” was rejected."
+msgstr "تم رفض «%(center)s»."
+
+#: core/admin.py:240
+msgid "Approve selected centers"
+msgstr "الموافقة على المراكز المحددة"
+
+#: core/admin.py:245 core/admin.py:251
+#: core/templates/admin/core/center/reject_selected.html:20
+msgid "Reject selected centers"
+msgstr "رفض المراكز المحددة"
+
+#: core/admin.py:271
+#, python-format
+msgid "%(count)d center was reviewed."
+msgid_plural "%(count)d centers were reviewed."
+msgstr[0] "عدد المراكز التي رُوجعت: %(count)d."
+msgstr[1] "عدد المراكز التي رُوجعت: %(count)d."
+msgstr[2] "عدد المراكز التي رُوجعت: %(count)d."
+msgstr[3] "عدد المراكز التي رُوجعت: %(count)d."
+msgstr[4] "عدد المراكز التي رُوجعت: %(count)d."
+msgstr[5] "عدد المراكز التي رُوجعت: %(count)d."
+
+#: core/admin.py:275
+#, python-format
+msgid "%(count)d center could not be reviewed: %(reasons)s"
+msgid_plural "%(count)d centers could not be reviewed: %(reasons)s"
+msgstr[0] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
+msgstr[1] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
+msgstr[2] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
+msgstr[3] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
+msgstr[4] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
+msgstr[5] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
+
+#: core/admin.py:280
 msgid "Make selected center the default"
 msgstr "جعل المركز المحدد هو المركز الافتراضي"
 
-#: core/admin.py:139
+#: core/admin.py:285
 msgid "Select exactly one center to make it the default."
 msgstr "حدّد مركزًا واحدًا فقط لجعله المركز الافتراضي."
 
-#: core/admin.py:146
+#: core/admin.py:296
 #, python-format
 msgid "“%(center)s” is now the default center."
 msgstr "أصبح «%(center)s» المركز الافتراضي."
 
-#: core/admin.py:192
+#: core/admin.py:342
 msgid "Offboard selected memberships"
 msgstr "إنهاء العضويات المحددة"
 
-#: core/admin.py:206
+#: core/admin.py:356
 #, python-format
 msgid "%(count)d membership was offboarded."
 msgid_plural "%(count)d memberships were offboarded."
@@ -97,7 +191,7 @@ msgstr[3] "عدد العضويات التي أُنهيت: %(count)d."
 msgstr[4] "عدد العضويات التي أُنهيت: %(count)d."
 msgstr[5] "عدد العضويات التي أُنهيت: %(count)d."
 
-#: core/admin.py:216
+#: core/admin.py:366
 #, python-format
 msgid "%(count)d membership could not be offboarded: %(reasons)s"
 msgid_plural "%(count)d memberships could not be offboarded: %(reasons)s"
@@ -116,7 +210,7 @@ msgstr "تاريخ الإنشاء"
 msgid "updated at"
 msgstr "تاريخ التحديث"
 
-#: core/models/base.py:74 core/models/center.py:50
+#: core/models/base.py:74 core/models/center.py:105
 msgid "center"
 msgstr "مركز"
 
@@ -124,68 +218,108 @@ msgstr "مركز"
 msgid "created by"
 msgstr "أنشأه"
 
-#: core/models/center.py:21
+#: core/models/center.py:47
+msgid "Pending review"
+msgstr "قيد المراجعة"
+
+#: core/models/center.py:48
+msgid "Approved"
+msgstr "مقبول"
+
+#: core/models/center.py:49
+msgid "Rejected"
+msgstr "مرفوض"
+
+#: core/models/center.py:51
 msgid "name"
 msgstr "الاسم"
 
-#: core/models/center.py:22
+#: core/models/center.py:52
 msgid "slug"
 msgstr "المعرّف في الرابط"
 
-#: core/models/center.py:23
+#: core/models/center.py:53
 msgid "country"
 msgstr "الدولة"
 
-#: core/models/center.py:24
+#: core/models/center.py:54
 msgid "logo"
 msgstr "الشعار"
 
-#: core/models/center.py:25
+#: core/models/center.py:55
 msgid "description"
 msgstr "الوصف"
 
-#: core/models/center.py:26
+#: core/models/center.py:56
 msgid "contact email"
 msgstr "البريد الإلكتروني للتواصل"
 
-#: core/models/center.py:27
+#: core/models/center.py:57
 msgid "website"
 msgstr "الموقع الإلكتروني"
 
-#: core/models/center.py:29
+#: core/models/center.py:59
 msgid "Telegram Group ID"
 msgstr "معرّف مجموعة Telegram"
 
-#: core/models/center.py:33
+#: core/models/center.py:63
 msgid ""
 "Telegram group where referred questions are sent, for example -1001234567890."
 msgstr ""
 "مجموعة Telegram التي تُرسَل إليها الأسئلة المُحالة، مثل ⁦-1001234567890⁩."
 
-#: core/models/center.py:38
+#: core/models/center.py:68
 msgid "languages served"
 msgstr "اللغات المخدومة"
 
-#: core/models/center.py:43
+#: core/models/center.py:73
 msgid "default center"
 msgstr "المركز الافتراضي"
 
-#: core/models/center.py:45
+#: core/models/center.py:75
 msgid "Receives referred questions when no other center is selected."
 msgstr "يستقبل الأسئلة المُحالة عندما لا يُحدَّد مركز آخر."
 
-#: core/models/center.py:47 core/models/membership.py:63
+#: core/models/center.py:78 core/models/membership.py:63
 #: core/models/user.py:107
 msgid "active"
 msgstr "نشط"
 
-#: core/models/center.py:51
+#: core/models/center.py:80
+msgid "Uncheck to suspend an approved center."
+msgstr "ألغِ التحديد لإيقاف مركز مقبول."
+
+#: core/models/center.py:85
+msgid "review status"
+msgstr "حالة المراجعة"
+
+#: core/models/center.py:87
+msgid "reviewed at"
+msgstr "تاريخ المراجعة"
+
+#: core/models/center.py:94
+msgid "reviewed by"
+msgstr "راجعه"
+
+#: core/models/center.py:97
+msgid "rejection reason"
+msgstr "سبب الرفض"
+
+#: core/models/center.py:99
+msgid "Shown to the applicant."
+msgstr "يُعرض على مقدّم الطلب."
+
+#: core/models/center.py:106
 msgid "centers"
 msgstr "المراكز"
 
-#: core/models/center.py:57
+#: core/models/center.py:112
 msgid "Only one center can be the default center."
 msgstr "يمكن أن يكون مركز واحد فقط هو المركز الافتراضي."
+
+#: core/models/center.py:117 core/models/center.py:159
+msgid "Only an approved center can be the default center."
+msgstr "لا يمكن أن يكون المركز الافتراضي إلا مركزًا مقبولًا."
 
 #: core/models/membership.py:50
 msgid "Specialist"
@@ -235,10 +369,6 @@ msgstr ""
 msgid "email address"
 msgstr "البريد الإلكتروني"
 
-#: core/models/user.py:89 core/models/user.py:135
-msgid "A user with this email address already exists."
-msgstr "يوجد مستخدم بهذا البريد الإلكتروني بالفعل."
-
 #: core/models/user.py:91
 msgid "full name"
 msgstr "الاسم الكامل"
@@ -285,6 +415,14 @@ msgstr "يحدد ما إذا كان المستخدم قد أكّد بريده ا
 msgid "users"
 msgstr "المستخدمون"
 
+#: core/services/centers.py:64
+msgid "A reason is required to reject a center."
+msgstr "يجب ذكر سبب لرفض المركز."
+
+#: core/services/centers.py:87
+msgid "Only a pending center can be reviewed."
+msgstr "لا يمكن مراجعة إلا مركز قيد المراجعة."
+
 #: core/services/memberships.py:54
 msgid "No user exists with this email address."
 msgstr "لا يوجد مستخدم بهذا البريد الإلكتروني."
@@ -305,3 +443,47 @@ msgstr "حساب هذا المستخدم معطَّل."
 #: core/services/memberships.py:206
 msgid "A center must keep at least one active center admin."
 msgstr "يجب أن يحتفظ المركز بمسؤول مركز نشط واحد على الأقل."
+
+#: core/templates/admin/core/center/reject_selected.html:7
+msgid ""
+"These centers will be rejected. Only pending centers are reviewed; others are"
+" skipped."
+msgstr ""
+"سيتم رفض هذه المراكز. لا تُراجَع إلا المراكز التي قيد المراجعة، ويُتجاوز "
+"غيرها."
+
+#: core/templates/admin/core/center/reject_selected.html:14
+#: core/templates/admin/core/center/review_buttons.html:27
+msgid "Reason (shown to the applicant)"
+msgstr "السبب (يُعرض على مقدّم الطلب)"
+
+#: core/templates/admin/core/center/reject_selected.html:19
+#: core/templates/admin/core/center/review_buttons.html:16
+#: core/templates/admin/core/center/review_buttons.html:30
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: core/templates/admin/core/center/review_buttons.html:5
+#: core/templates/admin/core/center/review_buttons.html:17
+msgid "Approve"
+msgstr "موافقة"
+
+#: core/templates/admin/core/center/review_buttons.html:7
+#: core/templates/admin/core/center/review_buttons.html:31
+msgid "Reject"
+msgstr "رفض"
+
+#: core/templates/admin/core/center/review_buttons.html:13
+msgid "Approve this center?"
+msgstr "الموافقة على هذا المركز؟"
+
+#: core/templates/admin/core/center/review_buttons.html:14
+#, python-format
+msgid ""
+"“%(name)s” will become operational and its center admins will get access to "
+"their dashboard."
+msgstr "سيصبح «%(name)s» مفعَّلًا وسيحصل مسؤولوه على لوحة التحكم."
+
+#: core/templates/admin/core/center/review_buttons.html:26
+msgid "Reject this center?"
+msgstr "رفض هذا المركز؟"

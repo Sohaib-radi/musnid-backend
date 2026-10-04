@@ -18,6 +18,7 @@ through the helpers in `config/env.py`.
 | `DJANGO_SECRET_KEY` | Yes | none | Django `SECRET_KEY`: signs sessions, password reset tokens and other signed data. |
 | `DJANGO_DEBUG` | No | off | Django `DEBUG`. Enabled only by the exact string `True`. |
 | `DJANGO_ALLOWED_HOSTS` | No | empty list | Django `ALLOWED_HOSTS`, comma-separated, for example `localhost,127.0.0.1`. |
+| `DJANGO_CORS_ALLOWED_ORIGINS` | No | empty list (no CORS) | Origins allowed to call `/api/` from a browser, comma-separated, for example `https://app.example.org,http://localhost:3000` ([ADR 0012](../architecture/decisions/0012-cors-policy.md)). |
 | `POSTGRES_DB` | Yes | none | Database name. Also creates the database in the `db` container on first start. |
 | `POSTGRES_USER` | Yes | none | Database role. Also creates the role in the `db` container on first start. |
 | `POSTGRES_PASSWORD` | Yes | none | Password of that role. |

@@ -107,17 +107,26 @@ Methods: `__str__` returns the email; `get_full_name()` and `get_short_name()` r
 | `website` | `URLField` | Optional. |
 | `telegram_chat_id` | `BigIntegerField` | Label "Telegram Group ID". Nullable. Group where referred questions are sent, for example `-1001234567890`. |
 | `languages` | `ArrayField` of `CharField(2)` with `Language` choices | Languages served. Default empty list. |
-| `is_default` | `BooleanField` | Default false. At most one center (constraint below). |
-| `is_active` | `BooleanField` | Default true. |
+| `is_default` | `BooleanField` | Default false. At most one center, approved only (constraints below). |
+| `is_active` | `BooleanField` | Default true. Unchecked suspends an approved center. |
+| `status` | `CharField(10)` | `Center.Status`: `pending`, `approved` (default), `rejected`. Changed only by `core.services.centers`. |
+| `reviewed_at` | `DateTimeField` | Nullable. Set by the review. |
+| `reviewed_by` | `ForeignKey` to the user model | `SET_NULL`, nullable, no reverse accessor. |
+| `rejection_reason` | `TextField` | Optional. Shown to the applicant. |
 
 | Constraint | Definition |
 | --- | --- |
 | `only_one_default_center` | `UNIQUE (is_default) WHERE is_default`. Message: "Only one center can be the default center." |
+| `default_center_must_be_approved` | `CHECK (NOT is_default OR status = 'approved')`. Message: "Only an approved center can be the default center." |
+
+`Center.objects` is a `CenterStatusQuerySet`: `operational()` (approved and active),
+`pending()`, `with_active_member(user)` (centers where `user` has an active membership).
+Property `is_operational`: approved and active.
 
 | Method | Behaviour |
 | --- | --- |
 | `save()` | When `is_default` is true, runs `validate_constraints()` first, so a second default raises `ValidationError` with the constraint's translated message. The database constraint remains the final guard. |
-| `make_default()` | In one transaction, locks the current default and this row (`SELECT ... FOR UPDATE`), unsets the previous default (with `updated_at`), then sets this one. Idempotent. |
+| `make_default()` | Refuses a non-approved center (`ValidationError`, code `center_not_approved`). In one transaction, locks the current default and this row (`SELECT ... FOR UPDATE`), unsets the previous default (with `updated_at`), then sets this one. Idempotent. |
 
 ## `Membership` (`core/models/membership.py`)
 
@@ -148,6 +157,18 @@ Extends `CenterQuerySet`. Each method applies one filter; they chain.
 | `active()` | `is_active=True` |
 | `center_admins()` | `role='center_admin'` (active or not) |
 | `specialists()` | `role='specialist'` (active or not) |
+
+## Services (`core/services/centers.py`)
+
+| Function | Behaviour | Error codes |
+| --- | --- | --- |
+| `register_center(applicant, **fields)` | Creates a `pending` center (slug from the name when omitted, unique) and makes `applicant` its center admin, in one transaction. Ignores `status`, review fields and `is_default` from the caller. | those of `add_member` |
+| `approve(center, reviewer)` | Pending to approved; records reviewer and date. | `center_not_pending` |
+| `reject(center, reviewer, reason)` | Pending to rejected with the (trimmed) reason. | `rejection_reason_required`, `center_not_pending` |
+| `unique_slug(name)` | A free slug; Arabic names fall back to `center`, then `center-2`, … | |
+
+Reviews lock the center row (`SELECT ... FOR UPDATE`) so two reviewers cannot both
+review it.
 
 ## Services (`core/services/memberships.py`)
 

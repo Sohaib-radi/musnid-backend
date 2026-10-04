@@ -12,9 +12,11 @@ description: Migration history of the project and the conventions for writing mi
 | App | Migration | Date | Content |
 | --- | --- | --- | --- |
 | `core` | `0001_initial` | 2026-10-04 | Enables the `vector` extension (first operation), then creates `User`, `Center`, `Membership` and their constraints: `unique_user_email_ci`, `only_one_default_center`, `unique_active_membership`, `membership_active_matches_left_at`. |
+| `core` | `0002_center_review` | 2026-10-04 | Adds `status` (default `approved`, so existing centers become approved), `reviewed_at`, `reviewed_by`, `rejection_reason`, the help text of `is_active`, and the constraint `default_center_must_be_approved`. |
 
 Third-party apps bring their own migrations (`auth`, `admin`, `contenttypes`,
-`sessions`). `django_countries` and `pgvector.django` have none.
+`sessions`, `token_blacklist`). `django_countries`, `pgvector.django`, `rest_framework`,
+`drf_spectacular` and `corsheaders` have none.
 
 ## Conventions
 

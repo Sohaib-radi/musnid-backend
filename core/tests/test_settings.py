@@ -30,7 +30,8 @@ PROBE = (
     'import json, config.settings as s; '
     'db = s.DATABASES["default"]; '
     'print(json.dumps({"DEBUG": s.DEBUG, "ALLOWED_HOSTS": s.ALLOWED_HOSTS, '
-    '"ENGINE": db["ENGINE"], "HOST": db["HOST"], "PORT": db["PORT"]}))'
+    '"ENGINE": db["ENGINE"], "HOST": db["HOST"], "PORT": db["PORT"], '
+    '"CORS_ALLOWED_ORIGINS": s.CORS_ALLOWED_ORIGINS}))'
 )
 
 
@@ -44,7 +45,8 @@ def import_settings(**overrides):
             ``.env`` cannot leak into the result.
     """
     environ = {**os.environ, **REQUIRED}
-    for name in ('DJANGO_DEBUG', 'DJANGO_ALLOWED_HOSTS', 'POSTGRES_HOST', 'POSTGRES_PORT'):
+    for name in ('DJANGO_DEBUG', 'DJANGO_ALLOWED_HOSTS', 'POSTGRES_HOST', 'POSTGRES_PORT',
+                 'DJANGO_CORS_ALLOWED_ORIGINS'):
         environ[name] = ''
     environ.update(overrides)
     return subprocess.run(
@@ -97,12 +99,15 @@ class OptionalVariableTests(SimpleTestCase):
         self.assertEqual(values['HOST'], 'localhost')
         self.assertEqual(values['PORT'], '5435')
         self.assertEqual(values['ALLOWED_HOSTS'], [])
+        self.assertEqual(values['CORS_ALLOWED_ORIGINS'], [])
 
     def test_overrides(self):
         values = load_settings(
             POSTGRES_HOST='db', POSTGRES_PORT='5432',
             DJANGO_ALLOWED_HOSTS='localhost, 127.0.0.1',
+            DJANGO_CORS_ALLOWED_ORIGINS='https://app.example.org, http://localhost:3000',
         )
         self.assertEqual(values['HOST'], 'db')
         self.assertEqual(values['PORT'], '5432')
         self.assertEqual(values['ALLOWED_HOSTS'], ['localhost', '127.0.0.1'])
+        self.assertEqual(values['CORS_ALLOWED_ORIGINS'], ['https://app.example.org', 'http://localhost:3000'])

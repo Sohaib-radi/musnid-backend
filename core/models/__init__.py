@@ -6,7 +6,7 @@ code imports from ``core.models`` and never from the submodules.
 """
 
 from .base import BaseModel, CenterLinkedModel, CenterQuerySet, CreatedByMixin
-from .center import Center
+from .center import Center, CenterStatusQuerySet
 from .choices import Language
 from .membership import Membership, MembershipQuerySet
 from .user import User, UserManager
@@ -16,6 +16,7 @@ __all__ = [
     'Center',
     'CenterLinkedModel',
     'CenterQuerySet',
+    'CenterStatusQuerySet',
     'CreatedByMixin',
     'Language',
     'Membership',

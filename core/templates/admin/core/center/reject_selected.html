@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{# Intermediate page of the "Reject selected centers" action: asks for the reason. #}
+{% block content %}
+<form method="post" class="musnid-reject-selected">
+    {% csrf_token %}
+    <p>{% translate "These centers will be rejected. Only pending centers are reviewed; others are skipped." %}</p>
+    <ul>
+        {% for center in centers %}
+            <li>{{ center.name }} — {{ center.get_status_display }}</li>
+            <input type="hidden" name="{{ action_checkbox_name }}" value="{{ center.pk }}">
+        {% endfor %}
+    </ul>
+    <label for="rejection_reason">{% translate "Reason (shown to the applicant)" %}</label>
+    <textarea id="rejection_reason" name="rejection_reason" rows="4" required></textarea>
+    <input type="hidden" name="action" value="reject_selected">
+    <input type="hidden" name="apply" value="1">
+    <div class="musnid-dialog-actions">
+        <a href="" class="musnid-btn musnid-btn-outline">{% translate "Cancel" %}</a>
+        <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Reject selected centers" %}</button>
+    </div>
+</form>
+{% endblock %}

@@ -44,7 +44,7 @@ VENDOR_LOCALE = settings.BASE_DIR / 'locale_vendor' / 'unfold'
 # French words spelled exactly like their English msgid. Anything else left
 # identical in French is treated as untranslated.
 FRENCH_SAME_AS_ENGLISH = {
-    'Action', 'Contact', 'Date', 'Dates', 'Permissions', 'Service',
+    'API', 'Action', 'Contact', 'Date', 'Dates', 'Permissions', 'Service',
     'avatar', 'description', 'logo',
 }
 
@@ -197,7 +197,7 @@ class ExtractionTests(SimpleTestCase):
     def test_project_catalog_is_up_to_date(self):
         with tempfile.TemporaryDirectory() as tmp:
             copy = Path(tmp)
-            for name in ('config', 'core'):
+            for name in ('config', 'core', 'api'):
                 shutil.copytree(settings.BASE_DIR / name, copy / name, ignore=shutil.ignore_patterns('__pycache__', 'static'))
             extracted = self.extract(copy, MAKEMESSAGES_IGNORES)
             for language in LANGUAGES:
