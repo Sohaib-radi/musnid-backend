@@ -5,7 +5,9 @@ from unittest import mock
 
 from django.test import TestCase
 
-from agents.crews import Classification, VerifiedAnswer, build_llm, prompt_version
+from agents.crews import (
+    Classification, EntailmentVerdicts, VerifiedAnswer, build_llm, check_entailment, prompt_version,
+)
 from core.models import AISettings
 
 KEY = 'sk-test-0000000000000000000000'
@@ -45,6 +47,36 @@ class CrewDefinitionTests(TestCase):
         settings.save()
         llm = build_llm()
         self.assertEqual((llm.model, llm.temperature), ('gpt-4o', 0.5))
+
+
+@mock.patch('agents.crews.credentials.get_openai_key', return_value=KEY)
+class EntailmentTests(TestCase):
+    """check_entailment: one request on the verifier model, verdict count checked."""
+
+    def fake_llm(self, verdicts):
+        llm = mock.Mock()
+        llm.call.return_value = EntailmentVerdicts(verdicts=verdicts)
+        llm.get_token_usage_summary.return_value = 'usage'
+        return llm
+
+    def test_one_call_for_all_pairs_on_the_verifier_model(self, _key):
+        settings = AISettings.load()
+        settings.verifier_model = 'gpt-4o'
+        settings.save()
+        llm = self.fake_llm(['supported', 'not_supported'])
+        with mock.patch('agents.crews.build_llm', return_value=llm) as build:
+            verdicts, usage = check_entailment([('a', 'qa'), ('b', 'qb')])
+        self.assertEqual((verdicts, usage), (['supported', 'not_supported'], 'usage'))
+        self.assertEqual(build.call_args.kwargs['model'], 'gpt-4o')
+        self.assertEqual(llm.call.call_count, 1)
+        prompt = llm.call.call_args.args[0][1]['content']
+        self.assertIn('1. SENTENCE: a', prompt)
+        self.assertIn('2. SENTENCE: b', prompt)
+
+    def test_verdict_count_mismatch_raises(self, _key):
+        with mock.patch('agents.crews.build_llm', return_value=self.fake_llm(['supported'])):
+            with self.assertRaises(ValueError):
+                check_entailment([('a', 'qa'), ('b', 'qb')])
 
 
 class MiscTests(TestCase):

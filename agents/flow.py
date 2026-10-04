@@ -15,6 +15,7 @@ Any failure ends in the fixed abstain, with the error saved and keys masked.
 
 import re
 import threading
+from types import SimpleNamespace
 
 from crewai.flow.flow import Flow, listen, router, start
 from crewai.events.listeners.tracing.utils import is_first_execution, mark_first_execution_done
@@ -58,6 +59,21 @@ def fixed_reply(kind, language):
         }[kind]
 
 
+def script_language(text, guess):
+    """
+    The asker's language, with the Arabic case decided by script, not by the model.
+
+    Text that is mostly Arabic script is "ar". The classifier's guess is kept for
+    other text, except "ar", which the model sometimes returns for English
+    questions (observed 2026-10-04): it falls back to "en".
+    """
+    letters = [char for char in text if char.isalpha()]
+    arabic = sum('\u0600' <= char <= '\u06ff' for char in letters)
+    if letters and arabic / len(letters) > 0.5:
+        return 'ar'
+    return 'en' if guess == 'ar' else guess
+
+
 def mask_secrets(text):
     """Mask API keys and bearer tokens in ``text`` (for stored errors)."""
     return SECRET.sub(lambda m: f'{m.group(1)}…' if m.group(1) else f'{m.group(2)}…', text)
@@ -89,12 +105,13 @@ class AskFlow(Flow[QAState]):
     by default the real crews (``agents/crews``) are built when first needed.
     """
 
-    def __init__(self, embedder, classify_crew=None, answer_crew=None, **kwargs):
+    def __init__(self, embedder, classify_crew=None, answer_crew=None, entailment=None, **kwargs):
         # suppress_flow_events: no console panels (they print regardless of verbose).
         super().__init__(suppress_flow_events=True, **kwargs)
         self.embedder = embedder
         self.classify_crew = classify_crew
         self.answer_crew = answer_crew
+        self.entailment = entailment
 
     # Steps
 
@@ -105,7 +122,7 @@ class AskFlow(Flow[QAState]):
             output = crew.kickoff(inputs={'question': self.state.question})
             result = output.pydantic
             self._count_tokens(output)
-            self.state.language = result.language
+            self.state.language = script_language(self.state.question, result.language)
             self.state.level = result.level
             self.state.search_query = result.search_query.strip() or self.state.question
         except Exception as error:  # any failure ends in the fixed abstain
@@ -161,7 +178,8 @@ class AskFlow(Flow[QAState]):
             })
             self._count_tokens(output)
             verified = output.pydantic
-            self.decide(self.supported_text(verified.sentences), verified.coverage)
+            kept = self.entailed(self.quoted(verified.sentences))
+            self.decide(' '.join(s.text.strip() for s in kept), verified.coverage)
         except Exception as error:
             self._fail('answer crew', error)
             self._fixed('abstain')
@@ -180,9 +198,9 @@ class AskFlow(Flow[QAState]):
 
     # Decision
 
-    def supported_text(self, sentences):
+    def quoted(self, sentences):
         """
-        Join the sentences whose quote really is in the evidence.
+        Keep the sentences whose quote really is in the evidence.
 
         Quotes are compared after Arabic normalization and with punctuation
         removed, so diacritics or punctuation differences do not matter; a quote
@@ -195,10 +213,29 @@ class AskFlow(Flow[QAState]):
         for sentence in sentences:
             quote = _comparable(sentence.quote)
             if len(quote) >= MIN_QUOTE_CHARS and quote in evidence:
-                kept.append(sentence.text.strip())
+                kept.append(sentence)
             else:
-                self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote})
-        return ' '.join(kept)
+                self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote, 'reason': 'quote'})
+        return kept
+
+    def entailed(self, sentences):
+        """
+        Keep the sentences whose quote states their claim, judged by ONE batched
+        request to the verifier model (``check_entailment``). Failures propagate
+        and end in the fixed abstain.
+        """
+        if not sentences:
+            return []
+        check = self.entailment or _default_entailment
+        verdicts, usage = check([(s.text, s.quote) for s in sentences])
+        self._count_tokens(SimpleNamespace(token_usage=usage))
+        kept = []
+        for sentence, verdict in zip(sentences, verdicts):
+            if verdict == 'supported':
+                kept.append(sentence)
+            else:
+                self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote, 'reason': 'entailment'})
+        return kept
 
     def decide(self, answer, coverage):
         """Apply the safeguards to the verified answer (see the module docstring)."""
@@ -243,6 +280,11 @@ class AskFlow(Flow[QAState]):
 def _comparable(text):
     """Normalized text without punctuation or extra spaces, for quote matching."""
     return ' '.join(NON_WORD.sub(' ', normalize(text)).split())
+
+
+def _default_entailment(pairs):
+    from agents.crews import check_entailment
+    return check_entailment(pairs)
 
 
 def _default_classify_crew():

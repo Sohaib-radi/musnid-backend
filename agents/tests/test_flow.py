@@ -1,10 +1,12 @@
 """Tests for agents/flow.py and agents/services.py: every route and safeguard, crews mocked."""
 
+from types import SimpleNamespace
+
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.utils import translation
 
 from agents.crews import prompt_version
-from agents.flow import fixed_reply, mask_secrets
+from agents.flow import fixed_reply, mask_secrets, script_language
 from agents.services import ask
 from agents.tests.support import QUOTE, FakeCrew, answered, classified
 from core.tests.support import make_center
@@ -32,17 +34,23 @@ class FlowTestCase(TransactionTestCase):
         self.center = make_center(is_default=True)
         self.addCleanup(translation.activate, 'en')
 
-    def run_ask(self, classify, answer=None, embedder=None, text=QUESTION):
+    def run_ask(self, classify, answer=None, embedder=None, text=QUESTION, entailment=None):
         self.answer_crew = answer or answered()
-        return ask(text, session_id='s1', embedder=embedder or self.embedder,
-                   classify_crew=classify, answer_crew=self.answer_crew)
+        self.entailment_calls = []
+
+        def all_supported(pairs):
+            self.entailment_calls.append(pairs)
+            return ['supported'] * len(pairs), SimpleNamespace(prompt_tokens=3, completion_tokens=1)
+        return ask(text, session_id='s1', embedder=embedder or self.embedder, classify_crew=classify,
+                   answer_crew=self.answer_crew, entailment=entailment or all_supported)
 
 
 class RoutingTests(FlowTestCase):
     """Out of scope, level D, low score and failures end in fixed replies."""
 
     def test_out_of_scope_gets_the_fixed_refusal(self):
-        interaction = self.run_ask(classified('out_of_scope', 'en', 'capital of France'))
+        interaction = self.run_ask(classified('out_of_scope', 'en', 'capital of France'),
+                                   text='What is the capital of France?')
         self.assertEqual(interaction.decision, Interaction.Decision.OUT_OF_SCOPE)
         self.assertEqual(interaction.answer_text, fixed_reply('out_of_scope', 'en'))
         self.assertEqual(interaction.retrieved, [])
@@ -125,6 +133,25 @@ class AnswerTests(FlowTestCase):
         ]))
         self.assertEqual(interaction.answer_text, 'جملة مدعومة [Q1].')
 
+    def test_entailment_is_one_batched_call_with_every_quoted_pair(self):
+        self.run_ask(classified(), answered([('أ [Q1].', QUOTE), ('ب [Q1].', QUOTE), ('ج [Q1].', 'غير موجود في الأدلة أبدا')]))
+        self.assertEqual(self.entailment_calls, [[('أ [Q1].', QUOTE), ('ب [Q1].', QUOTE)]])
+
+    def test_not_supported_sentences_are_dropped(self):
+        def judge(pairs):
+            return ['supported', 'not_supported'], SimpleNamespace(prompt_tokens=0, completion_tokens=0)
+        interaction = self.run_ask(classified(), answered([
+            ('لم ينتشر الإسلام بالسيف [Q1].', QUOTE), ('مما يدل على أمر آخر [Q1].', QUOTE),
+        ]), entailment=judge)
+        self.assertEqual(interaction.answer_text, 'لم ينتشر الإسلام بالسيف [Q1].')
+
+    def test_entailment_failure_abstains(self):
+        def broken(pairs):
+            raise ValueError('entailment returned 1 verdicts for 2 pairs')
+        interaction = self.run_ask(classified(), entailment=broken)
+        self.assertEqual(interaction.decision, 'abstain')
+        self.assertIn('answer crew: ValueError', interaction.error)
+
     def test_translated_quote_counts_as_missing(self):
         interaction = self.run_ask(classified(language='en'), answered([
             ('Islam did not spread by the sword [Q1].', 'Islam did not spread by the sword.'),
@@ -169,7 +196,7 @@ class SavingTests(FlowTestCase):
         self.assertEqual(interaction.question, question)
         self.assertEqual(interaction.model_name, 'gpt-4o-mini')
         self.assertEqual(interaction.prompt_version, prompt_version())
-        self.assertEqual((interaction.tokens_in, interaction.tokens_out), (20, 10))  # two crews
+        self.assertEqual((interaction.tokens_in, interaction.tokens_out), (23, 11))  # two crews + entailment
         self.assertGreaterEqual(interaction.latency_ms, 0)
         self.assertEqual(interaction.search_query, QUESTION)
 
@@ -200,6 +227,11 @@ class FixedReplyTests(TestCase):
     def test_disagreement_notice_text(self):
         self.assertEqual(fixed_reply('disagreement', 'en'),
                          'This matter involves scholarly disagreement; consult a specialist for your situation.')
+
+    def test_script_language(self):
+        self.assertEqual(script_language('هل انتشر الإسلام بالسيف؟', 'en'), 'ar')
+        self.assertEqual(script_language('Did Islam spread by the sword?', 'ar'), 'en')
+        self.assertEqual(script_language('L’islam s’est-il répandu par l’épée ?', 'fr'), 'fr')
 
     def test_mask_secrets(self):
         masked = mask_secrets('key sk-proj-abcdefghij and header Bearer abc.def')

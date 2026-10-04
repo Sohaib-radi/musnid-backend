@@ -16,6 +16,10 @@ write:
     - NEVER quote the Quran or hadith from memory. Where the evidence shows [آية], refer to
       the verse ("as stated in a verse") without reconstructing its text.
     - If the level is C: state that scholars differ, and make no absolute claims.
+    - Stay close to the wording of the evidence. Add no conclusions, interpretations,
+      generalizations or summaries of your own.
+    - Do not use connectors such as "مما يدل على", "this shows that", "this means" or
+      "rather than" unless the evidence itself states that link.
     - Be concise: a few short paragraphs.
   expected_output: >
     The answer, with [Q<n>] citations.

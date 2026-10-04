@@ -67,6 +67,20 @@ passage), yet unsupported claims were kept: Arabic "…لم يفرض الجزي�
 allowed for the peaceful propagation of Islam". The quote check enforces provenance, not
 entailment.
 
+Re-run with the batched entailment check and the tightened writer prompt (2026-10-04,
+verifier gpt-4o):
+
+| Question | Decision | Kept | Dropped (reason) | Tokens in / out | Latency |
+| --- | --- | --- | --- | --- | --- |
+| هل انتشر الإسلام بالسيف؟ | answer | 4 sentences, close to the book's wording | 2 (quote reworded, e.g. "فذلك من جهة" for "فمِن جهة") | 31,597 / 1,775 | 45.6 s |
+| Did Islam spread by the sword? | partial | 3 sentences | 2 (quote reworded) | 31,143 / 1,266 | 19.8 s |
+
+No sentence was judged not_supported: the earlier unsupported inferences no longer
+appeared once the writer was told to stay close to the evidence. The strict quote check
+drops correct sentences whose quote is slightly reworded. The English question was labelled
+"ar" by the classifier and got the Arabic partial note; the language is now decided by
+script for Arabic.
+
 Decisions from these results: `LOW_THRESHOLD = 0.30` as a starting value;
 `EVIDENCE_QUESTIONS = 3`. Calibration with the 60-question evaluation is planned for
 2026-10-06.

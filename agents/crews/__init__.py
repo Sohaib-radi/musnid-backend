@@ -56,6 +56,48 @@ class VerifiedAnswer(BaseModel):
     coverage: Literal['full', 'partial', 'none'] = Field(description='How far the evidence answers the question.')
 
 
+class EntailmentVerdicts(BaseModel):
+    """Output of the entailment check: one verdict per sentence-quote pair, in order."""
+
+    verdicts: list[Literal['supported', 'not_supported']] = Field(
+        description='One verdict per numbered pair, in the same order.',
+    )
+
+
+ENTAILMENT_PROMPT = """You check whether quotes support sentences.
+Each numbered pair has a SENTENCE (any language) and a QUOTE copied from an Arabic source.
+For each pair answer "supported" only if the quote alone states the sentence's claim:
+same facts, nothing added. Answer "not_supported" if the sentence adds anything the quote
+does not state: a conclusion or inference ("which shows that", "مما يدل على", "this means"),
+a contrast ("rather than", "instead of"), a cause, a generalization, a summary, a date,
+a number, a place or any other detail. Judge meaning across languages. Ignore [Q<n>] markers.
+Return exactly one verdict per pair, in order."""
+
+
+def check_entailment(pairs):
+    """
+    Judge all ``(sentence, quote)`` pairs in ONE request to the verifier model.
+
+    Returns:
+        ``(verdicts, usage)``: one "supported"/"not_supported" per pair, and the
+        call's ``UsageMetrics``.
+
+    Raises:
+        ValueError: if the number of verdicts differs from the number of pairs.
+    """
+    llm = build_llm(EntailmentVerdicts, model=AISettings.load().verifier_model or None)
+    numbered = '\n\n'.join(f'{n}. SENTENCE: {text}\n   QUOTE: {quote}' for n, (text, quote) in enumerate(pairs, 1))
+    result = llm.call(
+        [{'role': 'system', 'content': ENTAILMENT_PROMPT}, {'role': 'user', 'content': numbered}],
+        response_model=EntailmentVerdicts,
+    )
+    if isinstance(result, str):
+        result = EntailmentVerdicts.model_validate_json(result)
+    if len(result.verdicts) != len(pairs):
+        raise ValueError(f'entailment returned {len(result.verdicts)} verdicts for {len(pairs)} pairs')
+    return result.verdicts, llm.get_token_usage_summary()
+
+
 def build_llm(response_format=None, model=None):
     """
     The crews' LLM, from AISettings and the active OpenAI key.

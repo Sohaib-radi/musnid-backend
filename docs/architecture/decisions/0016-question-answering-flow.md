@@ -30,6 +30,13 @@ review and future fine-tuning.
   evidence. A support check on 2026-10-04 found 3 unsupported claims out of 7 sentences
   with gpt-4o-mini as verifier and 1 out of 12 with gpt-4o, so `AISettings.verifier_model`
   is `gpt-4o` (writer and classifier stay on `chat_model`, gpt-4o-mini).
+- **Entailment check**: after the quote check, ONE batched request to the verifier model
+  judges every sentence–quote pair supported / not_supported (supported only if the quote
+  alone states the claim, with nothing added); not_supported sentences are dropped and
+  recorded. The writer is told to stay close to the evidence wording and avoid connectors
+  such as "مما يدل على" or "rather than".
+- **Language**: decided by script for Arabic (the classifier once labelled an English
+  question "ar"); otherwise the classifier's label.
 - **Decide** (code, not model): citations outside the evidence are stripped; no valid
   citation or coverage "none" → referral; "partial" → answer + fixed note; level C →
   answer + fixed notice. Fixed replies are translated (ar/en/fr), never generated.

@@ -16,7 +16,7 @@ from knowledge.embeddings import OpenAIEmbedder
 from qa.models import Interaction, Question
 
 
-def ask(text, session_id='', embedder=None, classify_crew=None, answer_crew=None):
+def ask(text, session_id='', embedder=None, classify_crew=None, answer_crew=None, entailment=None):
     """
     Answer ``text`` and return the saved ``Interaction``.
 
@@ -24,7 +24,8 @@ def ask(text, session_id='', embedder=None, classify_crew=None, answer_crew=None
     be injected (tests); by default the real ones are used.
     """
     started = time.monotonic()
-    flow = AskFlow(embedder or OpenAIEmbedder(), classify_crew=classify_crew, answer_crew=answer_crew)
+    flow = AskFlow(embedder or OpenAIEmbedder(), classify_crew=classify_crew, answer_crew=answer_crew,
+                   entailment=entailment)
     try:
         flow.kickoff(inputs={'question': text})
     except Exception as error:  # a failure outside the steps: same fixed abstain
