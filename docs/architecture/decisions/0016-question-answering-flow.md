@@ -45,7 +45,7 @@ review and future fine-tuning.
   (routing, retrieval, evidence, citations, decision, verdict, model, prompt version =
   hash of the YAML and output shapes, latency, tokens), `qa.HumanLabel`.
 - **Operations**: CrewAI telemetry and tracing off; its first-run "view traces?" prompt is
-  declined programmatically (it blocks a server); flow console panels suppressed; LLM
+  declined in `AgentsConfig.ready()`, before CrewAI is imported (it blocks a server); flow console panels suppressed; LLM
   calls time out after 60 s; worker-thread DB connections are closed.
 
 ## Consequences

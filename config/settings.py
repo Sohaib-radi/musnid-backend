@@ -176,11 +176,13 @@ LOW_THRESHOLD = 0.30
 EVIDENCE_QUESTIONS = 3
 
 
-# CrewAI (ADR 0016): no telemetry, no tracing, and so no interactive
-# first-run prompt (it blocks a server process). Set before CrewAI is imported.
+# CrewAI (ADR 0016): no telemetry, no tracing. Set before CrewAI is imported. These
+# do not stop CrewAI's first-run trace prompt; AgentsConfig.ready() declines it.
+# CrewAI reads os.environ directly, so an empty value is replaced here (empty means unset).
 for _name, _value in (('CREWAI_DISABLE_TELEMETRY', 'true'), ('OTEL_SDK_DISABLED', 'true'),
                       ('CREWAI_TRACING_ENABLED', 'false')):
-    os.environ.setdefault(_name, _value)
+    if not os.environ.get(_name, '').strip():
+        os.environ[_name] = _value
 
 
 # Secrets at rest (ADR 0014)

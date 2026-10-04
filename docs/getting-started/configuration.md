@@ -29,6 +29,25 @@ through the helpers in `config/env.py`.
 
 `.env.example` lists the same variables with comments and is the template for `.env`.
 
+## CrewAI switches
+
+CrewAI reads these from the process environment itself. `config/settings.py` sets the
+default when a variable is missing or empty, before CrewAI is imported; the Dockerfile
+sets the same values in the image.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `CREWAI_DISABLE_TELEMETRY` | `true` | Turns off CrewAI's anonymous telemetry. |
+| `OTEL_SDK_DISABLED` | `true` | Turns off the OpenTelemetry SDK that CrewAI's telemetry uses. |
+| `CREWAI_TRACING_ENABLED` | `false` | Keeps CrewAI's execution tracing off. |
+
+Keep the defaults. These switches do **not** stop CrewAI's first-run prompt "view your
+execution traces? [y/N] (20s timeout)" (CrewAI 1.9.3 checks only its user file for that).
+`AgentsConfig.ready()` records the decline in that file in every process, before CrewAI
+is imported (`agents/tracing.py`). The file is
+`appdirs.user_data_dir(<CREWAI_STORAGE_DIR or working directory name>, "CrewAI")/.crewai_user.json`;
+if it cannot be written, a warning is logged and the prompt times out after 20 s.
+
 ## Parsing rules
 
 - **Empty means unset.** `KEY=` or a value of only spaces is treated as if the variable

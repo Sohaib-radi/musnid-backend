@@ -18,7 +18,6 @@ import threading
 from types import SimpleNamespace
 
 from crewai.flow.flow import Flow, listen, router, start
-from crewai.events.listeners.tracing.utils import is_first_execution, mark_first_execution_done
 from django.conf import settings
 from django.db import connection
 from django.utils import translation
@@ -28,12 +27,8 @@ from pydantic import BaseModel
 from knowledge.normalize import normalize
 from knowledge.services.search import get_evidence, search
 
-# CrewAI asks "view your execution traces? [y/N]" on a machine's first run, which
-# blocks a server process; the environment switches in settings do not stop it.
-# Recording the decline in CrewAI's user file (what `crewai traces disable` does)
-# prevents the prompt.
-if is_first_execution():
-    mark_first_execution_done(user_consented=False)
+# CrewAI's first-run trace prompt is declined in AgentsConfig.ready(), before this
+# import of CrewAI (agents/tracing.py).
 
 SEARCH_K = 8
 CITATION = re.compile(r'\s*\[Q(\d+)\]')

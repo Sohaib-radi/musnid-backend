@@ -5,7 +5,12 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # CrewAI: no telemetry, no tracing (second guard; AgentsConfig.ready() declines
+    # the first-run trace prompt). docs/getting-started/configuration.md
+    CREWAI_DISABLE_TELEMETRY=true \
+    OTEL_SDK_DISABLED=true \
+    CREWAI_TRACING_ENABLED=false
 
 WORKDIR /app
 
