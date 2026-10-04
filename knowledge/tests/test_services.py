@@ -34,6 +34,12 @@ class IngestTests(TestCase):
         self.assertEqual(chunk.text_norm, 'هل انتشر الاسلام بالسيف؟\nلم ينتشر الاسلام بالسيف.'.replace('\n', ' '))
         self.assertEqual(document.slug, 'bayyinat-ar')
 
+    def test_stores_the_public_urls(self):
+        document, _count = ingest(QUESTIONS, FakeEmbedder(), slug='bayyinat-ar', title='بينات', lang='ar',
+                                  url='https://example.org/book', pdf_url='https://example.org/book.pdf')
+        document.refresh_from_db()
+        self.assertEqual((document.url, document.pdf_url), ('https://example.org/book', 'https://example.org/book.pdf'))
+
     def test_embeds_normalized_text_in_one_call(self):
         embedder = FakeEmbedder()
         run_ingest(embedder)
@@ -95,3 +101,27 @@ class SearchTests(TestCase):
         self.assertEqual(evidence[2].question_number, 1)
         positions = [c.metadata['position'] for c in evidence if c.question_number == 1]
         self.assertEqual(positions, sorted(positions))
+
+
+class SourceDocumentUrlTests(TestCase):
+    """Links to the book page (interface language) and to a page of the PDF."""
+
+    def document(self, **fields):
+        return SourceDocument(slug='b', title='B', lang='ar', **fields)
+
+    def test_page_url_adds_a_supported_language(self):
+        document = self.document(url='https://dawa.center/file/7937')
+        self.assertEqual(document.page_url('fr'), 'https://dawa.center/file/7937?lang=fr')
+        self.assertEqual(document.page_url('de'), 'https://dawa.center/file/7937')
+        self.assertEqual(document.page_url(''), 'https://dawa.center/file/7937')
+
+    def test_page_url_keeps_an_existing_query(self):
+        self.assertEqual(self.document(url='https://x.org/f?id=1').page_url('ar'), 'https://x.org/f?id=1&lang=ar')
+
+    def test_pdf_page_url_counts_viewer_pages_from_one(self):
+        document = self.document(pdf_url='https://x.org/book.pdf')
+        self.assertEqual(document.pdf_page_url(1074), 'https://x.org/book.pdf#page=1075')
+        self.assertEqual(document.pdf_page_url(None), 'https://x.org/book.pdf')
+
+    def test_empty_without_urls(self):
+        self.assertEqual((self.document().page_url('ar'), self.document().pdf_page_url(3)), ('', ''))

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 14:17+0000\n"
+"POT-Creation-Date: 2026-10-04 18:04+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -11,26 +11,27 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #: agents/apps.py:11
 msgid "Agents"
 msgstr "الوكلاء"
 
-#: agents/flow.py:49
+#: agents/replies.py:25
 msgid ""
 "This service only answers questions about Islam. Please ask a question about "
 "Islam."
 msgstr ""
 "هذه الخدمة تجيب عن الأسئلة المتعلقة بالإسلام فقط. يُرجى طرح سؤال عن الإسلام."
 
-#: agents/flow.py:51
+#: agents/replies.py:27
 msgid ""
 "Your question needs a specialist. It has been referred to a center of "
 "specialists, who will answer you."
 msgstr "سؤالك يحتاج إلى مختص، وقد أُحيل إلى مركز من المختصين ليجيبك."
 
-#: agents/flow.py:53
+#: agents/replies.py:29
 msgid ""
 "We could not find an answer to this question in our sources. Please rephrase "
 "it or ask a center of specialists."
@@ -38,19 +39,29 @@ msgstr ""
 "لم نجد جوابًا لهذا السؤال في مصادرنا. يُرجى إعادة صياغته أو سؤال مركز من "
 "المختصين."
 
-#: agents/flow.py:55
+#: agents/replies.py:31
 msgid "Note: our sources answer this question only in part."
 msgstr "ملاحظة: مصادرنا تجيب عن هذا السؤال جزئيًّا فقط."
 
-#: agents/flow.py:56
+#: agents/replies.py:32
 msgid ""
 "This matter involves scholarly disagreement; consult a specialist for your "
 "situation."
 msgstr "في هذه المسألة خلاف بين العلماء؛ استشر مختصًّا في حالتك."
 
+#: agents/replies.py:34
+msgid ""
+"The service has reached its limit of questions for today. Please try again "
+"tomorrow."
+msgstr "بلغت الخدمة الحد الأقصى من الأسئلة لهذا اليوم. يُرجى المحاولة مجددًا غدًا."
+
 #: api/apps.py:11
 msgid "API"
 msgstr "واجهة البرمجة"
+
+#: api/exceptions.py:43
+msgid "The service cannot take questions right now. Please try again later."
+msgstr "لا تستطيع الخدمة استقبال الأسئلة حاليًا. يُرجى المحاولة لاحقًا."
 
 #: api/permissions.py:19
 msgid "You are not a member of this center."
@@ -80,6 +91,14 @@ msgstr "يوجد مركز بهذا الاسم بالفعل."
 #: api/v1/serializers/auth.py:120
 msgid "Unknown country code."
 msgstr "رمز الدولة غير معروف."
+
+#: api/v1/serializers/questions.py:25
+msgid "Use 8 to 64 letters, digits, \"-\" or \"_\"."
+msgstr "استخدم من 8 إلى 64 حرفًا لاتينيًا أو رقمًا أو ⁦\"-\"⁩ أو ⁦\"_\"⁩."
+
+#: api/v1/views/questions.py:42
+msgid "The session_id query parameter is required."
+msgstr "المعامل ⁦session_id⁩ مطلوب في الاستعلام."
 
 #: config/settings.py:139 core/models/choices.py:16
 msgid "Arabic"
@@ -333,7 +352,7 @@ msgstr "مرفوض"
 msgid "name"
 msgstr "الاسم"
 
-#: core/models/center.py:52 knowledge/models.py:22
+#: core/models/center.py:52 knowledge/models.py:25
 msgid "slug"
 msgstr "المعرّف في الرابط"
 
@@ -364,8 +383,7 @@ msgstr "معرّف مجموعة Telegram"
 #: core/models/center.py:63
 msgid ""
 "Telegram group where referred questions are sent, for example -1001234567890."
-msgstr ""
-"مجموعة Telegram التي تُرسَل إليها الأسئلة المُحالة، مثل ⁦-1001234567890⁩."
+msgstr "مجموعة Telegram التي تُرسَل إليها الأسئلة المُحالة، مثل ⁦-1001234567890⁩."
 
 #: core/models/center.py:68
 msgid "languages served"
@@ -465,8 +483,8 @@ msgid ""
 "An active API key cannot have a revocation date, and a revoked one must have "
 "one."
 msgstr ""
-"لا يمكن أن يكون لمفتاح API نشط تاريخ إلغاء، ويجب أن يكون للمفتاح الملغى تاريخ"
-" إلغاء."
+"لا يمكن أن يكون لمفتاح API نشط تاريخ إلغاء، ويجب أن يكون للمفتاح الملغى "
+"تاريخ إلغاء."
 
 #: core/models/membership.py:50
 msgid "Specialist"
@@ -476,7 +494,7 @@ msgstr "مختص"
 msgid "Center admin"
 msgstr "مسؤول المركز"
 
-#: core/models/membership.py:54 core/models/user.py:84
+#: core/models/membership.py:54 core/models/user.py:84 qa/models.py:40
 msgid "public identifier"
 msgstr "المعرّف العام"
 
@@ -605,11 +623,10 @@ msgstr "يجب أن يحتفظ المركز بمسؤول مركز نشط واح�
 
 #: core/templates/admin/core/center/reject_selected.html:7
 msgid ""
-"These centers will be rejected. Only pending centers are reviewed; others are"
-" skipped."
+"These centers will be rejected. Only pending centers are reviewed; others "
+"are skipped."
 msgstr ""
-"سيتم رفض هذه المراكز. لا تُراجَع إلا المراكز التي قيد المراجعة، ويُتجاوز "
-"غيرها."
+"سيتم رفض هذه المراكز. لا تُراجَع إلا المراكز التي قيد المراجعة، ويُتجاوز غيرها."
 
 #: core/templates/admin/core/center/reject_selected.html:14
 #: core/templates/admin/core/center/review_buttons.html:27
@@ -623,12 +640,12 @@ msgid "Cancel"
 msgstr "إلغاء"
 
 #: core/templates/admin/core/center/review_buttons.html:5
-#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:84
+#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:116
 msgid "Approve"
 msgstr "موافقة"
 
 #: core/templates/admin/core/center/review_buttons.html:7
-#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:86
+#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:118
 msgid "Reject"
 msgstr "رفض"
 
@@ -651,75 +668,87 @@ msgstr "رفض هذا المركز؟"
 msgid "chunks"
 msgstr "المقاطع"
 
-#: knowledge/models.py:23 knowledge/models.py:52
+#: knowledge/models.py:26 knowledge/models.py:85
 msgid "title"
 msgstr "العنوان"
 
-#: knowledge/models.py:24 knowledge/models.py:51 qa/models.py:19
+#: knowledge/models.py:27 knowledge/models.py:84 qa/models.py:42
 msgid "language"
 msgstr "اللغة"
 
-#: knowledge/models.py:25
+#: knowledge/models.py:28
 msgid "URL"
 msgstr "الرابط"
 
-#: knowledge/models.py:26
+#: knowledge/models.py:28
+msgid "Public page of the document."
+msgstr "الصفحة العامة للوثيقة."
+
+#: knowledge/models.py:29
+msgid "PDF URL"
+msgstr "رابط ملف ⁦PDF⁩"
+
+#: knowledge/models.py:30
+msgid "Public PDF of the document, the same file that was ingested."
+msgstr "ملف ⁦PDF⁩ العام للوثيقة، وهو الملف نفسه الذي أُدخل في قاعدة المعرفة."
+
+#: knowledge/models.py:31
 msgid "license note"
 msgstr "ملاحظة الترخيص"
 
-#: knowledge/models.py:29
+#: knowledge/models.py:34
 msgid "source document"
 msgstr "مصدر"
 
-#: knowledge/models.py:30
+#: knowledge/models.py:35
 msgid "source documents"
 msgstr "المصادر"
 
-#: knowledge/models.py:42
+#: knowledge/models.py:75
 msgid "Question"
 msgstr "السؤال"
 
-#: knowledge/models.py:43
+#: knowledge/models.py:76
 msgid "Summary"
 msgstr "الملخص"
 
-#: knowledge/models.py:44 qa/models.py:45
+#: knowledge/models.py:77 qa/models.py:71
 msgid "Answer"
 msgstr "الجواب"
 
-#: knowledge/models.py:47
+#: knowledge/models.py:80
 msgid "document"
 msgstr "المصدر"
 
-#: knowledge/models.py:49
+#: knowledge/models.py:82
 msgid "question number"
 msgstr "رقم السؤال"
 
-#: knowledge/models.py:50
+#: knowledge/models.py:83
 msgid "kind"
 msgstr "النوع"
 
-#: knowledge/models.py:53 qa/models.py:18
+#: knowledge/models.py:86 qa/models.py:41
 msgid "text"
 msgstr "النص"
 
-#: knowledge/models.py:54
+#: knowledge/models.py:87
 msgid "normalized text"
 msgstr "النص الموحَّد"
 
-#: knowledge/models.py:55
+#: knowledge/models.py:88
 msgid "embedding"
 msgstr "التضمين الدلالي"
 
-#: knowledge/models.py:56
+#: knowledge/models.py:89
 msgid "metadata"
 msgstr "البيانات الوصفية"
 
-#: knowledge/models.py:59
+#: knowledge/models.py:92
 msgid "source chunk"
 msgstr "مقطع مصدر"
 
-#: knowledge/models.py:60
+#: knowledge/models.py:93
 msgid "source chunks"
 msgstr "مقاطع المصادر"
 
@@ -727,126 +756,145 @@ msgstr "مقاطع المصادر"
 msgid "Questions and answers"
 msgstr "الأسئلة والأجوبة"
 
-#: qa/models.py:20
+#: qa/models.py:43
 msgid "session"
 msgstr "الجلسة"
 
-#: qa/models.py:23 qa/models.py:52
+#: qa/models.py:48 qa/models.py:78
 msgid "question"
 msgstr "سؤال"
 
-#: qa/models.py:24
+#: qa/models.py:49
 msgid "questions"
 msgstr "الأسئلة"
 
-#: qa/models.py:40 qa/models.py:49
+#: qa/models.py:66 qa/models.py:75
 msgid "Out of scope"
 msgstr "خارج النطاق"
 
-#: qa/models.py:46
+#: qa/models.py:72
 msgid "Partial answer"
 msgstr "جواب جزئي"
 
-#: qa/models.py:47
+#: qa/models.py:73
 msgid "Abstain"
 msgstr "امتناع"
 
-#: qa/models.py:48
+#: qa/models.py:74
 msgid "Referred to a center"
 msgstr "أُحيل إلى مركز"
 
-#: qa/models.py:54
+#: qa/models.py:80
 msgid "level"
 msgstr "المستوى"
 
-#: qa/models.py:55
+#: qa/models.py:81
 msgid "search query"
 msgstr "عبارة البحث"
 
-#: qa/models.py:56
+#: qa/models.py:82
 msgid "retrieved"
 msgstr "نتائج الاسترجاع"
 
-#: qa/models.py:57
+#: qa/models.py:83
 msgid "Ranked results: question number, score, chunk kind."
 msgstr "النتائج مرتبة: رقم السؤال، الدرجة، نوع المقطع."
 
-#: qa/models.py:58
+#: qa/models.py:84
 msgid "evidence question numbers"
 msgstr "أرقام أسئلة الأدلة"
 
-#: qa/models.py:59
+#: qa/models.py:85
 msgid "answer"
 msgstr "الجواب"
 
-#: qa/models.py:60
+#: qa/models.py:86
 msgid "citations"
 msgstr "الإحالات"
 
-#: qa/models.py:61
+#: qa/models.py:88
+msgid "sentences"
+msgstr "الجمل"
+
+#: qa/models.py:89
+msgid ""
+"Kept sentences: text without citation markers, supporting quote, source "
+"question number."
+msgstr "الجمل المعتمدة: النص دون علامات الإحالة، والاقتباس الداعم، ورقم السؤال المصدر."
+
+#: qa/models.py:91
+msgid "dropped sentences"
+msgstr "الجمل المحذوفة"
+
+#: qa/models.py:92
+msgid ""
+"Sentences removed by the quote or entailment check: text, quote, reason."
+msgstr "الجمل التي حذفها فحص الاقتباس أو فحص الدلالة: النص، والاقتباس، والسبب."
+
+#: qa/models.py:93
 msgid "decision"
 msgstr "القرار"
 
-#: qa/models.py:62
+#: qa/models.py:94
 msgid "verifier verdict"
 msgstr "حكم المدقق"
 
-#: qa/models.py:63
+#: qa/models.py:95
 msgid "model"
 msgstr "النموذج"
 
-#: qa/models.py:64
+#: qa/models.py:96
 msgid "prompt version"
 msgstr "إصدار التعليمات"
 
-#: qa/models.py:65
+#: qa/models.py:97
 msgid "latency (ms)"
 msgstr "زمن الاستجابة (ملّي ثانية)"
 
-#: qa/models.py:66
+#: qa/models.py:98
 msgid "input tokens"
 msgstr "رموز الإدخال"
 
-#: qa/models.py:67
+#: qa/models.py:99
 msgid "output tokens"
 msgstr "رموز الإخراج"
 
-#: qa/models.py:68
+#: qa/models.py:100
 msgid "error"
 msgstr "الخطأ"
 
-#: qa/models.py:71 qa/models.py:89
+#: qa/models.py:103 qa/models.py:121
 msgid "interaction"
 msgstr "تفاعل"
 
-#: qa/models.py:72
+#: qa/models.py:104
 msgid "interactions"
 msgstr "التفاعلات"
 
-#: qa/models.py:85
+#: qa/models.py:117
 msgid "Correct"
 msgstr "تصحيح"
 
-#: qa/models.py:93
+#: qa/models.py:125
 msgid "reviewer"
 msgstr "المراجع"
 
-#: qa/models.py:95
+#: qa/models.py:127
 msgid "verdict"
 msgstr "الحكم"
 
-#: qa/models.py:96
+#: qa/models.py:128
 msgid "corrected answer"
 msgstr "الجواب المصحَّح"
 
-#: qa/models.py:97
+#: qa/models.py:129
 msgid "reason"
 msgstr "السبب"
 
-#: qa/models.py:100
+#: qa/models.py:132
 msgid "human label"
 msgstr "تقييم بشري"
 
-#: qa/models.py:101
+#: qa/models.py:133
 msgid "human labels"
 msgstr "التقييمات البشرية"

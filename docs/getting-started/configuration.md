@@ -26,6 +26,8 @@ through the helpers in `config/env.py`.
 | `POSTGRES_PASSWORD` | Yes | none | Password of that role. |
 | `POSTGRES_HOST` | No | `localhost` | Database host. The `web` container overrides it to `db`. |
 | `POSTGRES_PORT` | No | `5435` | Database port. The `web` container overrides it to `5432`. |
+| `ASK_DAILY_LIMIT` | No | `150` | Questions per UTC day for the whole service; past it `POST /api/v1/questions/` returns 429 `daily_capacity` without calling OpenAI ([ADR 0017](../architecture/decisions/0017-anonymous-ask-api.md)). |
+| `DJANGO_NUM_PROXIES` | No | `0` | Proxies in front of the app. `0` uses `REMOTE_ADDR` as the client IP; behind one host proxy set `1`, so per-IP limits read `X-Forwarded-For`. |
 
 `.env.example` lists the same variables with comments and is the template for `.env`.
 
@@ -60,6 +62,8 @@ if it cannot be written, a warning is logged and the prompt times out after 20 s
 - **Booleans are strict.** `DJANGO_DEBUG` is on only for `True`. `true`, `1`, `yes` and
   every other value leave it off, so a typo can never enable debug mode.
 - **Lists** are comma-separated; blanks and empty items are dropped.
+- **Integers** (`ASK_DAILY_LIMIT`, `DJANGO_NUM_PROXIES`) must be non-negative whole
+  numbers; any other value stops the process at startup with `ImproperlyConfigured`.
 
 ## Precedence
 
@@ -86,3 +90,4 @@ These are not configurable through the environment:
 | `STATIC_URL`, `STATIC_ROOT` | `static/`, `staticfiles/` at the repository root |
 | `MEDIA_URL`, `MEDIA_ROOT` | `media/`, `media/` at the repository root |
 | `TIME_ZONE`, `USE_TZ` | `UTC`, enabled |
+| `CACHES` | Database cache, table `django_cache` (shared by every gunicorn worker; created by `createcachetable`) |

@@ -31,8 +31,9 @@ cp .env.example .env
 # 3. Database
 docker compose up -d db
 
-# 4. Schema
+# 4. Schema, and the cache table used by the API throttles (ADR 0017)
 .venv/bin/python manage.py migrate
+.venv/bin/python manage.py createcachetable
 ```
 
 `--only-binary=:all:` makes pip fail instead of compiling from source. Every pinned
@@ -46,6 +47,7 @@ package ships a prebuilt wheel for the supported platforms; see
 | Start the database | `docker compose up -d db` |
 | System check | `.venv/bin/python manage.py check` |
 | Apply migrations | `.venv/bin/python manage.py migrate` |
+| Create the cache table (once; idempotent) | `.venv/bin/python manage.py createcachetable` |
 | Run the tests | `.venv/bin/python manage.py test` |
 | Development server | `.venv/bin/python manage.py runserver` |
 | Create an admin user | `.venv/bin/python manage.py createsuperuser` (asks for email and full name) |

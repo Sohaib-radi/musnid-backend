@@ -14,7 +14,7 @@ from knowledge.models import SourceChunk, SourceDocument
 from knowledge.normalize import normalize
 
 
-def ingest(questions, embedder, *, slug, title, lang, url='', license_note=''):
+def ingest(questions, embedder, *, slug, title, lang, url='', pdf_url='', license_note=''):
     """
     Chunk, embed and store ``questions`` as the document ``slug``.
 
@@ -28,7 +28,8 @@ def ingest(questions, embedder, *, slug, title, lang, url='', license_note=''):
         raise ValueError(f'expected {len(specs)} embeddings, got {len(vectors)}')
     with transaction.atomic():
         document, _created = SourceDocument.objects.update_or_create(
-            slug=slug, defaults={'title': title, 'lang': lang, 'url': url, 'license_note': license_note},
+            slug=slug, defaults={'title': title, 'lang': lang, 'url': url, 'pdf_url': pdf_url,
+                                    'license_note': license_note},
         )
         document.chunks.all().delete()
         SourceChunk.objects.bulk_create([

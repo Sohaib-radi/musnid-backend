@@ -20,8 +20,12 @@ description: Known limitations of the extraction and retrieval.
   sentence: 1 unsupported claim in 12 sentences remained with gpt-4o as verifier.
 - Quotes under 10 words must still match exactly (90% of fewer than 10 words leaves no
   room), so a short quote with reordered words drops its sentence.
-- Sentences dropped by the quote or entailment check are kept in the flow state only, not
-  saved on the `Interaction`, so a past drop cannot be inspected afterwards.
+- Drops before 2026-10-04 (including the Docker run that lost the key sentence) were not
+  saved; `Interaction.dropped` records them from the ask API onwards.
+- A quote must lie within one question's evidence; a quote spanning two questions'
+  passages drops its sentence.
+- Sources are looked up by question number in the first ingested document; a second book
+  will need the document stored with each sentence.
 - Coverage strictness ("full" for questions the book does not ask exactly) is calibrated
   on 2026-10-06.
 - `keywords` is empty: the book has no keyword lists.

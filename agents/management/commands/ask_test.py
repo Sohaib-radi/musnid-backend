@@ -20,6 +20,7 @@ class Command(BaseCommand):
                 'question': text, 'language': i.question.lang if i.pk else None, 'level': i.level, 'search_query': i.search_query,
                 'retrieved': i.retrieved[:5], 'evidence': i.evidence_question_numbers,
                 'decision': i.decision, 'verifier': i.verifier_verdict, 'citations': i.citations,
+                'sentences': i.sentences, 'dropped': i.dropped,
                 'tokens': [i.tokens_in, i.tokens_out], 'latency_ms': i.latency_ms,
                 'prompt_version': i.prompt_version, 'model': i.model_name, 'error': i.error,
             }

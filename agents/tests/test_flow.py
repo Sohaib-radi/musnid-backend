@@ -6,8 +6,9 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_
 from django.utils import translation
 
 from agents.crews import prompt_version
-from agents.flow import _comparable, fixed_reply, mask_secrets, quote_matches, script_language
-from agents.services import ask
+from agents.flow import _comparable, mask_secrets, quote_matches, script_language
+from agents.replies import fixed_reply, note_codes, notes
+from agents.services import DailyLimitReached, ask
 from agents.tests.support import QUOTE, FakeCrew, answered, classified
 from core.tests.support import make_center
 from knowledge.services.ingest import ingest
@@ -200,6 +201,14 @@ class SavingTests(FlowTestCase):
         self.assertGreaterEqual(interaction.latency_ms, 0)
         self.assertEqual(interaction.search_query, QUESTION)
 
+    def test_daily_limit_raises_before_any_model_call(self):
+        self.run_ask(classified())
+        crew = classified()
+        with override_settings(ASK_DAILY_LIMIT=1), self.assertRaises(DailyLimitReached):
+            ask(QUESTION, session_id='s1', embedder=self.embedder, classify_crew=crew)
+        self.assertEqual(crew.inputs, [])
+        self.assertEqual(Question.objects.count(), 1)
+
     def test_without_default_center_nothing_is_saved(self):
         self.center.is_default = False
         self.center.save()
@@ -217,7 +226,7 @@ class FixedReplyTests(TestCase):
         translation.activate('en')
 
     def test_translated_and_other_falls_back_to_english(self):
-        for kind in ('out_of_scope', 'refer', 'abstain', 'partial', 'disagreement'):
+        for kind in ('out_of_scope', 'refer', 'abstain', 'partial', 'disagreement', 'daily_capacity'):
             with self.subTest(kind=kind):
                 english = fixed_reply(kind, 'en')
                 self.assertNotEqual(fixed_reply(kind, 'ar'), english)
@@ -275,3 +284,56 @@ class QuoteMatchTests(SimpleTestCase):
 
     def test_invented_text_does_not_match(self):
         self.assertFalse(self.matches('الإسلام انتشر بالقوة والإكراه في جميع البلاد التي فتحها المسلمون'))
+
+
+class SentenceRecordTests(FlowTestCase):
+    """Kept sentences are saved with their quote and source; drops with their reason."""
+
+    def test_kept_sentences_saved_without_markers_with_their_source(self):
+        interaction = self.run_ask(classified())
+        self.assertEqual(interaction.sentences, [{'text': 'لم ينتشر الإسلام بالسيف.', 'quote': QUOTE, 'number': 1}])
+        self.assertEqual(interaction.dropped, [])
+
+    def test_source_is_the_question_whose_evidence_holds_the_quote(self):
+        other = 'ورد في المسألة الثانية نص مختلف تماما عن الأولى.'
+        ingest([make_question(1), make_question(2, title='لماذا خلقنا الله؟', answer_sections={'detailed': other})],
+               self.embedder, slug='bayyinat-ar', title='بينات', lang='ar')
+        interaction = self.run_ask(classified(), answered([('جملة [Q1].', other)]))
+        self.assertEqual(interaction.sentences[0]['number'], 2)
+        self.assertEqual(interaction.answer_text, 'جملة [Q1].')
+
+    def test_dropped_sentences_saved_with_their_reason(self):
+        def judge(pairs):
+            return ['supported', 'not_supported'], SimpleNamespace(prompt_tokens=0, completion_tokens=0)
+        interaction = self.run_ask(classified(), answered([
+            ('مدعومة [Q1].', QUOTE), ('استنتاج [Q1].', QUOTE), ('مخترعة [Q1].', 'نص مخترع لا يوجد في الأدلة إطلاقا'),
+        ]), entailment=judge)
+        self.assertEqual([s['text'] for s in interaction.sentences], ['مدعومة.'])
+        self.assertEqual([(d['text'], d['reason']) for d in interaction.dropped],
+                         [('مخترعة [Q1].', 'quote'), ('استنتاج [Q1].', 'entailment')])
+
+    def test_referral_shows_no_sentences_but_keeps_the_drops(self):
+        interaction = self.run_ask(classified(), answered([
+            ('جملة [Q1].', QUOTE), ('مخترعة [Q1].', 'نص مخترع لا يوجد في الأدلة إطلاقا'),
+        ], coverage='none'))
+        self.assertEqual(interaction.decision, 'refer')
+        self.assertEqual(interaction.sentences, [])
+        self.assertEqual(len(interaction.dropped), 1)
+
+
+class NoteTests(SimpleTestCase):
+    """Notes after an answer: codes for the client, fixed translated text."""
+
+    def test_codes_by_decision_and_level(self):
+        self.assertEqual(note_codes('answer', 'B'), [])
+        self.assertEqual(note_codes('partial', 'B'), ['partial'])
+        self.assertEqual(note_codes('answer', 'C'), ['level_c'])
+        self.assertEqual(note_codes('partial', 'C'), ['partial', 'level_c'])
+        for decision in ('refer', 'abstain', 'out_of_scope'):
+            self.assertEqual(note_codes(decision, 'C'), [])
+
+    def test_note_text_is_the_fixed_reply(self):
+        self.assertEqual(notes('partial', 'C', 'fr'), [
+            {'code': 'partial', 'text': fixed_reply('partial', 'fr')},
+            {'code': 'level_c', 'text': fixed_reply('disagreement', 'fr')},
+        ])

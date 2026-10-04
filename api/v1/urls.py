@@ -1,8 +1,8 @@
-"""URL configuration of API v1. Public identifiers only: center slug, membership uuid."""
+"""URL configuration of API v1. Public identifiers only: center slug, membership uuid, question uuid."""
 
 from django.urls import path
 
-from api.v1.views import auth, centers, memberships
+from api.v1.views import auth, centers, memberships, questions
 
 app_name = 'v1'
 
@@ -14,6 +14,8 @@ urlpatterns = [
     path('auth/logout/', auth.LogoutView.as_view(), name='logout'),
     path('me/', auth.MeView.as_view(), name='me'),
     path('me/memberships/', auth.MyMembershipsView.as_view(), name='my-memberships'),
+    path('questions/', questions.QuestionListCreateView.as_view(), name='questions'),
+    path('questions/<uuid:uuid>/', questions.QuestionDetailView.as_view(), name='question'),
     path('countries/', centers.CountryListView.as_view(), name='countries'),
     path('centers/<slug:slug>/', centers.CenterDetailView.as_view(), name='center'),
     path('centers/<slug:slug>/dashboard/', centers.CenterDashboardView.as_view(), name='center-dashboard'),

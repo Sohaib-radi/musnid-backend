@@ -219,3 +219,36 @@ A new center has none, and `add_member` accepts any role, so the first admin can
 order, before checking, so concurrent calls cannot remove the last admin together or
 deadlock. The `validate_*` functions read without locks; the mutating functions check
 again under the locks, which is what guarantees the rules.
+
+## `SourceDocument` (`knowledge/models.py`)
+
+A vetted source book; its chunks are described in [RAG pipeline](../rag/02-pipeline.md).
+Public links, used for the sources of answers ([ADR 0017](../architecture/decisions/0017-anonymous-ask-api.md)):
+
+| Field or method | Meaning |
+| --- | --- |
+| `url` | Public page of the book (Bayyinat: `https://dawa.center/file/7937`). |
+| `pdf_url` | Public PDF, the same file that was ingested (SHA-256 checked). |
+| `page_url(language)` | `url` with `?lang=<language>` for `ar`, `en`, `fr`; `url` unchanged otherwise; empty without `url`. |
+| `pdf_page_url(page)` | `pdf_url#page=<page + 1>`: printed page numbers equal the 0-based PDF index, viewers count from 1. Empty without `pdf_url`. |
+
+## `Question` and `Interaction` (`qa/models.py`)
+
+Every question and how it was answered, with no personal data ([ADR 0016](../architecture/decisions/0016-question-answering-flow.md)).
+
+| Model | Field | Meaning |
+| --- | --- | --- |
+| `Question` | `uuid` | Public identifier, unique; also the follow-up number of a referred question. |
+| `Question` | `text`, `lang`, `session_id` | The question, its detected language, and the opaque session id from the frontend. |
+| `Interaction` | `decision`, `level`, `answer_text`, `citations` | What was returned, the classifier's level, the shown text, the valid `[Q<n>]` numbers. |
+| `Interaction` | `sentences` | Kept sentences: `text` (markers removed), `quote`, `number` (the evidence question containing the quote, found in code). Empty for fixed replies. |
+| `Interaction` | `dropped` | Sentences removed by the checks: `text`, `quote`, `reason` (`quote` or `entailment`). |
+| `Interaction` | `retrieved`, `evidence_question_numbers`, `verifier_verdict`, `model_name`, `prompt_version`, `latency_ms`, `tokens_in`, `tokens_out`, `error` | The trace, for review; never returned by the API. |
+
+`QuestionQuerySet` (the manager of `Question`, based on `CenterQuerySet`):
+
+| Method | Returns |
+| --- | --- |
+| `for_session(session_id)` | That session's questions, newest first (index `question_session_recent`). |
+| `asked_today()` | Questions created since 00:00 UTC, across all centers; counted for `ASK_DAILY_LIMIT`. |
+

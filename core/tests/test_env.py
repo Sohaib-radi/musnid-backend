@@ -75,3 +75,22 @@ class CsvListTests(SimpleTestCase):
     def test_unset_is_empty_list(self):
         with mock.patch.dict(os.environ, clear=True):
             self.assertEqual(env.csv_list('MUSNID_TEST_VAR'), [])
+
+
+class IntegerTests(SimpleTestCase):
+    """``env.integer`` parses non-negative integers and rejects anything else."""
+
+    def test_returns_value(self):
+        with mock.patch.dict(os.environ, {'MUSNID_TEST_VAR': ' 150 '}):
+            self.assertEqual(env.integer('MUSNID_TEST_VAR', 7), 150)
+
+    def test_unset_or_empty_returns_default(self):
+        for environ in ({}, {'MUSNID_TEST_VAR': ''}):
+            with self.subTest(environ=environ), mock.patch.dict(os.environ, environ, clear=True):
+                self.assertEqual(env.integer('MUSNID_TEST_VAR', 7), 7)
+
+    def test_invalid_raises_with_variable_name(self):
+        for value in ('-1', '1.5', 'ten'):
+            with self.subTest(value=value), mock.patch.dict(os.environ, {'MUSNID_TEST_VAR': value}):
+                with self.assertRaisesMessage(ImproperlyConfigured, 'MUSNID_TEST_VAR'):
+                    env.integer('MUSNID_TEST_VAR', 7)

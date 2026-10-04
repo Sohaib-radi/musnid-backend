@@ -98,7 +98,14 @@ normalization), with quotes built from the passage "الإسلامُ لم ينت
 | 4 words reordered ("لم ينتشر الإسلام بالسيف") | no match (under 10 words: exact only) | 0.5 ms |
 | Invented sentence | no match | 3.2 ms |
 
-The end-to-end question has not been re-run with the new match yet.
+Re-run of the demo question with the new match (2026-10-04, local, verifier gpt-4o):
+
+| Question | Decision | Kept | Key sentence "الإسلام لم ينتشر بالسيف" | Tokens in / out | Latency |
+| --- | --- | --- | --- | --- | --- |
+| هل انتشر الإسلام بالسيف؟ | answer (level B, coverage full) | 4 sentences, all citing #229 | absent | 33,068 / 2,946 | 35.8 s |
+
+Dropped sentences were not saved at the time, so whether the writer omitted the key
+sentence or a check removed it is unknown; `Interaction.dropped` now records every drop.
 
 Decisions from these results: `LOW_THRESHOLD = 0.30` as a starting value;
 `EVIDENCE_QUESTIONS = 3`. Calibration with the 60-question evaluation is planned for

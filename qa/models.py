@@ -5,23 +5,49 @@ No personal data: askers are anonymous (``session_id`` is an opaque string),
 and stored errors have API keys masked.
 """
 
+import uuid
+
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel, CenterLinkedModel
+from core.models.base import CenterQuerySet
+
+
+class QuestionQuerySet(CenterQuerySet):
+    """Queries on questions: by session (history) and by day (global daily limit)."""
+
+    def for_session(self, session_id):
+        """The questions of one anonymous session, newest first."""
+        return self.filter(session_id=session_id).order_by('-created_at')
+
+    def asked_today(self):
+        """Questions created since 00:00 UTC today, across all centers."""
+        start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        return self.filter(created_at__gte=start)
 
 
 class Question(BaseModel, CenterLinkedModel):
-    """A question asked by an anonymous user, owned by the center it is routed to."""
+    """
+    A question asked by an anonymous user, owned by the center it is routed to.
 
+    ``uuid`` is the public identifier, and also the follow-up number given to the
+    asker when the question is referred to a center.
+    """
+
+    uuid = models.UUIDField(_('public identifier'), default=uuid.uuid4, unique=True, editable=False)
     text = models.TextField(_('text'))
     lang = models.CharField(_('language'), max_length=5, blank=True)
     session_id = models.CharField(_('session'), max_length=64, blank=True, db_index=True)
 
+    objects = QuestionQuerySet.as_manager()
+
     class Meta(BaseModel.Meta):
         verbose_name = _('question')
         verbose_name_plural = _('questions')
+        indexes = [models.Index(fields=['session_id', '-created_at'], name='question_session_recent')]
 
     def __str__(self):
         return self.text[:80]
@@ -58,6 +84,12 @@ class Interaction(BaseModel):
     evidence_question_numbers = models.JSONField(_('evidence question numbers'), default=list, blank=True)
     answer_text = models.TextField(_('answer'), blank=True)
     citations = models.JSONField(_('citations'), default=list, blank=True)
+    sentences = models.JSONField(
+        _('sentences'), default=list, blank=True,
+        help_text=_('Kept sentences: text without citation markers, supporting quote, source question number.'))
+    dropped = models.JSONField(
+        _('dropped sentences'), default=list, blank=True,
+        help_text=_('Sentences removed by the quote or entailment check: text, quote, reason.'))
     decision = models.CharField(_('decision'), max_length=12, choices=Decision.choices)
     verifier_verdict = models.CharField(_('verifier verdict'), max_length=10, blank=True)
     model_name = models.CharField(_('model'), max_length=100, blank=True)

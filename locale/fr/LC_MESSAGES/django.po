@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 14:17+0000\n"
+"POT-Creation-Date: 2026-10-04 18:04+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: French\n"
@@ -17,7 +17,7 @@ msgstr ""
 msgid "Agents"
 msgstr "Agents"
 
-#: agents/flow.py:49
+#: agents/replies.py:25
 msgid ""
 "This service only answers questions about Islam. Please ask a question about "
 "Islam."
@@ -25,7 +25,7 @@ msgstr ""
 "Ce service répond uniquement aux questions sur l’islam. Veuillez poser une "
 "question sur l’islam."
 
-#: agents/flow.py:51
+#: agents/replies.py:27
 msgid ""
 "Your question needs a specialist. It has been referred to a center of "
 "specialists, who will answer you."
@@ -33,7 +33,7 @@ msgstr ""
 "Votre question nécessite un spécialiste. Elle a été transmise à un centre de "
 "spécialistes, qui vous répondra."
 
-#: agents/flow.py:53
+#: agents/replies.py:29
 msgid ""
 "We could not find an answer to this question in our sources. Please rephrase "
 "it or ask a center of specialists."
@@ -41,11 +41,11 @@ msgstr ""
 "Nous n’avons pas trouvé de réponse à cette question dans nos sources. "
 "Veuillez la reformuler ou interroger un centre de spécialistes."
 
-#: agents/flow.py:55
+#: agents/replies.py:31
 msgid "Note: our sources answer this question only in part."
 msgstr "Remarque : nos sources ne répondent qu’en partie à cette question."
 
-#: agents/flow.py:56
+#: agents/replies.py:32
 msgid ""
 "This matter involves scholarly disagreement; consult a specialist for your "
 "situation."
@@ -53,9 +53,19 @@ msgstr ""
 "Cette question fait l’objet de divergences entre savants ; consultez un "
 "spécialiste pour votre situation."
 
+#: agents/replies.py:34
+msgid ""
+"The service has reached its limit of questions for today. Please try again "
+"tomorrow."
+msgstr "Le service a atteint sa limite de questions pour aujourd’hui. Veuillez réessayer demain."
+
 #: api/apps.py:11
 msgid "API"
 msgstr "API"
+
+#: api/exceptions.py:43
+msgid "The service cannot take questions right now. Please try again later."
+msgstr "Le service ne peut pas recevoir de questions pour le moment. Veuillez réessayer plus tard."
 
 #: api/permissions.py:19
 msgid "You are not a member of this center."
@@ -87,6 +97,14 @@ msgstr "Un centre portant ce nom existe déjà."
 #: api/v1/serializers/auth.py:120
 msgid "Unknown country code."
 msgstr "Code de pays inconnu."
+
+#: api/v1/serializers/questions.py:25
+msgid "Use 8 to 64 letters, digits, \"-\" or \"_\"."
+msgstr "Utilisez de 8 à 64 lettres, chiffres, « - » ou « _ »."
+
+#: api/v1/views/questions.py:42
+msgid "The session_id query parameter is required."
+msgstr "Le paramètre de requête session_id est obligatoire."
 
 #: config/settings.py:139 core/models/choices.py:16
 msgid "Arabic"
@@ -287,8 +305,8 @@ msgstr "modèle du vérificateur"
 #: core/models/ai_settings.py:27
 msgid "Model for the verifier step only, e.g. gpt-4o. Empty: the chat model."
 msgstr ""
-"Modèle pour l’étape de vérification uniquement, par exemple gpt-4o. Vide : le"
-" modèle de conversation."
+"Modèle pour l’étape de vérification uniquement, par exemple gpt-4o. Vide : "
+"le modèle de conversation."
 
 #: core/models/base.py:28
 msgid "created at"
@@ -322,7 +340,7 @@ msgstr "Refusé"
 msgid "name"
 msgstr "nom"
 
-#: core/models/center.py:52 knowledge/models.py:22
+#: core/models/center.py:52 knowledge/models.py:25
 msgid "slug"
 msgstr "identifiant d’URL"
 
@@ -467,7 +485,7 @@ msgstr "Spécialiste"
 msgid "Center admin"
 msgstr "Administrateur du centre"
 
-#: core/models/membership.py:54 core/models/user.py:84
+#: core/models/membership.py:54 core/models/user.py:84 qa/models.py:40
 msgid "public identifier"
 msgstr "identifiant public"
 
@@ -531,8 +549,8 @@ msgstr "Renseigné lorsque l’utilisateur associe son compte Telegram."
 msgid ""
 "Inactive users cannot log in. Deactivate accounts instead of deleting them."
 msgstr ""
-"Les utilisateurs inactifs ne peuvent pas se connecter. Désactivez les comptes"
-" au lieu de les supprimer."
+"Les utilisateurs inactifs ne peuvent pas se connecter. Désactivez les "
+"comptes au lieu de les supprimer."
 
 #: core/models/user.py:112
 msgid "staff status"
@@ -567,8 +585,8 @@ msgid ""
 "This does not look like an OpenAI API key: it must start with “sk-”, have at "
 "least 20 characters and no spaces."
 msgstr ""
-"Cela ne ressemble pas à une clé d’API OpenAI : elle doit commencer par « sk- "
-"», compter au moins 20 caractères et ne contenir aucun espace."
+"Cela ne ressemble pas à une clé d’API OpenAI : elle doit commencer par "
+"« sk- », compter au moins 20 caractères et ne contenir aucun espace."
 
 #: core/services/credentials.py:53
 msgid "This API key was already added."
@@ -597,8 +615,8 @@ msgstr "Un centre doit conserver au moins un administrateur du centre actif."
 
 #: core/templates/admin/core/center/reject_selected.html:7
 msgid ""
-"These centers will be rejected. Only pending centers are reviewed; others are"
-" skipped."
+"These centers will be rejected. Only pending centers are reviewed; others "
+"are skipped."
 msgstr ""
 "Ces centres seront refusés. Seuls les centres en attente d’examen sont "
 "traités ; les autres sont ignorés."
@@ -615,12 +633,12 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: core/templates/admin/core/center/review_buttons.html:5
-#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:84
+#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:116
 msgid "Approve"
 msgstr "Approuver"
 
 #: core/templates/admin/core/center/review_buttons.html:7
-#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:86
+#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:118
 msgid "Reject"
 msgstr "Refuser"
 
@@ -645,75 +663,87 @@ msgstr "Refuser ce centre ?"
 msgid "chunks"
 msgstr "extraits"
 
-#: knowledge/models.py:23 knowledge/models.py:52
+#: knowledge/models.py:26 knowledge/models.py:85
 msgid "title"
 msgstr "titre"
 
-#: knowledge/models.py:24 knowledge/models.py:51 qa/models.py:19
+#: knowledge/models.py:27 knowledge/models.py:84 qa/models.py:42
 msgid "language"
 msgstr "langue"
 
-#: knowledge/models.py:25
+#: knowledge/models.py:28
 msgid "URL"
 msgstr "URL"
 
-#: knowledge/models.py:26
+#: knowledge/models.py:28
+msgid "Public page of the document."
+msgstr "Page publique du document."
+
+#: knowledge/models.py:29
+msgid "PDF URL"
+msgstr "URL du PDF"
+
+#: knowledge/models.py:30
+msgid "Public PDF of the document, the same file that was ingested."
+msgstr "PDF public du document, le même fichier que celui qui a été ingéré."
+
+#: knowledge/models.py:31
 msgid "license note"
 msgstr "note de licence"
 
-#: knowledge/models.py:29
+#: knowledge/models.py:34
 msgid "source document"
 msgstr "document source"
 
-#: knowledge/models.py:30
+#: knowledge/models.py:35
 msgid "source documents"
 msgstr "documents sources"
 
-#: knowledge/models.py:42
+#: knowledge/models.py:75
 msgid "Question"
 msgstr "Question"
 
-#: knowledge/models.py:43
+#: knowledge/models.py:76
 msgid "Summary"
 msgstr "Résumé"
 
-#: knowledge/models.py:44 qa/models.py:45
+#: knowledge/models.py:77 qa/models.py:71
 msgid "Answer"
 msgstr "Réponse"
 
-#: knowledge/models.py:47
+#: knowledge/models.py:80
 msgid "document"
 msgstr "document"
 
-#: knowledge/models.py:49
+#: knowledge/models.py:82
 msgid "question number"
 msgstr "numéro de la question"
 
-#: knowledge/models.py:50
+#: knowledge/models.py:83
 msgid "kind"
 msgstr "type"
 
-#: knowledge/models.py:53 qa/models.py:18
+#: knowledge/models.py:86 qa/models.py:41
 msgid "text"
 msgstr "texte"
 
-#: knowledge/models.py:54
+#: knowledge/models.py:87
 msgid "normalized text"
 msgstr "texte normalisé"
 
-#: knowledge/models.py:55
+#: knowledge/models.py:88
 msgid "embedding"
 msgstr "plongement vectoriel"
 
-#: knowledge/models.py:56
+#: knowledge/models.py:89
 msgid "metadata"
 msgstr "métadonnées"
 
-#: knowledge/models.py:59
+#: knowledge/models.py:92
 msgid "source chunk"
 msgstr "extrait de source"
 
-#: knowledge/models.py:60
+#: knowledge/models.py:93
 msgid "source chunks"
 msgstr "extraits de sources"
 
@@ -721,126 +751,145 @@ msgstr "extraits de sources"
 msgid "Questions and answers"
 msgstr "Questions et réponses"
 
-#: qa/models.py:20
+#: qa/models.py:43
 msgid "session"
 msgstr "session"
 
-#: qa/models.py:23 qa/models.py:52
+#: qa/models.py:48 qa/models.py:78
 msgid "question"
 msgstr "question"
 
-#: qa/models.py:24
+#: qa/models.py:49
 msgid "questions"
 msgstr "questions"
 
-#: qa/models.py:40 qa/models.py:49
+#: qa/models.py:66 qa/models.py:75
 msgid "Out of scope"
 msgstr "Hors champ"
 
-#: qa/models.py:46
+#: qa/models.py:72
 msgid "Partial answer"
 msgstr "Réponse partielle"
 
-#: qa/models.py:47
+#: qa/models.py:73
 msgid "Abstain"
 msgstr "Abstention"
 
-#: qa/models.py:48
+#: qa/models.py:74
 msgid "Referred to a center"
 msgstr "Transmise à un centre"
 
-#: qa/models.py:54
+#: qa/models.py:80
 msgid "level"
 msgstr "niveau"
 
-#: qa/models.py:55
+#: qa/models.py:81
 msgid "search query"
 msgstr "requête de recherche"
 
-#: qa/models.py:56
+#: qa/models.py:82
 msgid "retrieved"
 msgstr "résultats récupérés"
 
-#: qa/models.py:57
+#: qa/models.py:83
 msgid "Ranked results: question number, score, chunk kind."
 msgstr "Résultats classés : numéro de question, score, type d’extrait."
 
-#: qa/models.py:58
+#: qa/models.py:84
 msgid "evidence question numbers"
 msgstr "numéros des questions de preuve"
 
-#: qa/models.py:59
+#: qa/models.py:85
 msgid "answer"
 msgstr "réponse"
 
-#: qa/models.py:60
+#: qa/models.py:86
 msgid "citations"
 msgstr "citations"
 
-#: qa/models.py:61
+#: qa/models.py:88
+msgid "sentences"
+msgstr "phrases"
+
+#: qa/models.py:89
+msgid ""
+"Kept sentences: text without citation markers, supporting quote, source "
+"question number."
+msgstr "Phrases retenues : texte sans marqueurs de citation, citation justificative, numéro de la question source."
+
+#: qa/models.py:91
+msgid "dropped sentences"
+msgstr "phrases écartées"
+
+#: qa/models.py:92
+msgid ""
+"Sentences removed by the quote or entailment check: text, quote, reason."
+msgstr "Phrases retirées par la vérification de la citation ou de l’implication : texte, citation, motif."
+
+#: qa/models.py:93
 msgid "decision"
 msgstr "décision"
 
-#: qa/models.py:62
+#: qa/models.py:94
 msgid "verifier verdict"
 msgstr "verdict du vérificateur"
 
-#: qa/models.py:63
+#: qa/models.py:95
 msgid "model"
 msgstr "modèle"
 
-#: qa/models.py:64
+#: qa/models.py:96
 msgid "prompt version"
 msgstr "version des consignes"
 
-#: qa/models.py:65
+#: qa/models.py:97
 msgid "latency (ms)"
 msgstr "latence (ms)"
 
-#: qa/models.py:66
+#: qa/models.py:98
 msgid "input tokens"
 msgstr "jetons d’entrée"
 
-#: qa/models.py:67
+#: qa/models.py:99
 msgid "output tokens"
 msgstr "jetons de sortie"
 
-#: qa/models.py:68
+#: qa/models.py:100
 msgid "error"
 msgstr "erreur"
 
-#: qa/models.py:71 qa/models.py:89
+#: qa/models.py:103 qa/models.py:121
 msgid "interaction"
 msgstr "interaction"
 
-#: qa/models.py:72
+#: qa/models.py:104
 msgid "interactions"
 msgstr "interactions"
 
-#: qa/models.py:85
+#: qa/models.py:117
 msgid "Correct"
 msgstr "Corriger"
 
-#: qa/models.py:93
+#: qa/models.py:125
 msgid "reviewer"
 msgstr "réviseur"
 
-#: qa/models.py:95
+#: qa/models.py:127
 msgid "verdict"
 msgstr "verdict"
 
-#: qa/models.py:96
+#: qa/models.py:128
 msgid "corrected answer"
 msgstr "réponse corrigée"
 
-#: qa/models.py:97
+#: qa/models.py:129
 msgid "reason"
 msgstr "motif"
 
-#: qa/models.py:100
+#: qa/models.py:132
 msgid "human label"
 msgstr "évaluation humaine"
 
-#: qa/models.py:101
+#: qa/models.py:133
 msgid "human labels"
 msgstr "évaluations humaines"

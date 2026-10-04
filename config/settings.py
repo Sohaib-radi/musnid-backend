@@ -174,6 +174,24 @@ LOW_THRESHOLD = 0.30
 # The writer receives the evidence (summary and answer chunks) of this many
 # distinct top questions; the verifier then decides full / partial / none.
 EVIDENCE_QUESTIONS = 3
+# Global limit of questions per UTC day, protecting the OpenAI budget (ADR 0017).
+ASK_DAILY_LIMIT = env.integer('ASK_DAILY_LIMIT', 150)
+
+
+# Shared cache (ADR 0017): throttle counters must be shared by every gunicorn
+# worker; the default per-process memory cache would multiply each limit by the
+# number of workers. Table created by `manage.py createcachetable`.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    },
+}
+
+# Proxies in front of the app: DRF then takes the client IP from X-Forwarded-For.
+# 0 (default) uses REMOTE_ADDR; behind one host proxy set 1. Never leave DRF's own
+# default (None): it trusts the whole, client-controlled X-Forwarded-For header.
+REST_FRAMEWORK['NUM_PROXIES'] = env.integer('DJANGO_NUM_PROXIES', 0)
 
 
 # CrewAI (ADR 0016): no telemetry, no tracing. Set before CrewAI is imported. These

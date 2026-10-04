@@ -33,4 +33,7 @@ USER app
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# Answers take 20 to 45 s (ADR 0017): a 120 s timeout instead of gunicorn's 30 s, and
+# 3 workers x 2 threads so concurrent questions do not wait for each other.
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", \
+     "--workers", "3", "--threads", "2", "--timeout", "120"]

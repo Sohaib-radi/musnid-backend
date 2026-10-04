@@ -15,13 +15,15 @@ authentication: [ADR 0010](../architecture/decisions/0010-jwt-authentication.md)
 
 - **Authentication**: `Authorization: Bearer <access token>`. Every endpoint requires it
   unless marked public.
-- **Identifiers**: only public ones appear: user `uuid`, center `slug`, membership `uuid`.
+- **Identifiers**: only public ones appear: user `uuid`, center `slug`, membership `uuid`,
+  question `uuid`.
 - **Language**: messages follow `Accept-Language` (`ar`, `en`, `fr`). Codes never change.
 - **Pagination**: lists return `count`, `next`, `previous`, `results`; 20 per page,
   `?page=N`.
 - **Methods**: updates use `PATCH`. There is no `PUT` and no `DELETE`.
 - **Throttling**: register, register/center, login and refresh share the `auth` scope:
-  10 requests per minute per client. The 11th returns 429 `throttled`.
+  10 requests per minute per client. The 11th returns 429 `throttled`. Asking has its own
+  limits (see [Questions](#questions)).
 
 ## Errors
 
@@ -42,7 +44,11 @@ Clients branch on `code`, never on the text.
 | `center_not_operational` | 403 | Center pending review, rejected or suspended. |
 | `not_found` | 404 | Unknown resource, or a center the caller does not belong to. |
 | `method_not_allowed` | 405 | E.g. `PUT` or `DELETE`. |
-| `throttled` | 429 | Too many auth requests. |
+| `throttled` | 429 | Too many auth requests, or too many questions from one IP. |
+| `daily_capacity` | 429 | The service's daily limit of questions is reached; `detail` is a fixed "try again tomorrow" reply. |
+| `unavailable` | 503 | A question cannot be saved (no default center configured). |
+| `session_required` | 400 | History requested without `session_id`. |
+| `min_length`, `max_length`, `required`, `invalid` | 400 (field) | Question `text` (3 to 2,000 characters) or `session_id` (8 to 64 of `A-Z a-z 0-9 - _`). |
 | `email_taken` | 400 (field) | Registration with an existing email (any case). |
 | `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar` | 400 (field `password`) | Django password validators. |
 | `center_name_taken`, `invalid_country` | 400 (field `center.name`, `center.country`) | Center registration. |
@@ -102,3 +108,74 @@ All: center admin of an operational center (403 `not_center_admin`,
 | `POST centers/{slug}/memberships/{uuid}/offboard/` | | membership (inactive, `left_at` set) | `last_center_admin`, `membership_inactive` |
 
 Memberships are never deleted (405 for `DELETE`).
+
+## Questions
+
+Public: no login and no personal data ([ADR 0017](../architecture/decisions/0017-anonymous-ask-api.md)).
+Authentication is disabled on these endpoints, so a stale token cannot cause a 401.
+Questions are grouped by `session_id`, an opaque id the frontend generates (for example
+a random UUID kept in local storage).
+
+| Method and path | Request | Response |
+| --- | --- | --- |
+| `POST questions/` | `text` (3 to 2,000 characters), `session_id` | 201 question; waits for the answer (19.8 to 45.6 s measured) |
+| `GET questions/?session_id=…` | | paginated, newest first |
+| `GET questions/{uuid}/` | | question |
+
+There is no `PUT`, `PATCH` or `DELETE` (405).
+
+Question:
+
+```json
+{
+  "uuid": "9b2e4c1a-…",
+  "session_id": "3f1c9a2e-…",
+  "text": "هل انتشر الإسلام بالسيف؟",
+  "language": "ar",
+  "level": "B",
+  "decision": "answer",
+  "answer": "… [Q229]. …\n\n<notes>",
+  "sentences": [
+    {
+      "text": "<sentence without [Q<n>] markers>",
+      "quote": "<supporting quote from the book, Arabic>",
+      "source": {
+        "number": 229,
+        "title": "هل انتشَرَ الإسلامُ بالسيف؟",
+        "pages": {"start": 1074, "end": 1081},
+        "url": "https://dawa.center/file/7937?lang=ar",
+        "pdf_url": "https://dawa.center/storage/files/….pdf#page=1075"
+      }
+    }
+  ],
+  "notes": [{"code": "partial", "text": "…"}, {"code": "level_c", "text": "…"}],
+  "verification": {"kept": 4, "removed": 1},
+  "follow_up_number": null,
+  "created_at": "2026-10-04T17:30:00Z"
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `language` | `ar`, `en` or `fr`; empty if classification failed. |
+| `level` | `A`, `B`, `C`, `D` or `out_of_scope`; `null` if classification failed. |
+| `decision` | `answer`, `partial`, `refer`, `abstain` or `out_of_scope`. |
+| `answer` | The full text shown to the asker, with `[Q<n>]` markers and the notes. For `refer`, `abstain` and `out_of_scope` it is the fixed reply. |
+| `sentences` | Each kept sentence with its quote and its source. The source is the evidence question whose text contains the quote, found in code. Empty for fixed replies. |
+| `source.url` | The book's page on dawa.center, interface in the question's language. The book is published as one Arabic PDF; there is no page per question. |
+| `source.pdf_url` | The same PDF as the knowledge base (SHA-256 checked), opened at the question's first page. |
+| `notes` | Fixed notes after an answer: `partial` (the sources answer only in part), `level_c` (scholarly disagreement). Clients style them by `code`. |
+| `verification` | Number of sentences kept and removed by the quote and entailment checks. |
+| `follow_up_number` | For `refer`: the question's `uuid`, to quote when the specialist's reply is attached later. `null` otherwise. |
+
+Limits on `POST`:
+
+| Limit | Response |
+| --- | --- |
+| 5 per minute and 50 per day per client IP (`ask_minute`, `ask_day`) | 429 `throttled` |
+| `ASK_DAILY_LIMIT` questions per UTC day for the whole service (default 150) | 429 `daily_capacity`, nothing saved, no model call |
+
+The client IP is `REMOTE_ADDR`, or the address `DJANGO_NUM_PROXIES` hops from the end of
+`X-Forwarded-For` behind a proxy ([Configuration](../getting-started/configuration.md)).
+Reading the history is not throttled.
+

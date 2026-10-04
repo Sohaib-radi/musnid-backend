@@ -13,8 +13,34 @@ Clients branch on codes, never on translated text:
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404
-from rest_framework import exceptions
+from django.utils.translation import get_language
+from django.utils.translation import gettext_lazy as _
+from rest_framework import exceptions, status
 from rest_framework.views import exception_handler as drf_exception_handler
+
+from agents.replies import fixed_reply  # does not load CrewAI
+
+
+class DailyCapacityReached(exceptions.APIException):
+    """
+    429 when the global daily limit of questions is reached (ADR 0017).
+
+    The detail is the fixed "try again later" reply in the request language.
+    """
+
+    status_code = status.HTTP_429_TOO_MANY_REQUESTS
+    default_code = 'daily_capacity'
+
+    def __init__(self):
+        super().__init__(fixed_reply('daily_capacity', get_language()))
+
+
+class AskingUnavailable(exceptions.APIException):
+    """503 when a question cannot be saved because no default center is configured."""
+
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    default_code = 'unavailable'
+    default_detail = _('The service cannot take questions right now. Please try again later.')
 
 
 def exception_handler(exc, context):

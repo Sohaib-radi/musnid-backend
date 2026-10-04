@@ -22,10 +22,9 @@ from types import SimpleNamespace
 from crewai.flow.flow import Flow, listen, router, start
 from django.conf import settings
 from django.db import connection
-from django.utils import translation
-from django.utils.translation import gettext as _
 from pydantic import BaseModel
 
+from agents.replies import fixed_reply, notes
 from knowledge.normalize import normalize
 from knowledge.services.search import get_evidence, search
 
@@ -35,29 +34,12 @@ from knowledge.services.search import get_evidence, search
 SEARCH_K = 8
 CITATION = re.compile(r'\s*\[Q(\d+)\]')
 SECRET = re.compile(r'(sk-[A-Za-z0-9_\-]{4})[A-Za-z0-9_\-]+|(Bearer\s+)\S+')
-REPLY_LANGUAGES = {'ar', 'en', 'fr'}
 MIN_QUOTE_CHARS = 15
 # A quote matches when this share of its words appears, in order, in one passage of
 # the evidence: the writer may fix an extraction typo or change a word or two. A
 # quote under 10 words must still match exactly. Entailment checks support anyway.
 QUOTE_MATCH_PERCENT = 90
 NON_WORD = re.compile(r'[^\w\s]|_')
-
-
-def fixed_reply(kind, language):
-    """A fixed, translated reply. ``kind``: out_of_scope, refer, abstain, partial, disagreement."""
-    with translation.override(language if language in REPLY_LANGUAGES else 'en'):
-        return {
-            'out_of_scope': _('This service only answers questions about Islam. '
-                              'Please ask a question about Islam.'),
-            'refer': _('Your question needs a specialist. It has been referred to a center of '
-                       'specialists, who will answer you.'),
-            'abstain': _('We could not find an answer to this question in our sources. '
-                         'Please rephrase it or ask a center of specialists.'),
-            'partial': _('Note: our sources answer this question only in part.'),
-            'disagreement': _('This matter involves scholarly disagreement; consult a specialist '
-                              'for your situation.'),
-        }[kind]
 
 
 def script_language(text, guess):
@@ -90,6 +72,8 @@ class QAState(BaseModel):
     retrieved: list[dict] = []
     evidence_numbers: list[int] = []
     evidence: str = ''
+    # Comparable text (see _comparable) of each evidence question, to find a quote's source.
+    evidence_by_number: dict[int, str] = {}
     coverage: str = ''
     answer: str = ''
     citations: list[int] = []
@@ -97,7 +81,8 @@ class QAState(BaseModel):
     error: str = ''
     tokens_in: int = 0
     tokens_out: int = 0
-    dropped: list[dict] = []  # sentences removed by the quote check, with their quote
+    sentences: list[dict] = []  # kept sentences: text (no markers), quote, source number
+    dropped: list[dict] = []  # sentences removed by the quote or entailment check, with the reason
 
 
 class AskFlow(Flow[QAState]):
@@ -161,8 +146,13 @@ class AskFlow(Flow[QAState]):
         if not results or results[0].score < settings.LOW_THRESHOLD:
             return 'abstain'
         self.state.evidence_numbers = [r.question_number for r in results[:settings.EVIDENCE_QUESTIONS]]
+        chunks = get_evidence(self.state.evidence_numbers)
+        texts = {}
+        for chunk in chunks:
+            texts.setdefault(chunk.question_number, []).append(chunk.text)
+        self.state.evidence_by_number = {number: _comparable('\n'.join(parts)) for number, parts in texts.items()}
         self.state.evidence = '\n\n'.join(
-            f'[Q{chunk.question_number}] {chunk.text}' for chunk in get_evidence(self.state.evidence_numbers)
+            f'[Q{chunk.question_number}] {chunk.text}' for chunk in chunks
         )
         return 'answer'
 
@@ -180,7 +170,11 @@ class AskFlow(Flow[QAState]):
             self._count_tokens(output)
             verified = output.pydantic
             kept = self.entailed(self.quoted(verified.sentences))
-            self.decide(' '.join(s.text.strip() for s in kept), verified.coverage)
+            self.state.sentences = [
+                {'text': CITATION.sub('', sentence.text).strip(), 'quote': sentence.quote, 'number': number}
+                for sentence, number in kept
+            ]
+            self.decide(' '.join(sentence.text.strip() for sentence, _number in kept), verified.coverage)
         except Exception as error:
             self._fail('answer crew', error)
             self._fixed('abstain')
@@ -201,44 +195,60 @@ class AskFlow(Flow[QAState]):
 
     def quoted(self, sentences):
         """
-        Keep the sentences whose quote really is in the evidence.
+        Keep the sentences whose quote really is in the evidence, each paired with
+        the number of the evidence question the quote comes from.
 
         Quotes are compared after Arabic normalization and with punctuation
         removed, so diacritics or punctuation differences do not matter, and
-        ``quote_matches`` tolerates a few changed words. A quote shorter than
-        ``MIN_QUOTE_CHARS`` or not found drops its sentence. Quotes must be in the
-        evidence's language (Arabic): a translated or paraphrased quote cannot
+        ``quote_matches`` tolerates a few changed words. The quote must lie within
+        one question's evidence; that question, found by code, is the sentence's
+        source (the writer's [Q<n>] marker is not trusted for it). A quote shorter
+        than ``MIN_QUOTE_CHARS`` or not found drops its sentence. Quotes must be in
+        the evidence's language (Arabic): a translated or paraphrased quote cannot
         match, so it counts as missing. The level-C sentence is the writer's, so it
         needs a quote too.
         """
-        evidence = _comparable(self.state.evidence)
         kept = []
         for sentence in sentences:
-            quote = _comparable(sentence.quote)
-            if len(quote) >= MIN_QUOTE_CHARS and quote_matches(quote, evidence):
-                kept.append(sentence)
+            number = self._quote_source(_comparable(sentence.quote))
+            if number is None:
+                self._drop(sentence, 'quote')
             else:
-                self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote, 'reason': 'quote'})
+                kept.append((sentence, number))
         return kept
 
-    def entailed(self, sentences):
+    def _quote_source(self, quote):
+        """The first evidence question (in ranking order) containing ``quote``, or None."""
+        if len(quote) < MIN_QUOTE_CHARS:
+            return None
+        for number in self.state.evidence_numbers:
+            text = self.state.evidence_by_number.get(number, '')
+            if text and quote_matches(quote, text):
+                return number
+        return None
+
+    def entailed(self, kept):
         """
-        Keep the sentences whose quote states their claim, judged by ONE batched
-        request to the verifier model (``check_entailment``). Failures propagate
-        and end in the fixed abstain.
+        Keep the ``(sentence, number)`` pairs whose quote states the sentence's
+        claim, judged by ONE batched request to the verifier model
+        (``check_entailment``). Failures propagate and end in the fixed abstain.
         """
-        if not sentences:
+        if not kept:
             return []
         check = self.entailment or _default_entailment
-        verdicts, usage = check([(s.text, s.quote) for s in sentences])
+        verdicts, usage = check([(sentence.text, sentence.quote) for sentence, _number in kept])
         self._count_tokens(SimpleNamespace(token_usage=usage))
-        kept = []
-        for sentence, verdict in zip(sentences, verdicts):
+        supported = []
+        for pair, verdict in zip(kept, verdicts):
             if verdict == 'supported':
-                kept.append(sentence)
+                supported.append(pair)
             else:
-                self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote, 'reason': 'entailment'})
-        return kept
+                self._drop(pair[0], 'entailment')
+        return supported
+
+    def _drop(self, sentence, reason):
+        """Record a removed sentence; saved on the Interaction for review."""
+        self.state.dropped.append({'text': sentence.text, 'quote': sentence.quote, 'reason': reason})
 
     def decide(self, answer, coverage):
         """Apply the safeguards to the verified answer (see the module docstring)."""
@@ -257,19 +267,17 @@ class AskFlow(Flow[QAState]):
         if coverage == 'none' or not cited:
             self._fixed('refer')
             return
-        notes = []
-        if coverage == 'partial':
-            notes.append(fixed_reply('partial', self.state.language))
-        if self.state.level == 'C':
-            notes.append(fixed_reply('disagreement', self.state.language))
-        self.state.answer = '\n\n'.join([text, *notes])
         self.state.decision = 'partial' if coverage == 'partial' else 'answer'
+        notes_text = [note['text'] for note in notes(self.state.decision, self.state.level, self.state.language)]
+        self.state.answer = '\n\n'.join([text, *notes_text])
 
     # Helpers
 
     def _fixed(self, kind):
+        """End with a fixed reply; no sentence of the writer is shown."""
         self.state.answer = fixed_reply(kind, self.state.language)
         self.state.decision = kind
+        self.state.sentences = []
 
     def _fail(self, step, error):
         self.state.error = mask_secrets(f'{step}: {type(error).__name__}: {error}')

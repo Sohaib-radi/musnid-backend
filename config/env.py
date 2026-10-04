@@ -83,3 +83,23 @@ def csv_list(name):
     if value is None:
         return []
     return [item.strip() for item in value.split(',') if item.strip()]
+
+
+def integer(name, default):
+    """
+    Return a non-negative integer environment variable, or ``default``.
+
+    Args:
+        name: Name of the environment variable.
+        default: Value returned when the variable is unset or empty.
+
+    Raises:
+        ImproperlyConfigured: the value is not a non-negative integer, so a
+        typo stops the process at startup instead of disabling a limit.
+    """
+    value = _read(name)
+    if value is None:
+        return default
+    if not value.isdigit():
+        raise ImproperlyConfigured(f'Environment variable {name} must be a non-negative integer, got {value!r}.')
+    return int(value)

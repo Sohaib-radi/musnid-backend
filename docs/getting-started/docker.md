@@ -44,9 +44,13 @@ The admin is then at `http://127.0.0.1:8011/admin/`.
   database is reached by service name on its internal port, not on the host port 5435.
   Process environment variables take precedence over `.env`, and `.env` is not in the
   image in any case.
-- On start it runs `migrate --noinput`, then `exec gunicorn config.wsgi:application`
-  with 3 sync workers on port 8000. `exec` makes gunicorn PID 1 so it receives
-  `SIGTERM` from `docker compose stop` directly.
+- On start it runs `migrate --noinput` and `createcachetable` (the throttle counters'
+  table), then `exec gunicorn config.wsgi:application` on port 8000 with 3 workers of
+  2 threads each and a 120 s timeout: answers take 19.8 to 45.6 s
+  ([ADR 0017](../architecture/decisions/0017-anonymous-ask-api.md)). `exec` makes
+  gunicorn PID 1 so it receives `SIGTERM` from `docker compose stop` directly.
+- A proxy in front of port 8011 must allow at least 120 s per request, and
+  `DJANGO_NUM_PROXIES` must count it so per-IP limits see the client's address.
 - Only active under the `web` profile, so `docker compose up -d db` never builds it.
 
 ## Image

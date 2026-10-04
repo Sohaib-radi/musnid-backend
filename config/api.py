@@ -20,13 +20,17 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     # Adds "code" next to "detail" and converts domain ValidationErrors (api/exceptions.py).
     'EXCEPTION_HANDLER': 'api.exceptions.exception_handler',
-    # Only views that set throttle_scope are throttled (login, registration, refresh).
+    # Only views that set throttle_scope are throttled (login, registration, refresh);
+    # asking adds its own per-IP throttles (api/throttling.py, ADR 0017).
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'auth': '10/minute',
+        'ask_minute': '5/minute',
+        'ask_day': '50/day',
     },
+    # NUM_PROXIES is set in config.settings from DJANGO_NUM_PROXIES (after .env is loaded).
 }
 
 SIMPLE_JWT = {

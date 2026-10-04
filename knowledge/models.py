@@ -7,6 +7,9 @@ writer), a ``summary`` chunk or an ``answer`` chunk (the evidence the writer
 receives through ``knowledge.services.search.get_evidence``).
 """
 
+from urllib.parse import urlencode
+
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from pgvector.django import HnswIndex, VectorField
@@ -22,7 +25,9 @@ class SourceDocument(BaseModel):
     slug = models.SlugField(_('slug'), unique=True)
     title = models.CharField(_('title'), max_length=300)
     lang = models.CharField(_('language'), max_length=2)
-    url = models.URLField(_('URL'), blank=True)
+    url = models.URLField(_('URL'), blank=True, help_text=_('Public page of the document.'))
+    pdf_url = models.URLField(_('PDF URL'), blank=True,
+                              help_text=_('Public PDF of the document, the same file that was ingested.'))
     license_note = models.TextField(_('license note'), blank=True)
 
     class Meta(BaseModel.Meta):
@@ -31,6 +36,34 @@ class SourceDocument(BaseModel):
 
     def __str__(self):
         return self.title
+
+    def page_url(self, language):
+        """
+        The document's public page with its interface in ``language``.
+
+        ``?lang=`` is added only for a language the service supports; empty
+        when the document has no ``url``.
+        """
+        if not self.url:
+            return ''
+        if language not in dict(settings.LANGUAGES):
+            return self.url
+        separator = '&' if '?' in self.url else '?'
+        return f'{self.url}{separator}{urlencode({"lang": language})}'
+
+    def pdf_page_url(self, page):
+        """
+        The public PDF opened at printed page ``page``; empty without ``pdf_url``.
+
+        In the ingested books the printed page number equals the 0-based PDF page
+        index (docs/rag/01-extraction-findings.md); PDF viewers count ``#page=``
+        from 1, hence ``page + 1``.
+        """
+        if not self.pdf_url:
+            return ''
+        if page is None:
+            return self.pdf_url
+        return f'{self.pdf_url}#page={int(page) + 1}'
 
 
 class SourceChunk(BaseModel):

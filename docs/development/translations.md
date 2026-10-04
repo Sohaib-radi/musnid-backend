@@ -26,9 +26,9 @@ drift apart.
 Two catalogs, each in Arabic and French, committed as `.po` and compiled `.mo`
 ([ADR 0009](../architecture/decisions/0009-translations-in-every-change.md)):
 
-| Catalog | Files | Strings (2026-10-04) |
+| Catalog | Files | Strings (2026-10-04, after the ask API) |
 | --- | --- | --- |
-| Project | `locale/<lang>/LC_MESSAGES/django.po` | 105 |
+| Project | `locale/<lang>/LC_MESSAGES/django.po` | 200 |
 | Unfold vendor | `locale_vendor/unfold/<lang>/LC_MESSAGES/django.po` | 131 |
 
 The project catalog comes first in `LOCALE_PATHS`, so for a msgid present in both, the

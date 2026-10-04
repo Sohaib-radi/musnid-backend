@@ -78,7 +78,7 @@ field is handled in one place.
 | `core/tests/test_crypto.py` | 5 | Encryption round trip, key rotation, missing and invalid keys, invalid token. |
 | `core/tests/test_credentials.py` | 5 | `ApiCredential` masking, non-editable fields, both constraints. |
 | `core/tests/test_database.py` | 3 | Connection to PostgreSQL, a query round trip, pgvector available on the server. |
-| `core/tests/test_env.py` | 12 | `config.env` readers: required, optional, strict boolean, comma-separated lists, empty treated as unset. |
+| `core/tests/test_env.py` | 15 | `config.env` readers: required, optional, strict boolean, comma-separated lists, non-negative integers, empty treated as unset. |
 | `core/tests/test_i18n.py` | 6 | Languages, `LocaleMiddleware` position, both `LOCALE_PATHS` in order, right-to-left Arabic, the `set_language` URL and cookie. |
 | `core/tests/test_membership.py` | 15 | Membership defaults, both constraints, `full_clean` messages, querysets. |
 | `core/tests/test_migrations.py` | 4 | `vector` installed and usable, `VectorExtension` is the first operation, no missing migrations. |
@@ -96,11 +96,13 @@ field is handled in one place.
 | `api/tests/test_cors.py` | 4 | Allowed origin on `/api/`, other origins refused, no CORS on the admin, CORS headers on errors, no credentials. |
 | `api/tests/test_errors.py` | 7 | Exception handler: domain errors to 400 with code, field `codes`, DRF and Django errors with codes; permission codes. |
 | `api/tests/test_me.py` | 8 | Profile GET and PATCH, no PUT, memberships with center states, countries translated. |
+| `api/tests/test_questions.py` | 20 | Anonymous asking: full response format (sentences with sources and links, notes with codes, verification), book link in the question's language, referral follow-up number, missing source, stale token ignored, input codes, `daily_capacity` in Arabic, `unavailable`; per-IP throttle (sixth question, free history reads, per-IP quotas, `X-Forwarded-For` ignored without proxies and used behind one, no IP in the cache); history newest first, sources in one query, `session_required`, detail by uuid, 404, no PUT/PATCH/DELETE. |
 | `api/tests/test_memberships.py` | 11 | List, add by email, change role, offboard, service codes, no DELETE, other centers 404, permissions, pending center blocked. |
 | `api/tests/test_schema.py` | 3 | Schema without warnings, public identifiers only, docs page on sidecar assets. |
-| `knowledge/tests/` (6 files) | 42 | Text repair, Bayyinat parsing and validation, PyMuPDF isolation, normalization rules by Unicode name, chunking, ingestion (idempotent, failure-safe), search (best chunk per question, `ef_search`), evidence, read-only admin; with a fake embedder. |
-| `agents/tests/` (3 files) | 52 | Every route (out of scope, level D, low score, failures of each step, unreadable output), evidence only for the writer, citation stripping, quote check (translated quotes count as missing; 90% word match in one passage, short quotes exact), CrewAI trace prompt declined before import (fresh interpreter), batched entailment check, script-based language, partial note, level-C notice, saving and version stamp, fixed replies in 3 languages, key masking, crew YAML, LLM and verifier model from AISettings, CrewAI switches. |
-| **Total** | **384** | |
+| `knowledge/tests/` (6 files) | 47 | Text repair, Bayyinat parsing and validation, PyMuPDF isolation, normalization rules by Unicode name, chunking, ingestion (idempotent, failure-safe), search (best chunk per question, `ef_search`), evidence, read-only admin; public page and PDF links of a document; with a fake embedder. |
+| `agents/tests/` (3 files) | 59 | Every route (out of scope, level D, low score, failures of each step, unreadable output), evidence only for the writer, citation stripping, quote check (translated quotes count as missing; 90% word match in one passage, short quotes exact), CrewAI trace prompt declined before import (fresh interpreter), kept sentences saved with their code-found source and drops with their reason, notes by code, daily limit before any model call, batched entailment check, script-based language, partial note, level-C notice, saving and version stamp, fixed replies in 3 languages, key masking, crew YAML, LLM and verifier model from AISettings, CrewAI switches. |
+| `qa/tests/test_models.py` | 3 | Distinct question uuids, session history newest first, questions since midnight UTC. |
+| **Total** | **422** | |
 
 Last full run: 263 tests, all passing, 43.0 s serial, on 2026-10-04 (step 4). Flow tests use `TransactionTestCase`: CrewAI runs steps in worker threads, which do not
 see data inside a `TestCase` transaction.
