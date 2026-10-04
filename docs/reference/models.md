@@ -159,9 +159,12 @@ code shown.
 | `add_member(center, email, role)` | Finds the user by email (case-insensitive, trimmed) and creates an active membership. | `invalid_role`, `user_not_found`, `user_inactive`, `already_member` |
 | `change_role(membership, role)` | Changes the role. Same role is a no-op. | `invalid_role`, `membership_inactive`, `last_center_admin` |
 | `offboard(membership)` | Sets `is_active=False` and `left_at=now`. Never deletes. | `membership_inactive`, `last_center_admin` |
+| `validate_add_member(center, user, role)` | Runs `add_member`'s checks without saving; used by the admin form. | `invalid_role`, `user_inactive`, `already_member` |
+| `validate_change_role(membership, role)` | Runs `change_role`'s checks without saving. Reads the stored state, so an instance already modified in memory (a bound form's) is fine. | `invalid_role`, `membership_inactive`, `last_center_admin` |
 
 `last_center_admin`: a center that has an active center admin must keep at least one.
 A new center has none, and `add_member` accepts any role, so the first admin can be added.
 `change_role` and `offboard` lock the center's active admin memberships, in primary key
 order, before checking, so concurrent calls cannot remove the last admin together or
-deadlock.
+deadlock. The `validate_*` functions read without locks; the mutating functions check
+again under the locks, which is what guarantees the rules.

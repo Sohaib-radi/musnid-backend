@@ -1,6 +1,7 @@
 asgiref==3.12.1
 Django==6.0.8
 django-countries==9.1.0
+django-unfold==0.108.0
 gunicorn==26.2.0
 pgvector==0.5.0
 pillow==12.3.0

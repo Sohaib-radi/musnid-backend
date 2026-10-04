@@ -77,6 +77,7 @@ receive and answer them.
 config/            Django project package
   settings.py      all settings, read from the environment
   env.py           typed env readers (required, optional, flag, csv_list)
+  unfold.py        UNFOLD settings: brand colours, sidebar, login image (the only place for colours)
   urls.py, wsgi.py, asgi.py
 core/              domain app
   models/          one module per concern, all re-exported from core/models/__init__.py
@@ -86,16 +87,20 @@ core/              domain app
     center.py      Center (single default)
     membership.py  Membership, MembershipQuerySet
   services/        rules spanning several objects (memberships.py)
+  admin.py         Unfold admins: User, Center, Membership, Group
+  forms.py         admin forms (Unfold user forms rebound to core.User, center, membership)
+  static/core/     admin.css (font, accent, RTL fixes), fonts/readex-pro/, img/login.svg
   migrations/      0001_initial enables pgvector first
   tests/           one test_*.py per module
     support.py     factories (make_user, make_center, make_membership) and test-only models
     runner.py      TEST_RUNNER: test-only tables, fast password hasher
     parallel.py    --parallel worker setup; must never import models
 locale/            ar and fr catalogs (.po and .mo, both committed)
+locale_vendor/unfold/  our ar and fr translations of Unfold's strings (Unfold ships none)
 docs/              Docusaurus content (Markdown only)
   getting-started/ local development, Docker, configuration
   architecture/decisions/  ADRs (NNNN-kebab-title.md)
-  reference/       models: every field, method, queryset, constraint
+  reference/       models and admin: every field, constraint, admin, action
   development/     testing, translations, migrations
   technology-stack.md      every dependency: version, role, license
 data/raw/, data/processed/ source books and extracted text (git-ignored)
@@ -141,6 +146,7 @@ docker compose --profile web down
 | 5435 | PostgreSQL (`db`, container `musnid_backend_postgres`, volume `musnid_backend_pgdata`) |
 | 8011 | Django via gunicorn (`web`, container `musnid_backend_web`, profile `web`) |
 | 8000 | `manage.py runserver` (local) |
+| 8010 | `manage.py runserver` used for admin screenshots |
 
 Other projects on the development machine use 5432, 5433, 6379, 8000, 8001 and 5555, and
 the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
@@ -168,5 +174,21 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
 - **Tests:** create objects with the factories in `core/tests/support.py`. A test-only model
   goes in `support.py` and in `TEST_ONLY_MODELS`.
 - **Translations:** wrap user-facing strings with `gettext_lazy as _`, named placeholders
-  only. Workflow and glossary: `docs/development/translations.md`. Developer-facing
-  exceptions stay in English.
+  only; plurals with `ngettext` (Arabic needs six forms). Workflow and glossary:
+  `docs/development/translations.md`. Developer-facing exceptions stay in English.
+  `core/tests/test_translations.py` enforces completeness (ADR 0009).
+- **Vendor strings:** translations of a third-party package's strings go in
+  `locale_vendor/<package>/` (listed in `LOCALE_PATHS`), never in `site-packages`. Refresh
+  `locale_vendor/unfold` after upgrading Unfold. French words identical to English need
+  an entry in `FRENCH_SAME_AS_ENGLISH`.
+- **Admin:** every admin inherits `unfold.admin.ModelAdmin`, every inline Unfold's
+  `TabularInline`/`StackedInline`; re-register third-party models with an Unfold admin.
+  Forms live in `core/forms.py`. Admins never bypass services: memberships save through
+  `core.services.memberships`, their inlines are read-only. Action messages use `ngettext`.
+  Reference: `docs/reference/admin.md`.
+- **Colours:** defined only in `config/unfold.py` (ADR 0008). The single exception is the
+  turquoise accent in `core/static/core/css/admin.css`, used only on navy. Any palette
+  change must keep WCAG AA; `core/tests/test_unfold.py` measures it.
+- **Right-to-left:** check admin changes in Arabic. Fix Unfold's physical left/right
+  spacing in `admin.css` under `html[dir="rtl"]`; wrap LTR values inside Arabic text in
+  U+2066 … U+2069.

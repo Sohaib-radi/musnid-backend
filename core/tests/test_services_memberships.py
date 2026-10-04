@@ -155,3 +155,62 @@ class OffboardTests(TestCase):
         with self.assertRaises(ValidationError) as caught:
             memberships.offboard(specialist)
         self.assertEqual(caught.exception.code, 'membership_inactive')
+
+
+class ValidateAddMemberTests(TestCase):
+    """``validate_add_member`` applies add_member's checks without writing."""
+
+    def setUp(self):
+        self.center = make_center()
+
+    def assertCode(self, code, *args):
+        with self.assertRaises(ValidationError) as caught:
+            memberships.validate_add_member(*args)
+        self.assertEqual(caught.exception.code, code)
+
+    def test_accepts_a_valid_member_and_writes_nothing(self):
+        memberships.validate_add_member(self.center, make_user(), SPECIALIST)
+        self.assertEqual(Membership.objects.count(), 0)
+
+    def test_inactive_user(self):
+        self.assertCode('user_inactive', self.center, make_user(is_active=False), SPECIALIST)
+
+    def test_already_member(self):
+        self.assertCode('already_member', self.center, make_membership(center=self.center).user, ADMIN)
+
+    def test_invalid_role(self):
+        self.assertCode('invalid_role', self.center, make_user(), 'owner')
+
+
+class ValidateChangeRoleTests(TestCase):
+    """``validate_change_role`` applies change_role's checks without writing."""
+
+    def setUp(self):
+        self.center = make_center()
+        self.admin = make_membership(center=self.center, role=ADMIN)
+
+    def assertCode(self, code, membership, role):
+        with self.assertRaises(ValidationError) as caught:
+            memberships.validate_change_role(membership, role)
+        self.assertEqual(caught.exception.code, code)
+
+    def test_refuses_to_demote_the_last_admin(self):
+        self.assertCode('last_center_admin', self.admin, SPECIALIST)
+
+    def test_reads_the_stored_role_not_the_in_memory_one(self):
+        # A bound admin form has already copied the new role onto its instance.
+        self.admin.role = SPECIALIST
+        self.assertCode('last_center_admin', self.admin, SPECIALIST)
+
+    def test_accepts_when_another_admin_remains_and_writes_nothing(self):
+        make_membership(center=self.center, role=ADMIN)
+        memberships.validate_change_role(self.admin, SPECIALIST)
+        self.admin.refresh_from_db()
+        self.assertEqual(self.admin.role, ADMIN)
+
+    def test_ended_membership(self):
+        former = make_membership(center=self.center, is_active=False, left_at=timezone.now())
+        self.assertCode('membership_inactive', former, ADMIN)
+
+    def test_invalid_role(self):
+        self.assertCode('invalid_role', self.admin, 'owner')

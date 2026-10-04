@@ -68,22 +68,33 @@ field is handled in one place.
 
 | File | Tests | Covers |
 | --- | --- | --- |
+| `core/tests/test_admin.py` | 24 | Every admin and inline uses Unfold; pages respond; user creation and case-insensitive email error; center languages checkboxes, second-default form error, make-default action; membership add/change through the services, rule violations as form errors, offboard action messages (singular, plural, refusals), no deletion. |
 | `core/tests/test_base.py` | 14 | `BaseModel` timestamps and ordering, `for_center` scoping, `CASCADE` from center, `created_by` `SET_NULL`, reverse accessors. |
 | `core/tests/test_center.py` | 14 | Center fields and uniqueness, `only_one_default_center` (translated message in ar and fr, database backstop), `make_default`. |
 | `core/tests/test_choices.py` | 2 | `Language` matches `settings.LANGUAGES`. |
 | `core/tests/test_database.py` | 3 | Connection to PostgreSQL, a query round trip, pgvector available on the server. |
 | `core/tests/test_env.py` | 12 | `config.env` readers: required, optional, strict boolean, comma-separated lists, empty treated as unset. |
-| `core/tests/test_i18n.py` | 7 | Languages, `LocaleMiddleware` position, `LOCALE_PATHS`, right-to-left Arabic, every catalog entry translated and not fuzzy, compiled `.mo` files match the `.po` files. |
+| `core/tests/test_i18n.py` | 6 | Languages, `LocaleMiddleware` position, both `LOCALE_PATHS` in order, right-to-left Arabic, the `set_language` URL and cookie. |
 | `core/tests/test_membership.py` | 15 | Membership defaults, both constraints, `full_clean` messages, querysets. |
 | `core/tests/test_migrations.py` | 4 | `vector` installed and usable, `VectorExtension` is the first operation, no missing migrations. |
 | `core/tests/test_runner.py` | 3 | Test-only tables exist, fast hasher active, `core.tests.parallel` imports before `django.setup()`. |
-| `core/tests/test_services_memberships.py` | 21 | `add_member`, `change_role`, `offboard`: every error code and the last-admin rule. |
+| `core/tests/test_services_memberships.py` | 30 | `add_member`, `change_role`, `offboard` and the check-only `validate_add_member`, `validate_change_role`: every error code and the last-admin rule. |
+| `core/tests/test_translations.py` | 13 | Both catalogs (project, Unfold vendor) in ar and fr: complete, not fuzzy, French allowlist, `.mo` current, extraction current (temporary copy, skipped without gettext); labels, choices, actions, sidebar translated; login and center pages rendered in ar (`dir="rtl"`) and fr. |
+| `core/tests/test_unfold.py` | 13 | Brand colour anchors, scales ordered, WCAG AA contrast of the text pairs, no colour in `admin.css` but the accent, fonts and licence, login image, app order, site title, sidebar icons, links and permissions. |
 | `core/tests/test_settings.py` | 6 | `config.settings` imported in a fresh process: a clear error for each missing required variable, `DJANGO_DEBUG` parsing, database defaults and overrides. |
 | `core/tests/test_user.py` | 18 | User defaults, case-insensitive email uniqueness and login, `create_user`, `create_superuser`. |
-| **Total** | **119** | |
+| **Total** | **177** | |
 
-Last full run: 119 tests, all passing, 7.3 s serial and 18.1 s with `--parallel 4`
-(worker start-up dominates at this size), on 2026-10-04.
+Last full run: 177 tests, all passing, none skipped, 24.2 s serial and 14.6 s with
+`--parallel 4`, on 2026-10-04. The extraction tests and the settings tests start
+subprocesses and account for most of the serial time.
+
+## Language state between tests
+
+`LocaleMiddleware` activates the request's language on the test thread and does not
+reset it. Tests that send `Accept-Language` restore the default language in a cleanup
+(`translation.activate(settings.LANGUAGE_CODE)`); without it, later tests saw Arabic
+strings and failed, as observed while writing `test_translations.py`.
 
 ## How the settings tests work
 

@@ -26,12 +26,13 @@ written as Docusaurus content; this repository holds the Markdown only.
 | Domain models | Done | `User` (email login), `Center` (single default), `Membership` (roles, history); see [Models](reference/models.md). |
 | Center scoping | Done | Explicit `for_center()`; see [Tenancy](architecture/tenancy.md). |
 | Membership rules | Done | `add_member`, `change_role`, `offboard`; a center keeps one active admin. |
-| Tests | Done | 119 tests against a real PostgreSQL test database; see [Testing](development/testing.md). |
-| Static files in Docker | Known limitation | gunicorn does not serve `/static/` yet; use `runserver` for development. WhiteNoise or nginx comes with deployment. |
-| Internationalisation (Arabic, French) | Done | 50 strings, fully translated; see [Translations](development/translations.md). |
+| Tests | Done | 177 tests against a real PostgreSQL test database; see [Testing](development/testing.md). |
+| Static files in Docker | Known limitation | gunicorn does not serve `/static/` yet, so the themed admin renders unstyled at port 8011; use `runserver` for development. WhiteNoise or nginx comes with deployment. |
+| Internationalisation (Arabic, French) | Done | Project catalog 67 strings and Unfold vendor catalog 131 strings, fully translated and enforced by tests; see [Translations](development/translations.md). |
 | Source ingestion and RAG | Not started | Will be documented under `docs/rag/`. |
 | AI agents (CrewAI) | Not started | CrewAI 1.9.3 is planned; it constrains the Python version (ADR 0001). |
-| Admin and API | Not started | |
+| Admin | Done | Unfold theme with the Musnid brand, sidebar, language switcher; users, centers, memberships, groups; see [Admin](reference/admin.md). |
+| API | Not started | |
 
 ## Where to go next
 
@@ -41,4 +42,5 @@ written as Docusaurus content; this repository holds the Markdown only.
 - [Technology stack](technology-stack.md): dependencies, versions and licenses.
 - [Models](reference/models.md) and [Data model](architecture/data-model.md).
 - [Tenancy](architecture/tenancy.md): how data is scoped to centers.
-- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0007.
+- [Admin](reference/admin.md): every admin page and the sidebar.
+- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0009.

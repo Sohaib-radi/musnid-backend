@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 08:17+0000\n"
+"POT-Creation-Date: 2026-10-04 08:48+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: French\n"
@@ -13,17 +13,92 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: config/settings.py:123 core/models/choices.py:16
+#: config/settings.py:126 core/models/choices.py:16
 msgid "Arabic"
 msgstr "Arabe"
 
-#: config/settings.py:124 core/models/choices.py:17
+#: config/settings.py:127 core/models/choices.py:17
 msgid "English"
 msgstr "Anglais"
 
-#: config/settings.py:125 core/models/choices.py:18
+#: config/settings.py:128 core/models/choices.py:18
 msgid "French"
 msgstr "Français"
+
+#: config/unfold.py:99 config/unfold.py:102
+msgid "Centers"
+msgstr "Centres"
+
+#: config/unfold.py:103
+msgid "Memberships"
+msgstr "Adhésions"
+
+#: config/unfold.py:107
+msgid "Accounts"
+msgstr "Comptes"
+
+#: config/unfold.py:110
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: config/unfold.py:111
+msgid "Groups"
+msgstr "Groupes"
+
+#: core/admin.py:96
+msgid "Profile"
+msgstr "Profil"
+
+#: core/admin.py:99
+msgid "Status"
+msgstr "Statut"
+
+#: core/admin.py:100
+msgid "Permissions"
+msgstr "Permissions"
+
+#: core/admin.py:104 core/admin.py:131
+msgid "Dates"
+msgstr "Dates"
+
+#: core/admin.py:129
+msgid "Contact"
+msgstr "Contact"
+
+#: core/admin.py:130
+msgid "Service"
+msgstr "Service"
+
+#: core/admin.py:134
+msgid "Make selected center the default"
+msgstr "Définir le centre sélectionné comme centre par défaut"
+
+#: core/admin.py:139
+msgid "Select exactly one center to make it the default."
+msgstr "Sélectionnez exactement un centre pour en faire le centre par défaut."
+
+#: core/admin.py:146
+#, python-format
+msgid "“%(center)s” is now the default center."
+msgstr "« %(center)s » est désormais le centre par défaut."
+
+#: core/admin.py:192
+msgid "Offboard selected memberships"
+msgstr "Mettre fin aux adhésions sélectionnées"
+
+#: core/admin.py:206
+#, python-format
+msgid "%(count)d membership was offboarded."
+msgid_plural "%(count)d memberships were offboarded."
+msgstr[0] "%(count)d adhésion a pris fin."
+msgstr[1] "%(count)d adhésions ont pris fin."
+
+#: core/admin.py:216
+#, python-format
+msgid "%(count)d membership could not be offboarded: %(reasons)s"
+msgid_plural "%(count)d memberships could not be offboarded: %(reasons)s"
+msgstr[0] "%(count)d adhésion n’a pas pu prendre fin : %(reasons)s"
+msgstr[1] "%(count)d adhésions n’ont pas pu prendre fin : %(reasons)s"
 
 #: core/models/base.py:28
 msgid "created at"
@@ -76,7 +151,9 @@ msgstr "ID du groupe Telegram"
 #: core/models/center.py:33
 msgid ""
 "Telegram group where referred questions are sent, for example -1001234567890."
-msgstr "Groupe Telegram où sont envoyées les questions transmises, par exemple -1001234567890."
+msgstr ""
+"Groupe Telegram où sont envoyées les questions transmises, par exemple "
+"-1001234567890."
 
 #: core/models/center.py:38
 msgid "languages served"
@@ -88,7 +165,8 @@ msgstr "centre par défaut"
 
 #: core/models/center.py:45
 msgid "Receives referred questions when no other center is selected."
-msgstr "Reçoit les questions transmises lorsqu’aucun autre centre n’est sélectionné."
+msgstr ""
+"Reçoit les questions transmises lorsqu’aucun autre centre n’est sélectionné."
 
 #: core/models/center.py:47 core/models/membership.py:63
 #: core/models/user.py:107
@@ -135,7 +213,7 @@ msgstr "adhésion"
 msgid "memberships"
 msgstr "adhésions"
 
-#: core/models/membership.py:76 core/services/memberships.py:59
+#: core/models/membership.py:76 core/services/memberships.py:169
 msgid "This user is already an active member of this center."
 msgstr "Cet utilisateur est déjà membre actif de ce centre."
 
@@ -143,7 +221,9 @@ msgstr "Cet utilisateur est déjà membre actif de ce centre."
 msgid ""
 "An active membership cannot have a leaving date, and an inactive membership "
 "must have one."
-msgstr "Une adhésion active ne peut pas avoir de date de départ, et une adhésion inactive doit en avoir une."
+msgstr ""
+"Une adhésion active ne peut pas avoir de date de départ, et une adhésion "
+"inactive doit en avoir une."
 
 #: core/models/user.py:87
 msgid "email address"
@@ -176,7 +256,9 @@ msgstr "Renseigné lorsque l’utilisateur associe son compte Telegram."
 #: core/models/user.py:109
 msgid ""
 "Inactive users cannot log in. Deactivate accounts instead of deleting them."
-msgstr "Les utilisateurs inactifs ne peuvent pas se connecter. Désactivez les comptes au lieu de les supprimer."
+msgstr ""
+"Les utilisateurs inactifs ne peuvent pas se connecter. Désactivez les comptes"
+" au lieu de les supprimer."
 
 #: core/models/user.py:112
 msgid "staff status"
@@ -198,23 +280,23 @@ msgstr "Indique si l’utilisateur a confirmé son adresse e-mail."
 msgid "users"
 msgstr "utilisateurs"
 
-#: core/services/memberships.py:49
+#: core/services/memberships.py:54
 msgid "No user exists with this email address."
 msgstr "Aucun utilisateur n’existe avec cette adresse e-mail."
 
-#: core/services/memberships.py:51
-msgid "This user account is deactivated."
-msgstr "Ce compte utilisateur est désactivé."
+#: core/services/memberships.py:124 core/services/memberships.py:198
+msgid "This membership has already ended."
+msgstr "Cette adhésion a déjà pris fin."
 
-#: core/services/memberships.py:119
+#: core/services/memberships.py:157
 #, python-format
 msgid "“%(role)s” is not a valid role."
 msgstr "« %(role)s » n’est pas un rôle valide."
 
-#: core/services/memberships.py:148
-msgid "This membership has already ended."
-msgstr "Cette adhésion a déjà pris fin."
+#: core/services/memberships.py:163
+msgid "This user account is deactivated."
+msgstr "Ce compte utilisateur est désactivé."
 
-#: core/services/memberships.py:156
+#: core/services/memberships.py:206
 msgid "A center must keep at least one active center admin."
 msgstr "Un centre doit conserver au moins un administrateur du centre actif."

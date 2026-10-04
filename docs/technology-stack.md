@@ -27,6 +27,7 @@ The file is the output of `pip freeze`, so it also pins transitive dependencies.
 | Package | Version | Role | License |
 | --- | --- | --- | --- |
 | `Django` | 6.0.8 | Web framework: ORM, admin, migrations, test runner. | BSD-3-Clause |
+| `django-unfold` | 0.108.0 | Admin theme: styled templates, sidebar, language switcher ([ADR 0008](architecture/decisions/0008-unfold-admin-theme.md)). Ships no ar/fr translations; see `locale_vendor/unfold`. | MIT |
 | `django-countries` | 9.1.0 | `CountryField` (ISO 3166-1 codes) for `Center.country`, with country names translated into Arabic and French. | MIT |
 | `Pillow` | 12.3.0 | Image processing required by Django's `ImageField` (`User.avatar`, `Center.logo`). | MIT-CMU |
 | `asgiref` | 3.12.1 | ASGI support; required by Django. | BSD-3-Clause |
@@ -47,11 +48,11 @@ obligations on this project's own code.
 
 Every pin was checked for a prebuilt CPython 3.12 wheel with
 `pip download --only-binary=:all: --no-deps --python-version 3.12 --platform ...`
-on 2026-10-04. All eleven packages resolved on all three platforms.
+on 2026-10-04. All twelve packages resolved on all three platforms.
 
 | Platform | Platform tag passed | `psycopg-binary` wheel found | Other packages |
 | --- | --- | --- | --- |
-| macOS 12 Intel | `macosx_12_0_x86_64` | `macosx_10_13_x86_64` | Pillow `macosx_10_13_x86_64`; others pure Python (`py3-none-any`) |
+| macOS 12 Intel | `macosx_12_0_x86_64` | `macosx_10_13_x86_64` | Pillow `macosx_10_13_x86_64`; others pure Python (`py3-none-any`, django-unfold included) |
 | Linux x86_64 | `manylinux_2_17` to `manylinux_2_36`, `manylinux2014` | `manylinux_2_17_x86_64` | Pillow `manylinux_2_28_x86_64`; others pure Python |
 | Linux aarch64 | `manylinux_2_17` to `manylinux_2_36`, `manylinux2014` | `manylinux_2_28_aarch64` | Pillow `manylinux_2_28_aarch64`; others pure Python |
 
@@ -60,6 +61,12 @@ older glibc tags. A single `--platform manylinux_2_28_x86_64` therefore misses t
 `manylinux_2_17_x86_64` wheel even though it is installable there. The Linux checks pass
 the full tag range up to glibc 2.36. The `python:3.12-slim` image measured at glibc 2.41,
 which satisfies every wheel listed.
+
+## Bundled assets
+
+| Asset | Version | Role | License |
+| --- | --- | --- | --- |
+| Readex Pro (Thomas Jockin, Nadine Chahine, Bonnie Shaver-Troup, Santiago Orozco, Héctor Gómez) | Google Fonts v27, variable WOFF2, weight 160 to 700; Arabic, Latin and Latin Extended subsets | Admin typeface, self-hosted in `core/static/core/fonts/readex-pro/` | SIL Open Font License 1.1 (`OFL.txt` alongside the fonts) |
 
 ## Planned
 

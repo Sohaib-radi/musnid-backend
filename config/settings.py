@@ -19,6 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
 from config import env
+from config.unfold import UNFOLD  # noqa: F401  (read by Unfold from settings)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +40,8 @@ ALLOWED_HOSTS = env.csv_list('DJANGO_ALLOWED_HOSTS')
 # Application definition
 
 INSTALLED_APPS = [
+    # Unfold must precede django.contrib.admin so its templates take priority.
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -125,7 +128,12 @@ LANGUAGES = [
     ('fr', _('French')),
 ]
 
-LOCALE_PATHS = [BASE_DIR / 'locale']
+# Earlier paths win. locale_vendor/unfold holds our Arabic and French
+# translations of Unfold's own strings, which Unfold does not ship.
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+    BASE_DIR / 'locale_vendor' / 'unfold',
+]
 
 TIME_ZONE = 'UTC'
 

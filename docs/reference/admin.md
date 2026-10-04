@@ -1,0 +1,127 @@
+---
+id: admin
+title: Admin
+sidebar_position: 2
+description: Every admin of the project, its list, filters, actions, inlines and forms, and the Unfold sidebar.
+---
+
+# Admin
+
+The admin is Django's, styled with [Unfold](https://unfoldadmin.com/) 0.108.0
+([ADR 0008](../architecture/decisions/0008-unfold-admin-theme.md)). Code:
+`core/admin.py` (admins), `core/forms.py` (forms), `config/unfold.py` (theme and
+sidebar). URL: `/admin/`.
+
+## Rules
+
+- Every admin inherits `unfold.admin.ModelAdmin`; every inline uses Unfold's
+  `TabularInline` or `StackedInline`. `core/tests/test_admin.py` fails otherwise.
+  Third-party models are re-registered with an Unfold admin (currently `Group`).
+- Memberships change only through `core.services.memberships`
+  ([ADR 0007](../architecture/decisions/0007-membership-links-users-to-centers.md)): the
+  membership admin saves through the services, its form runs the same checks first, and
+  memberships cannot be deleted.
+- Every label, action and message is translated into Arabic and French
+  ([ADR 0009](../architecture/decisions/0009-translations-in-every-change.md)).
+- The admin app heading and breadcrumb read "Musnid" (`CoreConfig.verbose_name`), a
+  brand name and therefore not translated.
+
+## Sidebar
+
+Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the default
+"all applications" list is hidden.
+
+| Group | Item | Icon (Material Symbols) | Link | Shown when the user has |
+| --- | --- | --- | --- | --- |
+| Centers | Centers | `apartment` | `admin:core_center_changelist` | `core.view_center` |
+| Centers | Memberships | `badge` | `admin:core_membership_changelist` | `core.view_membership` |
+| Accounts | Users | `person` | `admin:core_user_changelist` | `core.view_user` |
+| Accounts | Groups | `group` | `admin:auth_group_changelist` | `auth.view_group` |
+
+The user menu at the bottom of the sidebar has a language switcher
+(`UNFOLD["SHOW_LANGUAGES"]`) for Arabic, English and French. It posts to Django's
+`set_language` view (`/i18n/setlang/`), which stores the choice in the `django_language`
+cookie. Arabic renders right to left.
+
+## Users (`UserAdmin`)
+
+Based on Django's `UserAdmin`, adapted to `core.User` (email login, no username).
+
+| Aspect | Definition |
+| --- | --- |
+| Forms | `UserChangeForm`, `UserCreationForm`, `AdminPasswordChangeForm` in `core/forms.py`: Unfold's styled auth forms rebound to `core.User`. |
+| List columns | email, full name, preferred language, active, staff, email verified, created at |
+| Filters | active, staff, superuser, email verified, preferred language, groups |
+| Search | email, full name |
+| Ordering | newest first |
+| Fieldsets | Profile (email, full name, preferred language, avatar, Telegram chat ID, public identifier, password); Status (active, email verified); Permissions (staff, superuser, groups, permissions; collapsed); Dates (last login, created, updated) |
+| Add form | email, full name, password-based authentication on or off, password twice |
+| Read-only | public identifier, last login, created at, updated at |
+| Inline | the user's memberships, read-only, with a link to each |
+
+Email uniqueness, including different case, is reported as a form error with the
+translated message of `unique_user_email_ci`.
+
+The password change page keeps Django's URL name `admin:auth_user_password_change`
+(Django's `UserAdmin` names it so for any user model).
+
+## Centers (`CenterAdmin`)
+
+| Aspect | Definition |
+| --- | --- |
+| Form | `CenterAdminForm`: the languages served are checkboxes (Arabic, English, French) instead of a comma-separated text field. |
+| List columns | name, country, active, default, created at |
+| Filters | active, default, country |
+| Search | name, slug, contact email |
+| Slug | prepopulated from the name |
+| Fieldsets | main (name, slug, country, logo, description); Contact (contact email, website, Telegram group ID); Service (languages, active, default); Dates |
+| Inline | the center's memberships, read-only, with a link to each |
+| Action | **Make selected center the default** |
+
+**Make selected center the default** requires exactly one selected center. With more
+or fewer, it shows the error "Select exactly one center to make it the default." and
+changes nothing. Otherwise it calls `Center.make_default()` and reports the new default.
+
+Saving a center as default while another one is default fails form validation with
+the translated message of `only_one_default_center`; use the action to move the default.
+
+## Memberships (`MembershipAdmin`)
+
+| Aspect | Definition |
+| --- | --- |
+| Form | `MembershipAdminForm`: on add, user, center and role; on change, role only. Its `clean()` calls `validate_add_member` or `validate_change_role`, so broken rules are form errors. |
+| List columns | user, center, role, active, created at, left at |
+| Filters | role, active, center |
+| Search | user email, user full name, center name |
+| Autocomplete | user, center |
+| Saving | add: `add_member`; change: `change_role` |
+| Read-only on change | public identifier, user, center, active, left at, dates |
+| Delete | disabled: no delete action, delete page returns 403 |
+| Action | **Offboard selected memberships** |
+
+**Offboard selected memberships** calls `offboard()` for each selected membership. It
+reports how many were offboarded and, separately, those refused with the reason (for
+example the last active center admin). Both messages use `ngettext`, so singular and
+plural forms are translated, including Arabic's six plural forms.
+
+## Groups (`GroupAdmin`)
+
+Django's `GroupAdmin` combined with Unfold's `ModelAdmin`, registered in place of
+Django's default so that every admin page uses the same theme.
+
+## Right-to-left
+
+Arabic sets `dir="rtl"` on the page. Unfold 0.108.0 uses physical left/right spacing in
+a few places; `core/static/core/css/admin.css` corrects those found by screenshots on
+2026-10-04:
+
+| Problem in Arabic | Correction |
+| --- | --- |
+| Sidebar icons touched their labels (`mr-3`) | margin moved to the left side |
+| Login page: theme switcher pushed against "Return to site" (`ml-auto`) | auto margin moved to the right side |
+| Login arrows pointed against the reading direction | mirrored |
+| Negative Telegram IDs displayed as `1001234567890-` in inputs | number, email and URL inputs are left to right |
+| English free text (descriptions) laid out right to left | text inputs and text areas follow their own content (`unicode-bidi: plaintext`) |
+
+In translations, a left-to-right value inside Arabic text (such as the example group ID
+in a help text) is wrapped in Unicode isolates (U+2066 … U+2069).
