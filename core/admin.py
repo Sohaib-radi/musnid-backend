@@ -32,15 +32,17 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
+from django.utils.decorators import method_decorator
 from django.utils.translation import ngettext
+from django.views.decorators.debug import sensitive_post_parameters
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
 
 from core.forms import (
-    AdminPasswordChangeForm, CenterAdminForm, MembershipAdminForm, UserChangeForm, UserCreationForm,
+    AdminPasswordChangeForm, ApiCredentialAddForm, CenterAdminForm, MembershipAdminForm, UserChangeForm, UserCreationForm,
 )
-from core.models import Center, Membership, User
-from core.services import centers, memberships
+from core.models import ApiCredential, Center, Membership, User
+from core.services import centers, credentials, memberships
 
 admin.site.unregister(Group)
 
@@ -369,3 +371,70 @@ class MembershipAdmin(ModelAdmin):
                 ) % {'count': len(refused), 'reasons': '; '.join(refused)},
                 messages.ERROR,
             )
+
+
+@admin.register(ApiCredential)
+class ApiCredentialAdmin(ModelAdmin):
+    """
+    Provider API keys (ADR 0014): added once, then only viewed, revoked or deleted.
+
+    The secret is entered on the add page only and never displayed: pages show
+    the masked form. Keys cannot be edited (no change permission); a new key is
+    added instead, which revokes the previous one.
+    """
+
+    add_form = ApiCredentialAddForm
+    list_display = ['name', 'provider', 'masked', 'is_active', 'created_at', 'revoked_at']
+    list_filter = ['provider', 'is_active']
+    search_fields = ['name']
+    actions = ['revoke_selected']
+    view_fields = ['provider', 'name', 'masked', 'is_active', 'created_by', 'created_at', 'revoked_at', 'revoked_by']
+
+    @display(description=_('API key'))
+    def masked(self, credential):
+        """Only the masked form (e.g. sk-...abcd) is ever shown."""
+        return credential.masked
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            kwargs['form'] = self.add_form
+        return super().get_form(request, obj, **kwargs)
+
+    def get_fields(self, request, obj=None):
+        return ['provider', 'name', 'secret'] if obj is None else self.view_fields
+
+    def get_readonly_fields(self, request, obj=None):
+        return [] if obj is None else self.view_fields
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_revoke_permission(self, request, obj=None):
+        """Revoking needs the delete permission: it is the softer way of removing a key."""
+        return self.has_delete_permission(request, obj)
+
+    @method_decorator(sensitive_post_parameters('secret'))
+    def add_view(self, request, form_url='', extra_context=None):
+        return super().add_view(request, form_url, extra_context)
+
+    def save_model(self, request, obj, form, change):
+        """Create through the service, which encrypts and revokes the previous key."""
+        created = credentials.add_credential(
+            form.cleaned_data['provider'], form.cleaned_data['name'], form.cleaned_data['secret'],
+            created_by=request.user,
+        )
+        obj.pk = created.pk
+        obj._state.adding = False
+        obj.refresh_from_db()
+
+    @action(description=_('Revoke selected API keys'), permissions=['revoke'])
+    def revoke_selected(self, request, queryset):
+        """Revoke every selected key; already revoked keys are left as they are."""
+        count = 0
+        for credential in queryset:
+            if credential.is_active:
+                credentials.revoke(credential, request.user)
+                count += 1
+        self.message_user(request, ngettext(
+            '%(count)d API key was revoked.', '%(count)d API keys were revoked.', count,
+        ) % {'count': count}, messages.SUCCESS)

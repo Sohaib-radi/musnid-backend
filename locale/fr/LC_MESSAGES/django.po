@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 11:18+0000\n"
+"POT-Creation-Date: 2026-10-04 11:52+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: French\n"
@@ -81,112 +81,135 @@ msgid "Groups"
 msgstr "Groupes"
 
 #: config/unfold.py:120
+msgid "Configuration"
+msgstr "Configuration"
+
+#: config/unfold.py:123
+msgid "API Keys"
+msgstr "Clés d’API"
+
+#: config/unfold.py:128
 msgid "Security"
 msgstr "Sécurité"
 
-#: config/unfold.py:123
+#: config/unfold.py:131
 msgid "Outstanding tokens"
 msgstr "Jetons émis"
 
-#: config/unfold.py:125
+#: config/unfold.py:133
 msgid "Blacklisted tokens"
 msgstr "Jetons révoqués"
 
-#: core/admin.py:107
+#: core/admin.py:109
 msgid "Profile"
 msgstr "Profil"
 
-#: core/admin.py:110
+#: core/admin.py:112
 msgid "Status"
 msgstr "Statut"
 
-#: core/admin.py:111
+#: core/admin.py:113
 msgid "Permissions"
 msgstr "Permissions"
 
-#: core/admin.py:115 core/admin.py:149
+#: core/admin.py:117 core/admin.py:151
 msgid "Dates"
 msgstr "Dates"
 
-#: core/admin.py:146
+#: core/admin.py:148
 msgid "Contact"
 msgstr "Contact"
 
-#: core/admin.py:147
+#: core/admin.py:149
 msgid "Service"
 msgstr "Service"
 
-#: core/admin.py:148 core/admin.py:185
+#: core/admin.py:150 core/admin.py:187
 msgid "Review"
 msgstr "Examen"
 
-#: core/admin.py:163
+#: core/admin.py:165
 msgid "Review status"
 msgstr "Statut d’examen"
 
-#: core/admin.py:216
+#: core/admin.py:218
 #, python-format
 msgid "“%(center)s” was approved."
 msgstr "« %(center)s » a été approuvé."
 
-#: core/admin.py:222
+#: core/admin.py:224
 #, python-format
 msgid "“%(center)s” was rejected."
 msgstr "« %(center)s » a été refusé."
 
-#: core/admin.py:240
+#: core/admin.py:242
 msgid "Approve selected centers"
 msgstr "Approuver les centres sélectionnés"
 
-#: core/admin.py:245 core/admin.py:251
+#: core/admin.py:247 core/admin.py:253
 #: core/templates/admin/core/center/reject_selected.html:20
 msgid "Reject selected centers"
 msgstr "Refuser les centres sélectionnés"
 
-#: core/admin.py:271
+#: core/admin.py:273
 #, python-format
 msgid "%(count)d center was reviewed."
 msgid_plural "%(count)d centers were reviewed."
 msgstr[0] "%(count)d centre a été examiné."
 msgstr[1] "%(count)d centres ont été examinés."
 
-#: core/admin.py:275
+#: core/admin.py:277
 #, python-format
 msgid "%(count)d center could not be reviewed: %(reasons)s"
 msgid_plural "%(count)d centers could not be reviewed: %(reasons)s"
 msgstr[0] "%(count)d centre n’a pas pu être examiné : %(reasons)s"
 msgstr[1] "%(count)d centres n’ont pas pu être examinés : %(reasons)s"
 
-#: core/admin.py:280
+#: core/admin.py:282
 msgid "Make selected center the default"
 msgstr "Définir le centre sélectionné comme centre par défaut"
 
-#: core/admin.py:285
+#: core/admin.py:287
 msgid "Select exactly one center to make it the default."
 msgstr "Sélectionnez exactement un centre pour en faire le centre par défaut."
 
-#: core/admin.py:296
+#: core/admin.py:298
 #, python-format
 msgid "“%(center)s” is now the default center."
 msgstr "« %(center)s » est désormais le centre par défaut."
 
-#: core/admin.py:342
+#: core/admin.py:344
 msgid "Offboard selected memberships"
 msgstr "Mettre fin aux adhésions sélectionnées"
 
-#: core/admin.py:356
+#: core/admin.py:358
 #, python-format
 msgid "%(count)d membership was offboarded."
 msgid_plural "%(count)d memberships were offboarded."
 msgstr[0] "%(count)d adhésion a pris fin."
 msgstr[1] "%(count)d adhésions ont pris fin."
 
-#: core/admin.py:366
+#: core/admin.py:368
 #, python-format
 msgid "%(count)d membership could not be offboarded: %(reasons)s"
 msgid_plural "%(count)d memberships could not be offboarded: %(reasons)s"
 msgstr[0] "%(count)d adhésion n’a pas pu prendre fin : %(reasons)s"
 msgstr[1] "%(count)d adhésions n’ont pas pu prendre fin : %(reasons)s"
+
+#: core/admin.py:393 core/forms.py:117 core/models/credentials.py:43
+msgid "API key"
+msgstr "clé d’API"
+
+#: core/admin.py:430
+msgid "Revoke selected API keys"
+msgstr "Révoquer les clés d’API sélectionnées"
+
+#: core/admin.py:439
+#, python-format
+msgid "%(count)d API key was revoked."
+msgid_plural "%(count)d API keys were revoked."
+msgstr[0] "%(count)d clé d’API a été révoquée."
+msgstr[1] "%(count)d clés d’API ont été révoquées."
 
 #: core/models/base.py:28
 msgid "created at"
@@ -216,7 +239,7 @@ msgstr "Approuvé"
 msgid "Rejected"
 msgstr "Refusé"
 
-#: core/models/center.py:51
+#: core/models/center.py:51 core/models/credentials.py:25
 msgid "name"
 msgstr "nom"
 
@@ -268,8 +291,8 @@ msgid "Receives referred questions when no other center is selected."
 msgstr ""
 "Reçoit les questions transmises lorsqu’aucun autre centre n’est sélectionné."
 
-#: core/models/center.py:78 core/models/membership.py:63
-#: core/models/user.py:107
+#: core/models/center.py:78 core/models/credentials.py:30
+#: core/models/membership.py:63 core/models/user.py:107
 msgid "active"
 msgstr "actif"
 
@@ -308,6 +331,54 @@ msgstr "Un seul centre peut être le centre par défaut."
 #: core/models/center.py:117 core/models/center.py:159
 msgid "Only an approved center can be the default center."
 msgstr "Seul un centre approuvé peut être le centre par défaut."
+
+#: core/models/credentials.py:24
+msgid "provider"
+msgstr "fournisseur"
+
+#: core/models/credentials.py:25
+msgid "For example: production key."
+msgstr "Par exemple : clé de production."
+
+#: core/models/credentials.py:26
+msgid "encrypted secret"
+msgstr "secret chiffré"
+
+#: core/models/credentials.py:27
+msgid "fingerprint"
+msgstr "empreinte"
+
+#: core/models/credentials.py:28
+msgid "prefix"
+msgstr "préfixe"
+
+#: core/models/credentials.py:29
+msgid "last four characters"
+msgstr "quatre derniers caractères"
+
+#: core/models/credentials.py:31
+msgid "revoked at"
+msgstr "révoquée le"
+
+#: core/models/credentials.py:39
+msgid "revoked by"
+msgstr "révoquée par"
+
+#: core/models/credentials.py:44
+msgid "API keys"
+msgstr "clés d’API"
+
+#: core/models/credentials.py:50
+msgid "This provider already has an active API key."
+msgstr "Ce fournisseur a déjà une clé d’API active."
+
+#: core/models/credentials.py:58
+msgid ""
+"An active API key cannot have a revocation date, and a revoked one must have "
+"one."
+msgstr ""
+"Une clé d’API active ne peut pas avoir de date de révocation, et une clé "
+"révoquée doit en avoir une."
 
 #: core/models/membership.py:50
 msgid "Specialist"
@@ -411,6 +482,18 @@ msgstr "Un motif est requis pour refuser un centre."
 #: core/services/centers.py:87
 msgid "Only a pending center can be reviewed."
 msgstr "Seul un centre en attente d’examen peut être examiné."
+
+#: core/services/credentials.py:48
+msgid ""
+"This does not look like an OpenAI API key: it must start with “sk-”, have at "
+"least 20 characters and no spaces."
+msgstr ""
+"Cela ne ressemble pas à une clé d’API OpenAI : elle doit commencer par « sk- "
+"», compter au moins 20 caractères et ne contenir aucun espace."
+
+#: core/services/credentials.py:53
+msgid "This API key was already added."
+msgstr "Cette clé d’API a déjà été ajoutée."
 
 #: core/services/memberships.py:54
 msgid "No user exists with this email address."

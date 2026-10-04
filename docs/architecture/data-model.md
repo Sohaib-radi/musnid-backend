@@ -75,6 +75,7 @@ erDiagram
 | `Membership.center` (via `CenterLinkedModel`) | `Center` | `CASCADE` | Every center-owned row belongs to the center; deleting a center removes its data. Centers are deactivated in normal operation. |
 | `created_by` (via `CreatedByMixin`) | `User` | `SET_NULL` | Content must survive the deletion of its author. Not yet used by a concrete model. |
 | `Center.reviewed_by` | `User` | `SET_NULL` | The review outcome must survive the reviewer's deletion. |
+| `ApiCredential.created_by`, `ApiCredential.revoked_by` | `User` | `SET_NULL` | The key's history must survive the deletion of staff accounts. |
 
 ## Database constraints
 
@@ -91,6 +92,9 @@ by `full_clean()`.
 | `core_center` | `name`, `slug` unique | unique | |
 | `core_center` | `only_one_default_center` | partial unique | `UNIQUE (is_default) WHERE is_default`. |
 | `core_center` | `default_center_must_be_approved` | check | `NOT is_default OR status = 'approved'`. |
+| `core_apicredential` | `one_active_credential_per_provider` | partial unique | `UNIQUE (provider) WHERE is_active`. |
+| `core_apicredential` | `credential_active_matches_revoked_at` | check | Active with no `revoked_at`, or inactive with one. |
+| `core_apicredential` | `fingerprint` unique | unique | A key can be added only once. |
 | `core_membership` | `uuid` unique | unique | |
 | `core_membership` | `unique_active_membership` | partial unique | `UNIQUE (user_id, center_id) WHERE is_active`. |
 | `core_membership` | `membership_active_matches_left_at` | check | Active with no `left_at`, or inactive with `left_at`. |

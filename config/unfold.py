@@ -117,6 +117,14 @@ UNFOLD = {
                 ],
             },
             {
+                'title': _('Configuration'),
+                'separator': True,
+                'items': [
+                    _nav_item(_('API Keys'), 'vpn_key', 'admin:core_apicredential_changelist',
+                              'core.view_apicredential'),
+                ],
+            },
+            {
                 'title': _('Security'),
                 'separator': True,
                 'items': [

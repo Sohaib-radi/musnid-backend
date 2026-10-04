@@ -106,6 +106,22 @@ Reviews go through `core.services.centers` ([ADR 0013](../architecture/decisions
   **Reject selected centers** first shows a page asking for the reason. Centers that are
   not pending are skipped and reported. Messages use `ngettext`.
 
+## API keys (`ApiCredentialAdmin`)
+
+Sidebar: **Configuration > API Keys** (icon `vpn_key`, permission `core.view_apicredential`).
+
+| Aspect | Definition |
+| --- | --- |
+| Add form | `ApiCredentialAddForm`: provider, name, key (password widget, never re-rendered); anti-autofill attributes; `sensitive_post_parameters("secret")` on the add view. Saves through `add_credential`. |
+| List columns | name, provider, masked key, active, created at, revoked at |
+| Filters | provider, active |
+| Detail | read-only: provider, name, masked key, active, created by, created at, revoked at, revoked by |
+| Edit | not allowed (403) |
+| Action | **Revoke selected API keys** (delete permission; `ngettext` message) |
+| Delete | allowed |
+
+Details: [Provider API keys](api-keys.md).
+
 ## Tokens (`api/admin.py`)
 
 SimpleJWT's `OutstandingTokenAdmin` and `BlacklistedTokenAdmin` combined with Unfold's

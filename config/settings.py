@@ -162,6 +162,17 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Secrets at rest (ADR 0014)
+# Fernet keys for encrypting stored secrets such as provider API keys:
+# comma-separated, newest first. The first encrypts, all decrypt (rotation).
+# Deliberately separate from SECRET_KEY, so either can be rotated alone.
+
+FIELD_ENCRYPTION_KEYS = env.csv_list('FIELD_ENCRYPTION_KEYS')
+
+# Used only when no active OpenAI key was added in the admin.
+OPENAI_API_KEY = env.optional('OPENAI_API_KEY', '')
+
+
 # CORS (ADR 0012)
 # Only listed origins, only on /api/, no cookies: the API authenticates with
 # JWT in the Authorization header.

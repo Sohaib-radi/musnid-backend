@@ -14,13 +14,18 @@ Every such model must be listed in ``TEST_ONLY_MODELS``.
 
 import itertools
 
+from cryptography.fernet import Fernet
 from django.db import models
 
 from core.models import (
     BaseModel, Center, CenterLinkedModel, CreatedByMixin, Membership, User,
 )
+from core.services import credentials
 
 _sequence = itertools.count(1)
+
+# Encryption keys for tests; use with override_settings(FIELD_ENCRYPTION_KEYS=TEST_ENCRYPTION_KEYS).
+TEST_ENCRYPTION_KEYS = [Fernet.generate_key().decode()]
 
 
 class Note(BaseModel, CenterLinkedModel, CreatedByMixin):
@@ -77,3 +82,20 @@ def make_note(**fields):
         fields['center'] = make_center()
     fields.setdefault('title', f'Note {next(_sequence)}')
     return Note.objects.create(**fields)
+
+
+def make_openai_key():
+    """Return a unique, well-formed fake OpenAI key (never a real one)."""
+    return f'sk-test-{next(_sequence):04d}-abcdefghijklmnop'
+
+
+def make_credential(**fields):
+    """
+    Add an active OpenAI credential through the service (encryption included).
+
+    Needs ``FIELD_ENCRYPTION_KEYS`` overridden with ``TEST_ENCRYPTION_KEYS``.
+    """
+    return credentials.add_credential(
+        fields.pop('provider', 'openai'), fields.pop('name', 'Test key'),
+        fields.pop('secret', None) or make_openai_key(), created_by=fields.pop('created_by', None),
+    )

@@ -44,9 +44,12 @@ VENDOR_LOCALE = settings.BASE_DIR / 'locale_vendor' / 'unfold'
 # French words spelled exactly like their English msgid. Anything else left
 # identical in French is treated as untranslated.
 FRENCH_SAME_AS_ENGLISH = {
-    'API', 'Action', 'Contact', 'Date', 'Dates', 'Permissions', 'Service',
+    'API', 'Action', 'Configuration', 'Contact', 'Date', 'Dates', 'Permissions', 'Service',
     'avatar', 'description', 'logo',
 }
+
+# Brand names are never translated (in any language), e.g. the OpenAI provider label.
+BRAND_NAMES = {'Musnid', 'OpenAI', 'Telegram', 'Unfold'}
 
 # Unfold contrib packages that are not installed: their strings never render,
 # so they are left out of the vendor catalog.
@@ -240,7 +243,7 @@ class UsedStringsTests(SimpleTestCase):
         for language in LANGUAGES:
             english, translated = english_and(language, value)
             with self.subTest(label=label, language=language, english=english):
-                if language == 'fr' and english in FRENCH_SAME_AS_ENGLISH:
+                if english in BRAND_NAMES or (language == 'fr' and english in FRENCH_SAME_AS_ENGLISH):
                     continue
                 self.assertNotEqual(translated, english)
 

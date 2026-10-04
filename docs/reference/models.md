@@ -158,6 +158,36 @@ Extends `CenterQuerySet`. Each method applies one filter; they chain.
 | `center_admins()` | `role='center_admin'` (active or not) |
 | `specialists()` | `role='specialist'` (active or not) |
 
+## `ApiCredential` (`core/models/credentials.py`)
+
+`BaseModel` + `CreatedByMixin`. Provider API keys, stored encrypted ([Provider API keys](api-keys.md)).
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `provider` | `CharField(20)` | `ApiCredential.Provider`: `openai` ("OpenAI", not translated). |
+| `name` | `CharField(100)` | E.g. "production key". |
+| `encrypted_secret` | `TextField` | Fernet token. Not editable. |
+| `fingerprint` | `CharField(64)` | SHA-256 of the key, unique. Not editable. |
+| `prefix`, `last_four` | `CharField(3)`, `CharField(4)` | For the masked display. Not editable. |
+| `is_active` | `BooleanField` | Default true. Not editable. |
+| `revoked_at`, `revoked_by` | `DateTimeField`, `ForeignKey` (`SET_NULL`) | Set by revocation. Not editable. |
+
+| Constraint | Definition |
+| --- | --- |
+| `one_active_credential_per_provider` | `UNIQUE (provider) WHERE is_active` |
+| `credential_active_matches_revoked_at` | active with no `revoked_at`, or inactive with one |
+
+Property `masked` (`sk-...abcd`); `__str__` and `__repr__` show only that.
+
+## Services (`core/services/credentials.py`)
+
+| Function | Behaviour | Error codes |
+| --- | --- | --- |
+| `validate_secret(provider, secret)` | OpenAI: starts with `sk-`, at least 20 characters, no whitespace; never added before (fingerprint). | `invalid_format`, `duplicate_secret` |
+| `add_credential(provider, name, secret, created_by)` | Strips, validates, encrypts; revokes the provider's active key in the same transaction (`select_for_update`). | as above |
+| `revoke(credential, revoked_by)` | Idempotent. | |
+| `get_secret(provider)`, `get_openai_key()` | Active key, else `settings.OPENAI_API_KEY` (OpenAI), else `''`. | |
+
 ## Services (`core/services/centers.py`)
 
 | Function | Behaviour | Error codes |

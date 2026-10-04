@@ -33,6 +33,7 @@ written as Docusaurus content; this repository holds the Markdown only.
 | AI agents (CrewAI) | Not started | CrewAI 1.9.3 is planned; it constrains the Python version (ADR 0001). |
 | Admin | Done | Unfold theme with the Musnid brand, sidebar, language switcher; users, centers, memberships, groups; see [Admin](reference/admin.md). |
 | REST API | Done | JWT auth, registration of askers and centers, profile, centers, memberships, countries; OpenAPI at `/api/docs/`; see [REST API](reference/api.md) and [Frontend](frontend/authentication.md). |
+| Provider API keys | Done | Encrypted OpenAI keys managed in the admin; see [Provider API keys](reference/api-keys.md). |
 | Center review | Done | Self-registered centers start pending; staff approve or reject in the admin ([ADR 0013](architecture/decisions/0013-center-registration-with-review.md)). |
 
 ## Where to go next
@@ -45,4 +46,4 @@ written as Docusaurus content; this repository holds the Markdown only.
 - [Tenancy](architecture/tenancy.md): how data is scoped to centers.
 - [Admin](reference/admin.md): every admin page and the sidebar.
 - [REST API](reference/api.md) and the [frontend contract](frontend/authentication.md).
-- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0013.
+- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0014.

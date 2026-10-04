@@ -27,6 +27,9 @@ The file is the output of `pip freeze`, so it also pins transitive dependencies.
 | Package | Version | Role | License |
 | --- | --- | --- | --- |
 | `Django` | 6.0.8 | Web framework: ORM, admin, migrations, test runner. | BSD-3-Clause |
+| `cryptography` | 48.0.1 | Fernet encryption of stored API keys ([ADR 0014](architecture/decisions/0014-encrypted-api-keys.md)). | Apache-2.0 OR BSD-3-Clause |
+| `cffi` | 2.1.1 | Transitive: C bindings for cryptography. | MIT-0 |
+| `pycparser` | 3.0 | Transitive: for cffi. | BSD-3-Clause |
 | `djangorestframework` | 3.18.1 | REST API framework ([ADR 0011](architecture/decisions/0011-api-design.md)). | BSD-3-Clause |
 | `djangorestframework_simplejwt` | 5.5.1 | JWT access and refresh tokens, with its `token_blacklist` app ([ADR 0010](architecture/decisions/0010-jwt-authentication.md)). | MIT |
 | `drf-spectacular` | 0.30.0 | OpenAPI 3 schema at `/api/schema/` and Swagger UI at `/api/docs/`. | BSD-3-Clause |

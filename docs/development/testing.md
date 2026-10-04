@@ -71,10 +71,12 @@ field is handled in one place.
 
 | File | Tests | Covers |
 | --- | --- | --- |
-| `core/tests/test_admin.py` | 37 | Every admin and inline uses Unfold; pages respond; user creation and case-insensitive email error; center languages checkboxes, second-default form error, make-default action; membership add/change through the services, rule violations as form errors, offboard action messages (singular, plural, refusals), no deletion.; center review: badge, Review column and dialogs on pending rows only, change-page buttons, POST-only review URLs, permission 403, bulk approve and reject (reason page), sidebar badge. |
+| `core/tests/test_admin.py` | 46 | Every admin and inline uses Unfold; pages respond; user creation and case-insensitive email error; center languages checkboxes, second-default form error, make-default action; membership add/change through the services, rule violations as form errors, offboard action messages (singular, plural, refusals), no deletion; center review: badge, Review column and dialogs on pending rows only, change-page buttons, POST-only review URLs, permission 403, bulk approve and reject (reason page), sidebar badge; API keys: secret never shown (add, list, detail, invalid submission), anti-autofill attributes, edit 403, revoke, delete, `sensitive_post_parameters`. |
 | `core/tests/test_base.py` | 14 | `BaseModel` timestamps and ordering, `for_center` scoping, `CASCADE` from center, `created_by` `SET_NULL`, reverse accessors. |
 | `core/tests/test_center.py` | 19 | Center fields and uniqueness, `only_one_default_center` (translated message in ar and fr, database backstop), `make_default`.; review status, `operational()`, `pending()`, `default_center_must_be_approved`. |
 | `core/tests/test_choices.py` | 2 | `Language` matches `settings.LANGUAGES`. |
+| `core/tests/test_crypto.py` | 5 | Encryption round trip, key rotation, missing and invalid keys, invalid token. |
+| `core/tests/test_credentials.py` | 5 | `ApiCredential` masking, non-editable fields, both constraints. |
 | `core/tests/test_database.py` | 3 | Connection to PostgreSQL, a query round trip, pgvector available on the server. |
 | `core/tests/test_env.py` | 12 | `config.env` readers: required, optional, strict boolean, comma-separated lists, empty treated as unset. |
 | `core/tests/test_i18n.py` | 6 | Languages, `LocaleMiddleware` position, both `LOCALE_PATHS` in order, right-to-left Arabic, the `set_language` URL and cookie. |
@@ -82,6 +84,7 @@ field is handled in one place.
 | `core/tests/test_migrations.py` | 4 | `vector` installed and usable, `VectorExtension` is the first operation, no missing migrations. |
 | `core/tests/test_runner.py` | 3 | Test-only tables exist, fast hasher active, `core.tests.parallel` imports before `django.setup()`. |
 | `core/tests/test_services_centers.py` | 8 | `register_center` (pending, applicant as admin, unique slug), `approve`, `reject` (reason required), only pending centers reviewed, reviewer deletion. |
+| `core/tests/test_services_credentials.py` | 8 | Format and duplicate rules, encryption on add, previous key revoked, idempotent revoke, OpenAI key fallback. |
 | `core/tests/test_services_memberships.py` | 30 | `add_member`, `change_role`, `offboard` and the check-only `validate_add_member`, `validate_change_role`: every error code and the last-admin rule. |
 | `core/tests/test_translations.py` | 13 | Both catalogs (project, Unfold vendor) in ar and fr: complete, not fuzzy, French allowlist, `.mo` current, extraction current (temporary copy, skipped without gettext); labels, choices, actions, sidebar translated; login and center pages rendered in ar (`dir="rtl"`) and fr. |
 | `core/tests/test_unfold.py` | 13 | Brand colour anchors, scales ordered, WCAG AA contrast of the text pairs, no colour in `admin.css` but the accent, fonts and licence, login image, app order, site title, sidebar icons, links and permissions. |
@@ -95,9 +98,11 @@ field is handled in one place.
 | `api/tests/test_me.py` | 8 | Profile GET and PATCH, no PUT, memberships with center states, countries translated. |
 | `api/tests/test_memberships.py` | 11 | List, add by email, change role, offboard, service codes, no DELETE, other centers 404, permissions, pending center blocked. |
 | `api/tests/test_schema.py` | 3 | Schema without warnings, public identifiers only, docs page on sidecar assets. |
-| **Total** | **263** | |
+| **Total** | **290** | |
 
-Last full run: 263 tests, all passing, none skipped, 43.0 s serial, on 2026-10-04. The extraction tests and the settings tests start
+Last full run: 263 tests, all passing, 43.0 s serial, on 2026-10-04 (step 4). Since step 5,
+tests run only with the user's permission and only the ones the user names (CLAUDE.md,
+Working agreement). The extraction tests and the settings tests start
 subprocesses and account for most of the serial time.
 
 ## Language state between tests

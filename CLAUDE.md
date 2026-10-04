@@ -7,7 +7,9 @@ This file guides Claude Code when working in this repository.
 These rules apply to every change, without asking.
 
 1. **Every change ships with tests.** New code gets new tests; changed behaviour gets
-   updated tests. The full test suite must pass before work is reported as done.
+   updated tests. Tests are written with the code but **run only with the user's
+   permission**, and only the tests the user asks for (see Working agreement). Report
+   which tests were run, or that none were.
 2. **Every piece of code is documented.** Modules, classes and public methods have
    docstrings covering purpose, arguments and non-obvious behaviour. Comments explain
    *why*, not *what*.
@@ -33,6 +35,8 @@ These rules apply to every change, without asking.
 
 - Never delete, move or overwrite files, and never run destructive commands (`rm`,
   `git reset --hard`, `git clean`, `git push --force`), without asking the user first.
+- Run tests only when the user asks, like commit and push: ask for permission first,
+  run only what the user names, never the whole suite unless the user says so.
 - Commit and push only when asked. Commit messages are descriptive: a title, then what
   changed and why.
 - Before choosing an architecture the spec does not dictate, check the framework's
@@ -75,8 +79,8 @@ Rules:
 - Never leave a command running that looks stuck: stop it after 2 minutes without output
   and investigate.
 - Verification defaults, unless the user asks for more:
-  - during development, run only the tests of the module being changed;
-  - one full serial test run at the end of the step (no --parallel or --keepdb checks);
+  - no test run without the user's permission; when permitted, only the tests the user
+    names;
   - no screenshots;
   - wheel checks on the 3 platforms only for newly added dependencies;
   - measure only what the docs or the commit message will state.
@@ -221,6 +225,10 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
   codes (403). Every error carries a `code`; clients branch on codes. `PATCH` only, no
   `PUT`, no `DELETE`. New endpoints must keep `spectacular --validate --fail-on-warn`
   clean (annotate with `extend_schema`). Reference: `docs/reference/api.md`.
+- **Secrets:** never log, print, display or return a secret (API keys, tokens), and never
+  put one in an exception message. Provider keys only through `core.services.credentials`
+  (`add_credential`, `revoke`, `get_openai_key`); mark functions holding one with
+  `sensitive_variables`. Encryption keys come from `FIELD_ENCRYPTION_KEYS`, never `SECRET_KEY`.
 - **Center review:** never edit `Center.status` directly; use
   `core.services.centers.approve`/`reject`. Center-admin endpoints require an operational
   center (approved and active).

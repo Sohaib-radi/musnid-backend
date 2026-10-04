@@ -1,16 +1,20 @@
 """Tests for ``core/admin.py`` and ``core/forms.py``: the Unfold admin."""
 
+import re
+
 from django.contrib import admin
 from django.contrib.auth.models import Group, Permission
-from django.test import TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from unfold.admin import StackedInline, TabularInline
 
 from core.admin import pending_centers_badge
-from core.models import Center, Membership, User
-from core.tests.support import make_center, make_membership, make_user
+from core.models import ApiCredential, Center, Membership, User
+from core.tests.support import (
+    TEST_ENCRYPTION_KEYS, make_center, make_credential, make_membership, make_openai_key, make_user,
+)
 
 ADMIN = Membership.Role.CENTER_ADMIN
 SPECIALIST = Membership.Role.SPECIALIST
@@ -36,7 +40,7 @@ class UnfoldEverywhereTests(TestCase):
     def test_expected_models_are_registered(self):
         self.assertEqual(
             set(admin.site._registry),
-            {User, Center, Membership, Group, OutstandingToken, BlacklistedToken},
+            {User, Center, Membership, Group, OutstandingToken, BlacklistedToken, ApiCredential},
         )
 
 
@@ -346,3 +350,89 @@ class CenterReviewAdminTests(AdminTestCase):
         self.assertEqual(pending_centers_badge(None), '1')
         Center.objects.update(status=Center.Status.APPROVED)
         self.assertEqual(pending_centers_badge(None), '')
+
+
+@override_settings(FIELD_ENCRYPTION_KEYS=TEST_ENCRYPTION_KEYS)
+class ApiCredentialAdminTests(AdminTestCase):
+    """The secret is never shown; keys are added, viewed, revoked or deleted, never edited."""
+
+    def setUp(self):
+        super().setUp()
+        self.secret = make_openai_key()
+
+    def add(self, secret, name='Production'):
+        return self.client.post(self.url(ApiCredential, 'add'), {
+            'provider': 'openai', 'name': name, 'secret': secret,
+        })
+
+    def input_tag(self, html, name):
+        return re.search(rf'<input[^>]*name="{name}"[^>]*>', html).group(0)
+
+    def test_add_page_has_no_autofill_and_no_value(self):
+        html = self.client.get(self.url(ApiCredential, 'add')).content.decode()
+        secret_input = self.input_tag(html, 'secret')
+        for attribute in ('type="password"', 'autocomplete="new-password"', 'data-1p-ignore', 'data-lpignore="true"'):
+            self.assertIn(attribute, secret_input)
+        self.assertNotIn('value=', secret_input)
+        name_input = self.input_tag(html, 'name')
+        for attribute in ('autocomplete="off"', 'data-1p-ignore', 'data-lpignore="true"'):
+            self.assertIn(attribute, name_input)
+
+    def test_add_goes_through_the_service(self):
+        response = self.add(self.secret)
+        credential = ApiCredential.objects.get()
+        self.assertRedirects(response, self.url(ApiCredential, 'changelist'), fetch_redirect_response=False)
+        self.assertEqual(credential.created_by, self.superuser)
+        self.assertEqual(credential.masked, f'sk-...{self.secret[-4:]}')
+
+    def test_invalid_submission_does_not_echo_the_secret(self):
+        response = self.add('sk-bad key with spaces 123')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'This does not look like an OpenAI API key')
+        self.assertNotContains(response, 'sk-bad key with spaces 123')
+        self.assertFalse(ApiCredential.objects.exists())
+
+    def test_duplicate_is_refused(self):
+        make_credential(secret=self.secret)
+        self.assertContains(self.add(self.secret), 'This API key was already added.')
+
+    def test_list_and_detail_show_only_the_masked_key(self):
+        credential = make_credential(secret=self.secret)
+        for url in (self.url(ApiCredential, 'changelist'), self.url(ApiCredential, 'change', credential.pk)):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, credential.masked)
+                self.assertNotContains(response, self.secret)
+                self.assertNotContains(response, credential.encrypted_secret)
+                self.assertNotContains(response, credential.fingerprint)
+
+    def test_detail_is_read_only_and_edit_is_403(self):
+        credential = make_credential(secret=self.secret)
+        url = self.url(ApiCredential, 'change', credential.pk)
+        self.assertNotContains(self.client.get(url), 'name="name"')
+        self.assertEqual(self.client.post(url, {'provider': 'openai', 'name': 'Changed'}).status_code, 403)
+        credential.refresh_from_db()
+        self.assertEqual(credential.name, 'Test key')
+
+    def test_revoke_action(self):
+        credential = make_credential(secret=self.secret)
+        response = self.client.post(self.url(ApiCredential, 'changelist'), {
+            'action': 'revoke_selected', '_selected_action': [credential.pk],
+        }, follow=True)
+        self.assertEqual(self.messages(response), ['1 API key was revoked.'])
+        credential.refresh_from_db()
+        self.assertFalse(credential.is_active)
+        self.assertEqual(credential.revoked_by, self.superuser)
+
+    def test_delete_is_allowed(self):
+        credential = make_credential(secret=self.secret)
+        self.client.post(self.url(ApiCredential, 'delete', credential.pk), {'post': 'yes'})
+        self.assertFalse(ApiCredential.objects.exists())
+
+    def test_add_view_hides_the_secret_from_error_reports(self):
+        request = RequestFactory().post('/', {'provider': 'openai', 'name': 'x', 'secret': 'sk-bad'})
+        request.user = self.superuser
+        request._dont_enforce_csrf_checks = True
+        admin.site._registry[ApiCredential].add_view(request)
+        self.assertEqual(request.sensitive_post_parameters, ('secret',))

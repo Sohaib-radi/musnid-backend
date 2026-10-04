@@ -9,15 +9,19 @@ constraint, is checked by the model validation every ``ModelForm`` runs.
 """
 
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.debug import sensitive_variables
 from unfold.forms import (
     AdminPasswordChangeForm as UnfoldAdminPasswordChangeForm,
     UserChangeForm as UnfoldUserChangeForm,
     UserCreationForm as UnfoldUserCreationForm,
 )
-from unfold.widgets import UnfoldAdminCheckboxSelectMultipleWidget
+from unfold.widgets import UnfoldAdminCheckboxSelectMultipleWidget, UnfoldAdminPasswordWidget
 
-from core.models import Center, Language, Membership, User
-from core.services import memberships
+from core.models import ApiCredential, Center, Language, Membership, User
+from core.services import credentials, memberships
 
 
 class UserCreationForm(UnfoldUserCreationForm):
@@ -92,4 +96,47 @@ class MembershipAdminForm(forms.ModelForm):
             memberships.validate_add_member(
                 cleaned_data['center'], cleaned_data['user'], cleaned_data['role'],
             )
+        return cleaned_data
+
+
+# Attributes that stop browsers and password managers from treating the API key
+# form (a text field followed by a password field) as a login form and filling
+# in the admin's own email and password. Browsers ignore autocomplete="off" on
+# password fields, hence "new-password" there.
+NO_AUTOFILL = {'data-1p-ignore': '', 'data-lpignore': 'true'}
+
+
+class ApiCredentialAddForm(forms.ModelForm):
+    """
+    Add an API key. The secret is write-only: never rendered back, even after
+    an invalid submission (``render_value=False``), and validated by
+    ``core.services.credentials.validate_secret``.
+    """
+
+    secret = forms.CharField(
+        label=_('API key'),
+        strip=True,
+        widget=UnfoldAdminPasswordWidget(
+            attrs={'autocomplete': 'new-password', **NO_AUTOFILL}, render_value=False,
+        ),
+    )
+
+    class Meta:
+        model = ApiCredential
+        fields = ['provider', 'name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'autocomplete': 'off', **NO_AUTOFILL})
+
+    @method_decorator(sensitive_variables('secret'))
+    def clean(self):
+        cleaned_data = super().clean()
+        secret = cleaned_data.get('secret')
+        provider = cleaned_data.get('provider')
+        if secret and provider:
+            try:
+                credentials.validate_secret(provider, secret)
+            except ValidationError as error:
+                self.add_error('secret', error)
         return cleaned_data
