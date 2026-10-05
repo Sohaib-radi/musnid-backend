@@ -10,7 +10,7 @@ from agents.flow import _comparable, mask_secrets, quote_matches, script_languag
 from agents.replies import fixed_reply, note_codes, notes
 from agents.services import DailyLimitReached, ask
 from agents.tests.support import QUOTE, FakeCrew, answered, classified
-from core.tests.support import make_center
+from core.tests.support import make_center, make_user
 from knowledge.services.ingest import ingest
 from knowledge.tests.support import FakeEmbedder, make_question
 from qa.models import Interaction, Question
@@ -35,14 +35,14 @@ class FlowTestCase(TransactionTestCase):
         self.center = make_center(is_default=True)
         self.addCleanup(translation.activate, 'en')
 
-    def run_ask(self, classify, answer=None, embedder=None, text=QUESTION, entailment=None):
+    def run_ask(self, classify, answer=None, embedder=None, text=QUESTION, entailment=None, asker=None):
         self.answer_crew = answer or answered()
         self.entailment_calls = []
 
         def all_supported(pairs):
             self.entailment_calls.append(pairs)
             return ['supported'] * len(pairs), SimpleNamespace(prompt_tokens=3, completion_tokens=1)
-        return ask(text, session_id='s1', embedder=embedder or self.embedder, classify_crew=classify,
+        return ask(text, session_id='s1', asker=asker, embedder=embedder or self.embedder, classify_crew=classify,
                    answer_crew=self.answer_crew, entailment=entailment or all_supported)
 
 
@@ -200,6 +200,15 @@ class SavingTests(FlowTestCase):
         self.assertEqual((interaction.tokens_in, interaction.tokens_out), (23, 11))  # two crews + entailment
         self.assertGreaterEqual(interaction.latency_ms, 0)
         self.assertEqual(interaction.search_query, QUESTION)
+
+    def test_asker_is_saved_when_given(self):
+        user = make_user()
+        self.run_ask(classified(), asker=user)
+        self.assertEqual(Question.objects.get().asker, user)
+
+    def test_anonymous_question_has_no_asker(self):
+        self.run_ask(classified())
+        self.assertIsNone(Question.objects.get().asker)
 
     def test_daily_limit_raises_before_any_model_call(self):
         self.run_ask(classified())

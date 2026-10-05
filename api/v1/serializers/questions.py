@@ -40,8 +40,11 @@ class AskSerializer(serializers.Serializer):
         """
         from agents.services import DailyLimitReached, ask  # loads CrewAI: only when asking
 
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        asker = user if user is not None and user.is_authenticated else None
         try:
-            interaction = ask(validated_data['text'], session_id=validated_data['session_id'])
+            interaction = ask(validated_data['text'], session_id=validated_data['session_id'], asker=asker)
         except DailyLimitReached:
             raise DailyCapacityReached from None
         if interaction.pk is None:

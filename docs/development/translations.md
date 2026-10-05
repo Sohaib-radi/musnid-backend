@@ -140,6 +140,7 @@ Use these terms consistently. Add a row when a new domain term appears.
 | public identifier | المعرّف العام | identifiant public |
 | referred question | سؤال مُحال | question transmise |
 | follow-up number | رقم المتابعة | numéro de suivi |
+| asker | السائل | auteur de la question |
 | kept / removed sentences | الجمل المحتفَظ بها / المحذوفة | phrases conservées / retirées |
 | active / inactive | نشط / غير نشط | actif / inactif |
 | offboard (end a membership) | إنهاء العضوية | mettre fin à l’adhésion |

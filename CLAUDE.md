@@ -126,6 +126,8 @@ api/               REST API, no models
   v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)
   v1/views/mixins.py  CenterScopedMixin: non-members get 404
   permissions.py   IsCenterMember, IsCenterAdmin, IsOperationalCenter (each with a code)
+  authentication.py OptionalJWTAuthentication: public views, a stale token never 401s
+  schema.py        drf-spectacular extensions (OptionalJWTScheme reuses jwtAuth)
   exceptions.py    EXCEPTION_HANDLER: "code" next to "detail", "codes" for field errors
   admin.py         token blacklist admins with Unfold
   tests/base.py    APITestCase: url(), authenticate(), assertError(); clears the throttle cache

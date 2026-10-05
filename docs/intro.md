@@ -34,7 +34,7 @@ written as Docusaurus content; this repository holds the Markdown only.
 | Provider API keys | Done | Encrypted OpenAI keys managed in the admin; see [Provider API keys](reference/api-keys.md). |
 | Knowledge base (RAG) | Done | Bayyinat extracted (263 questions), 1,432 chunks embedded, search and evidence; see [RAG](rag/01-extraction-findings.md). |
 | Question answering (agents) | Done | CrewAI flow: classify, route, retrieve, write, verify with quotes, decide; fixed replies; every question recorded ([ADR 0016](architecture/decisions/0016-question-answering-flow.md)). |
-| Ask API | Done | Anonymous `POST /api/v1/questions/` with sentences linked to their Bayyinat source, session history, per-IP and daily limits; synchronous ([ADR 0017](architecture/decisions/0017-anonymous-ask-api.md), [REST API](reference/api.md#questions)). |
+| Ask API | Done | `POST /api/v1/questions/`, anonymous or linked to the account when logged in ([ADR 0019](architecture/decisions/0019-link-questions-to-logged-in-askers.md)), `GET /api/v1/me/questions/`, with sentences linked to their Bayyinat source, session history, per-IP and daily limits; synchronous ([ADR 0017](architecture/decisions/0017-anonymous-ask-api.md), [REST API](reference/api.md#questions)). |
 | Deployment | Done | Live at `https://api.musnid.online` on one VPS since 2026-10-05; see [Deployment](getting-started/deployment.md). |
 | Center review | Done | Self-registered centers start pending; staff approve or reject in the admin ([ADR 0013](architecture/decisions/0013-center-registration-with-review.md)). |
 
@@ -69,4 +69,4 @@ alert, and HSTS.
 - [Tenancy](architecture/tenancy.md): how data is scoped to centers.
 - [Admin](reference/admin.md): every admin page and the sidebar.
 - [REST API](reference/api.md) and the [frontend contract](frontend/authentication.md).
-- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0018.
+- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0019.

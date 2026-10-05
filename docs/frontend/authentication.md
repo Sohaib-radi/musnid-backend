@@ -50,6 +50,12 @@ parallel: the first refresh blacklists the token the others would use.
 **Log out** — `POST /api/v1/auth/logout/` with the refresh token (and the access token in
 the header), then discard both tokens.
 
+**Ask while logged in** — `POST /api/v1/questions/` accepts the access token but never
+requires it. With a valid token the question is linked to the account and appears in
+`GET /api/v1/me/questions/` on every device; with an expired one it is saved
+anonymously, without a 401. Refresh the token before asking when the question should be
+linked ([ADR 0019](../architecture/decisions/0019-link-questions-to-logged-in-askers.md)).
+
 **Throttling** — the four auth endpoints allow 10 requests per minute per client. On 429
 `throttled`, wait before retrying (the `Retry-After` header gives seconds).
 

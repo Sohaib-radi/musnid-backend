@@ -9,7 +9,7 @@ description: Public endpoints to ask questions and read a session's history, ans
 
 ## Status
 
-Accepted, 2026-10-04.
+Accepted, 2026-10-04. Amended by [ADR 0019](0019-link-questions-to-logged-in-askers.md): authentication is now optional instead of disabled, and a question asked with a valid token is linked to the account.
 
 ## Context
 

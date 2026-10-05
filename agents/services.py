@@ -37,12 +37,13 @@ def daily_limit_reached():
     return Question.objects.asked_today().count() >= settings.ASK_DAILY_LIMIT
 
 
-def ask(text, session_id='', embedder=None, classify_crew=None, answer_crew=None, entailment=None):
+def ask(text, session_id='', asker=None, embedder=None, classify_crew=None, answer_crew=None, entailment=None):
     """
     Answer ``text`` and return the saved ``Interaction``.
 
     Raises ``DailyLimitReached`` before any model call when the daily limit is reached.
 
+    ``asker`` is the logged-in user who asked, or ``None`` for an anonymous asker.
     ``interaction.answer_text`` is what the asker sees. Crews and embedder can
     be injected (tests); by default the real ones are used.
     """
@@ -76,7 +77,8 @@ def ask(text, session_id='', embedder=None, classify_crew=None, answer_crew=None
         interaction.answer_text = fixed_reply('abstain', state.language)
         interaction.sentences = []
         return interaction
-    question = Question.objects.create(center=center, text=text, lang=state.language, session_id=session_id)
+    question = Question.objects.create(center=center, text=text, lang=state.language, session_id=session_id,
+                                       asker=asker)
     interaction.question = question
     interaction.save()
     return interaction

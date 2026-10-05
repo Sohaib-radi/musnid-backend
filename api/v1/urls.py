@@ -14,6 +14,7 @@ urlpatterns = [
     path('auth/logout/', auth.LogoutView.as_view(), name='logout'),
     path('me/', auth.MeView.as_view(), name='me'),
     path('me/memberships/', auth.MyMembershipsView.as_view(), name='my-memberships'),
+    path('me/questions/', questions.MyQuestionsView.as_view(), name='my-questions'),
     path('questions/', questions.QuestionListCreateView.as_view(), name='questions'),
     path('questions/<uuid:uuid>/', questions.QuestionDetailView.as_view(), name='question'),
     path('countries/', centers.CountryListView.as_view(), name='countries'),

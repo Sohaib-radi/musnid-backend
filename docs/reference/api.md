@@ -75,6 +75,7 @@ claim `user_uuid`.
 | --- | --- | --- | --- |
 | `GET me/` | authenticated | | `uuid`, `email`, `full_name`, `preferred_lang`, `avatar`, `is_verified`, `telegram_linked` |
 | `PATCH me/` | authenticated | `full_name`, `preferred_lang` (others are read-only) | the profile |
+| `GET me/questions/` | authenticated | | paginated questions the caller asked while logged in, newest first, in the question shape ([Questions](#questions)) |
 | `GET me/memberships/` | authenticated | | paginated memberships, active first: `uuid`, `role`, `is_active`, `created_at`, `left_at`, `center` (a center, below) |
 
 ## Centers
@@ -111,16 +112,20 @@ Memberships are never deleted (405 for `DELETE`).
 
 ## Questions
 
-Public: no login and no personal data ([ADR 0017](../architecture/decisions/0017-anonymous-ask-api.md)).
-Authentication is disabled on these endpoints, so a stale token cannot cause a 401.
-Questions are grouped by `session_id`, an opaque id the frontend generates (for example
-a random UUID kept in local storage).
+Public: no login needed ([ADR 0017](../architecture/decisions/0017-anonymous-ask-api.md)).
+Authentication is optional and never fails (`OptionalJWTAuthentication`): with a valid
+access token, a new question is linked to the account
+([ADR 0019](../architecture/decisions/0019-link-questions-to-logged-in-askers.md)); without
+one, or with an expired or invalid one, the request is anonymous, never a 401. The
+payload never contains the asker. Questions are grouped by `session_id`, an opaque id the
+frontend generates (for example a random UUID kept in local storage).
 
 | Method and path | Request | Response |
 | --- | --- | --- |
 | `POST questions/` | `text` (3 to 2,000 characters), `session_id` | 201 question; waits for the answer (19.8 to 45.6 s measured) |
 | `GET questions/?session_id=…` | | paginated, newest first |
 | `GET questions/{uuid}/` | | question |
+| `GET me/questions/` | login required | the caller's questions from every session, paginated, newest first |
 
 There is no `PUT`, `PATCH` or `DELETE` (405).
 

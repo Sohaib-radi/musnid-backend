@@ -9,3 +9,7 @@ class ApiConfig(AppConfig):
 
     name = 'api'
     verbose_name = _('API')
+
+    def ready(self):
+        """Register the OpenAPI extensions (api/schema.py) with drf-spectacular."""
+        from api import schema  # noqa: F401

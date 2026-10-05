@@ -1,8 +1,10 @@
 """
-Anonymous asking (ADR 0017): ask a question, read a session's history, read one question.
+Asking (ADR 0017, ADR 0019): ask a question, read a session's history, read one
+question, and, when logged in, read one's own questions.
 
-No login and no personal data: questions are grouped by a ``session_id`` the
-frontend generates. Asking is throttled per IP and by a global daily limit.
+No login needed: questions are grouped by a ``session_id`` the frontend
+generates. When the request carries a valid access token, the question is also
+linked to that account. Asking is throttled per IP and by a global daily limit.
 Views stay thin: ``AskSerializer`` validates and calls ``agents.services.ask``.
 """
 
@@ -11,25 +13,26 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import exceptions, generics, permissions, status
 from rest_framework.response import Response
 
+from api.authentication import OptionalJWTAuthentication
 from api.throttling import AskDayThrottle, AskMinuteThrottle
 from api.v1.serializers.questions import AskSerializer, QuestionSerializer, SessionQuerySerializer
 from qa.models import Question
 
 
-class AnonymousMixin:
+class PublicMixin:
     """
-    Open to everyone, with no authentication at all.
+    Open to everyone; a valid access token identifies the user, nothing more.
 
-    Authentication is disabled, not only optional, so a stale token sent by a
-    client cannot turn a public request into a 401.
+    Authentication is optional and never fails (``OptionalJWTAuthentication``),
+    so a stale token sent by a client cannot turn a public request into a 401.
     """
 
-    authentication_classes = []
+    authentication_classes = [OptionalJWTAuthentication]
     permission_classes = [permissions.AllowAny]
 
 
 @extend_schema(tags=['questions'])
-class QuestionListCreateView(AnonymousMixin, generics.ListCreateAPIView):
+class QuestionListCreateView(PublicMixin, generics.ListCreateAPIView):
     """Ask a question (POST), or list the questions of one session (GET)."""
 
     serializer_class = QuestionSerializer
@@ -51,8 +54,8 @@ class QuestionListCreateView(AnonymousMixin, generics.ListCreateAPIView):
 
     @extend_schema(request=AskSerializer, responses={201: QuestionSerializer})
     def post(self, request, *args, **kwargs):
-        """Answer the question; waits for the answer (about 20 to 45 s)."""
-        serializer = AskSerializer(data=request.data)
+        """Answer the question; waits for the answer (about 20 to 45 s). Logged in: linked to the account."""
+        serializer = AskSerializer(data=request.data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
         interaction = serializer.save()
         data = QuestionSerializer(interaction.question, context=self.get_serializer_context()).data
@@ -60,9 +63,19 @@ class QuestionListCreateView(AnonymousMixin, generics.ListCreateAPIView):
 
 
 @extend_schema(tags=['questions'])
-class QuestionDetailView(AnonymousMixin, generics.RetrieveAPIView):
+class QuestionDetailView(PublicMixin, generics.RetrieveAPIView):
     """One question by its uuid, for example a referred question followed up later."""
 
     serializer_class = QuestionSerializer
     queryset = Question.objects.select_related('interaction')
     lookup_field = 'uuid'
+
+
+@extend_schema(tags=['me'])
+class MyQuestionsView(generics.ListAPIView):
+    """The questions the caller asked while logged in, from any device, newest first."""
+
+    serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        return Question.objects.for_asker(self.request.user).select_related('interaction')

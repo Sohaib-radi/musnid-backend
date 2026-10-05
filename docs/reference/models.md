@@ -234,12 +234,13 @@ Public links, used for the sources of answers ([ADR 0017](../architecture/decisi
 
 ## `Question` and `Interaction` (`qa/models.py`)
 
-Every question and how it was answered, with no personal data ([ADR 0016](../architecture/decisions/0016-question-answering-flow.md)).
+Every question and how it was answered ([ADR 0016](../architecture/decisions/0016-question-answering-flow.md)). Anonymous unless the asker was logged in ([ADR 0019](../architecture/decisions/0019-link-questions-to-logged-in-askers.md)).
 
 | Model | Field | Meaning |
 | --- | --- | --- |
 | `Question` | `uuid` | Public identifier, unique; also the follow-up number of a referred question. |
 | `Question` | `text`, `lang`, `session_id` | The question, its detected language, and the opaque session id from the frontend. |
+| `Question` | `asker` | The user who asked while logged in; null for anonymous askers. `SET_NULL`: deleting the account keeps the question, anonymous. Never returned by the public API. |
 | `Interaction` | `decision`, `level`, `answer_text`, `citations` | What was returned, the classifier's level, the shown text, the valid `[Q<n>]` numbers. |
 | `Interaction` | `sentences` | Kept sentences: `text` (markers removed), `quote`, `number` (the evidence question containing the quote, found in code). Empty for fixed replies. |
 | `Interaction` | `dropped` | Sentences removed by the checks: `text`, `quote`, `reason` (`quote` or `entailment`). |
@@ -250,5 +251,6 @@ Every question and how it was answered, with no personal data ([ADR 0016](../arc
 | Method | Returns |
 | --- | --- |
 | `for_session(session_id)` | That session's questions, newest first (index `question_session_recent`). |
+| `for_asker(user)` | That user's questions from every session, newest first (index `question_asker_recent`). |
 | `asked_today()` | Questions created since 00:00 UTC, across all centers; counted for `ASK_DAILY_LIMIT`. |
 

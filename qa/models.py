@@ -1,8 +1,10 @@
 """
 Questions and how they were answered, kept for review and future fine-tuning.
 
-No personal data: askers are anonymous (``session_id`` is an opaque string),
-and stored errors have API keys masked.
+Asking needs no account: an anonymous asker is known only by ``session_id``, an
+opaque string. A logged-in asker's questions are also linked to their account
+(``Question.asker``), so they can find them from any device (ADR 0019). Stored
+errors have API keys masked.
 """
 
 import uuid
@@ -17,11 +19,15 @@ from core.models.base import CenterQuerySet
 
 
 class QuestionQuerySet(CenterQuerySet):
-    """Queries on questions: by session (history) and by day (global daily limit)."""
+    """Queries on questions: by session or asker (history) and by day (global daily limit)."""
 
     def for_session(self, session_id):
         """The questions of one anonymous session, newest first."""
         return self.filter(session_id=session_id).order_by('-created_at')
+
+    def for_asker(self, user):
+        """The questions a logged-in user asked, from any device, newest first."""
+        return self.filter(asker=user).order_by('-created_at')
 
     def asked_today(self):
         """Questions created since 00:00 UTC today, across all centers."""
@@ -31,7 +37,7 @@ class QuestionQuerySet(CenterQuerySet):
 
 class Question(BaseModel, CenterLinkedModel):
     """
-    A question asked by an anonymous user, owned by the center it is routed to.
+    A question, owned by the center it is routed to, and by its asker when logged in.
 
     ``uuid`` is the public identifier, and also the follow-up number given to the
     asker when the question is referred to a center.
@@ -41,13 +47,21 @@ class Question(BaseModel, CenterLinkedModel):
     text = models.TextField(_('text'))
     lang = models.CharField(_('language'), max_length=5, blank=True)
     session_id = models.CharField(_('session'), max_length=64, blank=True, db_index=True)
+    # SET_NULL: deleting an account keeps its questions (answers, reviews), now anonymous
+    asker = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions',
+        verbose_name=_('asker'), help_text=_('The account that asked, when logged in. Empty for anonymous askers.'),
+    )
 
     objects = QuestionQuerySet.as_manager()
 
     class Meta(BaseModel.Meta):
         verbose_name = _('question')
         verbose_name_plural = _('questions')
-        indexes = [models.Index(fields=['session_id', '-created_at'], name='question_session_recent')]
+        indexes = [
+            models.Index(fields=['session_id', '-created_at'], name='question_session_recent'),
+            models.Index(fields=['asker', '-created_at'], name='question_asker_recent'),
+        ]
 
     def __str__(self):
         return self.text[:80]

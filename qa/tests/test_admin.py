@@ -2,7 +2,7 @@
 
 from django.urls import reverse
 
-from core.tests.support import make_center, make_interaction, make_question
+from core.tests.support import make_center, make_interaction, make_question, make_user
 from core.tests.test_admin import AdminTestCase
 from qa.models import Interaction, Question
 
@@ -102,4 +102,14 @@ class QuestionAdminTests(AdminTestCase):
         response = self.change_page(make_interaction().question)
         self.assertContains(response, 'How to read this page')
         self.assertContains(response, 'Sentences the AI wrote but the checks removed')
+
+    def test_asker_column_and_search_by_email(self):
+        make_question(text='Logged in?', asker=make_user(email='amina@example.com'))
+        make_question(text='Anonymous question?')
+        response = self.changelist()
+        self.assertContains(response, 'amina@example.com')
+        self.assertContains(response, 'Anonymous')
+        by_email = self.changelist(q='amina@')
+        self.assertContains(by_email, 'Logged in?')
+        self.assertNotContains(by_email, 'Anonymous question?')
 

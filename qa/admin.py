@@ -48,17 +48,18 @@ def interaction_of(question):
 class QuestionAdmin(ModelAdmin):
     """Questions with their decision; each page shows the full AI answer and its checks."""
 
-    list_display = ['short_text', 'lang', 'decision', 'level', 'latency', 'tokens', 'has_error', 'center', 'created_at']
+    list_display = ['short_text', 'asked_by', 'lang', 'decision', 'level', 'latency', 'tokens', 'has_error', 'center',
+                    'created_at']
     list_filter = ['interaction__decision', 'interaction__level', 'lang', 'center']
-    search_fields = ['text']
-    search_help_text = _('Search by question text, or paste a follow-up number.')
-    list_select_related = ['center', 'interaction']
+    search_fields = ['text', 'asker__email']
+    search_help_text = _('Search by question text or asker email, or paste a follow-up number.')
+    list_select_related = ['center', 'interaction', 'asker']
     date_hierarchy = 'created_at'
     # Explain the columns and sections to first-time readers, such as the competition jury
     list_before_template = 'admin/qa/question/list_help.html'
     change_form_before_template = 'admin/qa/question/change_help.html'
     fieldsets = [
-        (_('Question'), {'fields': ['text', 'uuid', 'lang', 'center', 'session_id', 'created_at']}),
+        (_('Question'), {'fields': ['text', 'uuid', 'asked_by', 'lang', 'center', 'session_id', 'created_at']}),
         (_('Answer'), {'fields': ['decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences']}),
         (_('Retrieval'), {'fields': ['search_query', 'retrieved'], 'classes': ['collapse']}),
         (_('Run'), {
@@ -67,7 +68,7 @@ class QuestionAdmin(ModelAdmin):
         }),
     ]
     readonly_fields = [
-        'text', 'uuid', 'lang', 'center', 'session_id', 'created_at',
+        'text', 'uuid', 'asked_by', 'lang', 'center', 'session_id', 'created_at',
         'decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences',
         'search_query', 'retrieved', 'model_used', 'latency', 'tokens', 'error',
     ]
@@ -93,6 +94,11 @@ class QuestionAdmin(ModelAdmin):
     @display(description=_('question'))
     def short_text(self, question):
         return Truncator(question.text).chars(90)
+
+    @display(description=_('asker'), ordering='asker__email')
+    def asked_by(self, question):
+        """The account's email when the asker was logged in, otherwise "Anonymous"."""
+        return question.asker.email if question.asker else _('Anonymous')
 
     @display(description=_('decision'), ordering='interaction__decision', label=DECISION_COLORS)
     def decision(self, question):

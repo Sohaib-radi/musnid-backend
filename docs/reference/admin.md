@@ -137,11 +137,11 @@ answer will come with tracked revisions.
 | Aspect | Definition |
 | --- | --- |
 | Help | a "How to read this page" button above the list and above each question's page, opening a dialog (closed with Close, Esc or a click outside): on the list, the decisions with the same coloured badges as the table, levels A to D (D highlighted: always referred), cards for response time, tokens and error, and search; on a page, each section as an illustrated step. Written for first-time readers such as the competition jury (`qa/templates/admin/qa/question/`) |
-| List columns | question (first 90 characters), language, decision (badge: green answer, blue partial, amber referred, red abstain and out of scope), level, response time, tokens (in, out), error (badge: red Yes, green No), center, created at |
+| List columns | question (first 90 characters), asker (email, or Anonymous), language, decision (badge: green answer, blue partial, amber referred, red abstain and out of scope), level, response time, tokens (in, out), error (badge: red Yes, green No), center, created at |
 | Sorting | by decision, level, response time, tokens (input) and created at |
 | Filters | decision, level, language, center; date drill-down on created at |
-| Search | question text; a pasted follow-up number (`uuid`) finds that exact question |
-| Fieldsets | Question (text, public identifier, language, center, session, created at); Answer (decision, level, answer text, kept sentences, removed sentences); Retrieval (search query, ranked results; collapsed); Run (model and prompt version, response time, input and output tokens, error; collapsed) |
+| Search | question text, asker email; a pasted follow-up number (`uuid`) finds that exact question |
+| Fieldsets | Question (text, public identifier, asker, language, center, session, created at); Answer (decision, level, answer text, kept sentences, removed sentences); Retrieval (search query, ranked results; collapsed); Run (model and prompt version, response time, input and output tokens, error; collapsed) |
 | Kept sentences | each sentence the asker saw, its supporting quote (right-to-left) and its Bayyinat question number |
 | Removed sentences | each sentence the verification dropped, its quote and the reason: quote not found in the sources (`quote`), or quote does not support the sentence (`entailment`) |
 | Question without answer | listed with decision "-"; its page says no answer was saved (the flow failed before saving) |

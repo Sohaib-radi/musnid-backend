@@ -6,11 +6,12 @@ from unittest import mock
 from django.conf import settings
 from django.db import connection
 from django.test import override_settings
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from agents.replies import fixed_reply
 from agents.services import DailyLimitReached
 from api.tests.base import APITestCase
-from core.tests.support import make_center
+from core.tests.support import make_center, make_user
 from knowledge.services.ingest import ingest
 from knowledge.tests.support import FakeEmbedder, make_question
 from qa.models import Interaction, Question
@@ -31,11 +32,13 @@ class QuestionAPITestCase(APITestCase):
         ingest([make_question(229, title=QUESTION, page_start=1074, page_end=1081)], FakeEmbedder(),
                slug='bayyinat-ar', title='بينات', lang='ar', url=BOOK, pdf_url=PDF)
         self.calls = []
+        self.askers = []
 
     def saved(self, text=QUESTION, session_id=SESSION, lang='ar', decision='answer', level='B',
-              sentences=None, dropped=None, answer='الإسلام لم ينتشر بالسيف [Q229].'):
+              sentences=None, dropped=None, answer='الإسلام لم ينتشر بالسيف [Q229].', asker=None):
         """Save a question and its interaction as ``agents.services.ask`` would."""
-        question = Question.objects.create(center=self.center, text=text, lang=lang, session_id=session_id)
+        question = Question.objects.create(center=self.center, text=text, lang=lang, session_id=session_id,
+                                           asker=asker)
         if sentences is None:
             sentences = [{'text': 'الإسلام لم ينتشر بالسيف.', 'quote': QUOTE, 'number': 229}]
         return Interaction.objects.create(question=question, decision=decision, level=level, answer_text=answer,
@@ -43,9 +46,10 @@ class QuestionAPITestCase(APITestCase):
 
     def fake_ask(self, **outcome):
         """A replacement for ``ask`` that records its arguments and saves ``outcome``."""
-        def ask(text, session_id=''):
+        def ask(text, session_id='', asker=None):
             self.calls.append((text, session_id))
-            return self.saved(text=text, session_id=session_id, **outcome)
+            self.askers.append(asker)
+            return self.saved(text=text, session_id=session_id, asker=asker, **outcome)
         return mock.patch('agents.services.ask', side_effect=ask)
 
     def post(self, text=QUESTION, session_id=SESSION, **extra):
@@ -99,7 +103,65 @@ class AskTests(QuestionAPITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer not-a-token')
         with self.fake_ask():
             self.assertEqual(self.post().status_code, 201)
+        self.assertEqual(self.askers, [None])
         self.assertEqual(self.client.get(self.url('questions'), {'session_id': SESSION}).status_code, 200)
+
+    def test_anonymous_question_has_no_asker(self):
+        with self.fake_ask():
+            self.post()
+        self.assertEqual(self.askers, [None])
+        self.assertIsNone(Question.objects.get().asker)
+
+
+class AskerTests(QuestionAPITestCase):
+    """A valid access token links the question to the account (ADR 0019); anything else stays anonymous."""
+
+    def bearer(self, user):
+        """Send a real access token, so OptionalJWTAuthentication itself is exercised."""
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {RefreshToken.for_user(user).access_token}')
+
+    def test_logged_in_question_is_linked_to_the_account(self):
+        user = make_user()
+        self.bearer(user)
+        with self.fake_ask():
+            self.assertEqual(self.post().status_code, 201)
+        self.assertEqual(self.askers, [user])
+        self.assertEqual(Question.objects.get().asker, user)
+
+    def test_token_of_a_deactivated_account_asks_anonymously(self):
+        user = make_user()
+        self.bearer(user)
+        user.is_active = False
+        user.save(update_fields=['is_active', 'updated_at'])
+        with self.fake_ask():
+            self.assertEqual(self.post().status_code, 201)
+        self.assertEqual(self.askers, [None])
+
+    def test_the_answer_does_not_reveal_the_asker(self):
+        self.bearer(make_user(email='amina@example.com'))
+        with self.fake_ask():
+            body = self.post().json()
+        self.assertNotIn('asker', body)
+        self.assertNotIn('amina@example.com', str(body))
+
+
+class MyQuestionsTests(QuestionAPITestCase):
+    """GET /me/questions/: the caller's own questions, from every session, newest first."""
+
+    def test_requires_login(self):
+        self.assertError(self.client.get(self.url('my-questions')), 401, 'not_authenticated')
+
+    def test_lists_only_the_callers_questions_across_sessions(self):
+        user = self.authenticate()
+        older = self.saved(text='First?', session_id='phone-0001', asker=user)
+        newer = self.saved(text='Second?', session_id='laptop-0001', asker=user)
+        self.saved(text='Someone else?', asker=make_user())
+        self.saved(text='Anonymous?')
+        response = self.client.get(self.url('my-questions'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([item['uuid'] for item in response.json()['results']],
+                         [str(newer.question.uuid), str(older.question.uuid)])
+        self.assertEqual(response.json()['results'][0]['sentences'][0]['source']['number'], 229)
 
     def test_invalid_input_is_rejected_with_codes(self):
         cases = [
