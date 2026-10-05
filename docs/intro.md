@@ -72,4 +72,4 @@ alert, and HSTS.
 - [Tenancy](architecture/tenancy.md): how data is scoped to centers.
 - [Admin](reference/admin.md): every admin page and the sidebar.
 - [REST API](reference/api.md) and the [frontend contract](frontend/authentication.md).
-- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0023.
+- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0024.

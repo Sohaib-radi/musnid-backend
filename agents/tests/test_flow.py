@@ -60,7 +60,7 @@ class RoutingTests(FlowTestCase):
     def test_level_d_is_referred_without_search(self):
         interaction = self.run_ask(classified('D', 'ar'))
         self.assertEqual((interaction.decision, interaction.level), ('refer', 'D'))
-        self.assertEqual(interaction.answer_text, fixed_reply('refer', 'ar'))
+        self.assertEqual(interaction.answer_text, fixed_reply('refer_personal', 'ar'))  # says why
         self.assertEqual(interaction.retrieved, [])
 
     def test_low_score_abstains(self):
@@ -170,7 +170,7 @@ class AnswerTests(FlowTestCase):
     def test_no_valid_citation_is_referred(self):
         interaction = self.run_ask(classified(), answered('جواب بلا مصدر [Q99].'))
         self.assertEqual(interaction.decision, 'refer')
-        self.assertEqual(interaction.answer_text, fixed_reply('refer', 'ar'))
+        self.assertEqual(interaction.answer_text, fixed_reply('refer_no_evidence', 'ar'))  # says why
 
     def test_coverage_none_is_referred(self):
         interaction = self.run_ask(classified(), answered(coverage='none'))
@@ -188,7 +188,7 @@ class AnswerTests(FlowTestCase):
 
 
 class SavingTests(FlowTestCase):
-    """Questions and interactions are saved with their trace; a referral opens its ticket."""
+    """Questions and interactions are saved with their trace; nothing is sent to the specialists by itself."""
 
     def test_saved_with_trace_and_version_stamp(self):
         interaction = self.run_ask(classified())
@@ -227,20 +227,11 @@ class SavingTests(FlowTestCase):
         self.assertIn('no default center', interaction.error)
         self.assertFalse(Question.objects.exists())
 
-    def test_level_d_opens_a_referral_for_a_personal_ruling(self):
-        interaction = self.run_ask(classified('D', 'ar'))
-        referral = Referral.objects.get()
-        self.assertEqual((referral.question, referral.center), (interaction.question, self.center))
-        self.assertEqual((referral.reason, referral.status), (Referral.Reason.LEVEL_D, Referral.Status.OPEN))
-
-    def test_unsupported_answer_opens_a_referral_for_missing_evidence(self):
+    def test_no_question_is_sent_to_the_specialists_without_the_askers_choice(self):
+        self.run_ask(classified('D', 'ar'))
         self.run_ask(classified(), answered(coverage='none'))
-        self.assertEqual(Referral.objects.get().reason, Referral.Reason.NO_EVIDENCE)
-
-    def test_answers_and_abstentions_open_no_referral(self):
-        self.run_ask(classified())
         self.run_ask(classified('B', 'ar', 'كلمات لا علاقة لها مطلقا'))
-        self.assertEqual(sorted(Interaction.objects.values_list('decision', flat=True)), ['abstain', 'answer'])
+        self.assertEqual(sorted(Interaction.objects.values_list('decision', flat=True)), ['abstain', 'refer', 'refer'])
         self.assertFalse(Referral.objects.exists())
 
 

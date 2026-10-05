@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 from unfold.forms import (
     AdminPasswordChangeForm as UnfoldAdminPasswordChangeForm,
+    AuthenticationForm as UnfoldAuthenticationForm,
     UserChangeForm as UnfoldUserChangeForm,
     UserCreationForm as UnfoldUserCreationForm,
 )
@@ -22,6 +23,19 @@ from unfold.widgets import UnfoldAdminCheckboxSelectMultipleWidget, UnfoldAdminP
 
 from core.models import ApiCredential, Center, Language, Membership, User
 from core.services import credentials, memberships
+
+
+class SuperuserAuthenticationForm(UnfoldAuthenticationForm):
+    """Admin login for platform administrators only; everyone else is sent to the website."""
+
+    def confirm_login_allowed(self, user):
+        """Refuse accounts that are not superusers, with a message that points to the website."""
+        super().confirm_login_allowed(user)
+        if not user.is_superuser:
+            raise ValidationError(
+                _('This page is for platform administrators. Please sign in on the Musnid website.'),
+                code='not_platform_admin',
+            )
 
 
 class UserCreationForm(UnfoldUserCreationForm):

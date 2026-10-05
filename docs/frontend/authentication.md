@@ -61,7 +61,11 @@ linked ([ADR 0019](../architecture/decisions/0019-link-questions-to-logged-in-as
 
 ## Routing after login
 
-Call `GET /api/v1/me/memberships/`. For each active membership, `center.state` decides
+First call `GET /api/v1/me/`. If `is_platform_admin` is true, redirect the whole page to
+`admin_url` (the Django admin, where the platform administrator signs in again) and show
+no dashboard ([ADR 0024](../architecture/decisions/0024-admin-for-platform-administrators.md)).
+
+Otherwise call `GET /api/v1/me/memberships/`. For each active membership, `center.state` decides
 the screen:
 
 | `center.state` | Screen |
@@ -74,6 +78,21 @@ the screen:
 A user without memberships is an asker. A center endpoint answering 403
 `center_not_operational` means the state changed since it was loaded: reload
 `me/memberships/`.
+
+## User language
+
+The account's `preferred_lang` (`ar`, `en`, `fr`) is the language the Telegram bot writes
+to that user in, on every device. Keep it in step with the site:
+
+| When | Call |
+| --- | --- |
+| Registration | Send `preferred_lang` set to the current interface language (`POST auth/register/`, `auth/register/center/`; the default is `en`) |
+| First load of a tab, or login | `GET /me/` → apply `preferred_lang` as the interface language, once |
+| Every language switch while logged in | `PATCH /me/ {"preferred_lang": "ar"}`; the tab keeps the choice |
+| The `PATCH` fails | Keep the switched language, show "Language not saved to your account", retry on the next switch or login |
+
+A center's "languages served" is a different setting: what its specialists can handle,
+not the language of a user ([Telegram bot](../reference/telegram-bot.md#languages)).
 
 ## Error codes to handle
 

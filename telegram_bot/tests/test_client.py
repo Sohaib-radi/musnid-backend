@@ -69,6 +69,7 @@ class TelegramClientTests(SimpleTestCase):
         self.assertEqual(json.loads(requests[0].content)['reply_parameters'],
                          {'message_id': 7, 'allow_sending_without_reply': True})
         self.assertEqual(json.loads(requests[1].content),
-                         {'allowed_updates': ['message', 'my_chat_member'], 'timeout': 25, 'offset': 12})
+                         {'allowed_updates': ['message', 'callback_query', 'my_chat_member'], 'timeout': 25,
+                          'offset': 12})
         self.assertEqual(requests[1].extensions['timeout']['read'], 30)
 

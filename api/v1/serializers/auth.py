@@ -1,8 +1,10 @@
 """Serializers for registration, tokens and the caller's profile."""
 
+from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from django_countries import countries
@@ -21,19 +23,44 @@ def tokens_for(user):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """The caller's profile. ``uuid`` is the only identifier exposed."""
+    """
+    The caller's profile. ``uuid`` is the only identifier exposed.
+
+    ``is_platform_admin`` and ``admin_url`` let the frontend send a superuser to
+    the Django admin, which only superusers can open (``core.sites``).
+    """
 
     telegram_linked = serializers.SerializerMethodField(
         help_text=_('Whether a Telegram account is linked.'),
     )
+    is_platform_admin = serializers.SerializerMethodField(
+        help_text=_('True for a platform administrator (superuser): the frontend redirects them to admin_url.'),
+    )
+    admin_url = serializers.SerializerMethodField(
+        help_text=_('Address of the administration site for a platform administrator; null for everyone else.'),
+    )
 
     class Meta:
         model = User
-        fields = ['uuid', 'email', 'full_name', 'preferred_lang', 'avatar', 'is_verified', 'telegram_linked']
+        fields = ['uuid', 'email', 'full_name', 'preferred_lang', 'avatar', 'is_verified', 'telegram_linked',
+                  'is_platform_admin', 'admin_url']
         read_only_fields = ['uuid', 'email', 'avatar', 'is_verified']
 
     def get_telegram_linked(self, user) -> bool:
         return user.telegram_chat_id is not None
+
+    def get_is_platform_admin(self, user) -> bool:
+        return user.is_superuser
+
+    def get_admin_url(self, user) -> str | None:
+        """``DJANGO_SITE_URL`` + the admin path; without it, the address of the current request."""
+        if not user.is_superuser:
+            return None
+        path = reverse('admin:index')
+        if settings.SITE_URL:
+            return settings.SITE_URL + path
+        request = self.context.get('request')
+        return request.build_absolute_uri(path) if request else path
 
 
 class TokenPairSerializer(serializers.Serializer):

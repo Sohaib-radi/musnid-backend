@@ -3,8 +3,8 @@ Read-only admin of the messages the bot sent (ADR 0022), with a "Send again"
 action for failed ones, through ``telegram_bot.services.resend``.
 
 The "Link a Telegram account" page (ADR 0023) creates a one-time link through
-``telegram_bot.linking.create_link``: for the staff member themselves, or for
-any active user when the staff member is a superuser.
+``telegram_bot.linking.create_link`` for any active user, chosen by email (the
+admin is open to superusers only, ``core.sites``).
 """
 
 from django.contrib import admin, messages
@@ -49,20 +49,16 @@ class TelegramMessageAdmin(ModelAdmin):
         ]
 
     def link_view(self, request):
-        """GET: the form. POST: a one-time link for the chosen user (superusers) or for the staff member."""
-        can_choose = request.user.is_superuser
+        """GET: the form. POST: a one-time link for the user with the given email."""
         context = {
             **self.admin_site.each_context(request),
             'title': _('Link a Telegram account'),
             'opts': self.model._meta,
-            'can_choose': can_choose,
             'link_minutes': LINK_MINUTES,
             'email': request.POST.get('email', ''),
         }
         if request.method == 'POST':
-            user = request.user
-            if can_choose:
-                user = get_user_model().objects.filter(email__iexact=context['email'].strip()).first()
+            user = get_user_model().objects.filter(email__iexact=context['email'].strip()).first()
             if user is None:
                 context['error'] = _('No user has this email address.')
             else:

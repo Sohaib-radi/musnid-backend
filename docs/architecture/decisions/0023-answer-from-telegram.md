@@ -31,8 +31,8 @@ not be able to publish one.
     Telegram's 64-character start parameter.
   - Codes: `telegram_link_invalid` (unknown, used, expired, or deactivated user),
     `telegram_already_linked`, `telegram_link_inactive_user`.
-  - Links are created in the admin ("Link a Telegram account": superusers for any user,
-    staff for themselves). The center dashboard will show the same link as a QR code.
+  - Links are created in the admin ("Link a Telegram account", superusers only,
+    [ADR 0024](0024-admin-for-platform-administrators.md)). The center dashboard will show the same link as a QR code.
 - **Connecting the group** (one per center): the dashboard's "Connect to Telegram"
   calls `POST centers/{slug}/telegram/connect/` (center admin, operational center), which
   returns a one-time `t.me/<bot>?startgroup=<code>` link (a `TelegramLinkCode` with a

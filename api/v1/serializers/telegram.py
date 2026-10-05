@@ -10,6 +10,12 @@ class TelegramLinkSerializer(serializers.Serializer):
     expires_at = serializers.DateTimeField(help_text='The link stops working after this time (10 minutes).')
 
 
+class MyTelegramSerializer(serializers.Serializer):
+    """Whether the caller's Telegram account is linked."""
+
+    telegram_linked = serializers.BooleanField(help_text="The caller's Telegram account is linked.")
+
+
 class TelegramStatusSerializer(serializers.Serializer):
     """Whether the center's group is connected and the caller's account linked; polled while connecting."""
 

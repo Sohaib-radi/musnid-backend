@@ -74,10 +74,20 @@ class TelegramClient:
                                 retryable=code == 429 or code >= 500)
         return body['result']
 
-    def send_message(self, chat_id, text):
-        """Send ``text`` (Telegram HTML) to ``chat_id`` without link previews; return the sent message."""
-        return self.call('sendMessage', chat_id=chat_id, text=text, parse_mode='HTML',
-                         link_preview_options={'is_disabled': True})
+    def send_message(self, chat_id, text, reply_markup=None):
+        """
+        Send ``text`` (Telegram HTML) to ``chat_id`` without link previews; return the sent message.
+
+        ``reply_markup`` adds buttons (``inline_keyboard``) or opens the reply box (``force_reply``).
+        """
+        params = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML', 'link_preview_options': {'is_disabled': True}}
+        if reply_markup:
+            params['reply_markup'] = reply_markup
+        return self.call('sendMessage', **params)
+
+    def answer_callback(self, callback_id, text=''):
+        """Acknowledge a button press (stops the button's spinner), with an optional short notice."""
+        return self.call('answerCallbackQuery', callback_query_id=callback_id, text=text)
 
     def reply(self, chat_id, message_id, text):
         """Send plain ``text`` to ``chat_id`` as a reply to ``message_id``; return the sent message."""
@@ -91,7 +101,7 @@ class TelegramClient:
         ``offset`` confirms every update before it; ``wait`` is the long-polling
         time in seconds (0 returns at once).
         """
-        params = {'allowed_updates': ['message', 'my_chat_member'], 'timeout': wait}
+        params = {'allowed_updates': ['message', 'callback_query', 'my_chat_member'], 'timeout': wait}
         if offset is not None:
             params['offset'] = offset
         return self.call('getUpdates', http_timeout=wait + TIMEOUT, **params)

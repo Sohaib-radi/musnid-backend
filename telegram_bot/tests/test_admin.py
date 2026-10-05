@@ -43,11 +43,11 @@ class TelegramMessageAdminTests(AdminTestCase):
 
     def test_send_again_reports_refusals(self):
         response = self.send_again([self.failed])  # tests run without a token
-        self.assertIn('The bot has no token, or the center has no Telegram group.', self.messages(response)[0])
+        self.assertIn('The bot has no token.', self.messages(response)[0])
 
 
 class LinkPageTests(AdminTestCase):
-    """The "Link a Telegram account" page: superusers choose the user, others link themselves."""
+    """The "Link a Telegram account" page: superusers create a link for a user chosen by email."""
 
     def page(self, **data):
         url = reverse('admin:telegram_bot_telegrammessage_link')
@@ -68,10 +68,9 @@ class LinkPageTests(AdminTestCase):
     def test_unknown_email(self):
         self.assertContains(self.page(email='nobody@example.com'), 'No user has this email address.')
 
-    def test_staff_link_themselves_only(self):
-        staff = make_user(is_staff=True, full_name='Staff member')
-        self.client.force_login(staff)
-        self.assertNotContains(self.page(), 'name="email"')
-        response = self.page(email='ignored@example.com')
-        self.assertContains(response, 'Staff member')
+    def test_staff_who_are_not_superusers_cannot_enter(self):
+        self.client.force_login(make_user(is_staff=True))
+        response = self.page()
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('admin:login'), response['Location'])
 

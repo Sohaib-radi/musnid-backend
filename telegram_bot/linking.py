@@ -63,6 +63,14 @@ def create_link(user, client=None):
     return f'https://t.me/{username}?start={code}', expires_at
 
 
+def unlink_account(user):
+    """Forget ``user``'s Telegram account: no more notices, no more answers from Telegram; return the user."""
+    if user.telegram_chat_id is not None:
+        user.telegram_chat_id = None
+        user.save(update_fields=['telegram_chat_id', 'updated_at'])
+    return user
+
+
 @sensitive_variables('code')
 def create_group_link(center, user, client=None):
     """

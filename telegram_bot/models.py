@@ -25,6 +25,7 @@ class TelegramMessage(BaseModel):
         """What the message is for."""
 
         REFERRAL_NOTICE = 'referral_notice', _('New referral notice')
+        ANSWER_PROMPT = 'answer_prompt', _('Answer prompt')
 
     class Status(models.TextChoices):
         """Whether Telegram accepted the message."""

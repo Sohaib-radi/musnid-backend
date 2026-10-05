@@ -21,6 +21,7 @@ through the helpers in `config/env.py`.
 | `DJANGO_CORS_ALLOWED_ORIGINS` | No | empty list (no CORS) | Origins allowed to call `/api/` from a browser, comma-separated, for example `https://app.example.org,http://localhost:3000` ([ADR 0012](../architecture/decisions/0012-cors-policy.md)). |
 | `FIELD_ENCRYPTION_KEYS` | No (yes to store API keys) | empty | Fernet keys, comma-separated, newest first, for secrets stored in the database ([ADR 0014](../architecture/decisions/0014-encrypted-api-keys.md)). Never reuse `DJANGO_SECRET_KEY`. |
 | `OPENAI_API_KEY` | No | empty | Fallback OpenAI key when no key is active in the admin. |
+| `REFERRAL_LIVE_SECONDS` | No | `60` | Seconds an asker who chose "Ask a specialist now" waits for a live answer; afterwards the question stays in the center's queue. |
 | `TELEGRAM_BOT_TOKEN` | No | empty (bot off) | Token of the Telegram bot from @BotFather ([ADR 0022](../architecture/decisions/0022-telegram-channel.md)). Empty: nothing is sent. A secret: never printed or logged. |
 | `TELEGRAM_WEBHOOK_SECRET` | No | empty (webhook off) | Secret Telegram sends in `X-Telegram-Bot-Api-Secret-Token` with each update to `/telegram/webhook/` ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)); letters, digits, `_` and `-`, up to 256 characters. Empty: the webhook answers 404. Production only; locally run `telegram_poll`. |
 | `DJANGO_SITE_URL` | No | empty | Public origin of the backend, such as `https://api.musnid.online`, used to link the admin from Telegram messages. A trailing `/` is removed. Empty: no link. |

@@ -34,7 +34,7 @@ class Command(BaseCommand):
                 raise CommandError('Set DJANGO_SITE_URL (https) and TELEGRAM_WEBHOOK_SECRET first.')
             url = settings.SITE_URL + reverse('telegram_bot:webhook')
             client.call('setWebhook', url=url, secret_token=settings.TELEGRAM_WEBHOOK_SECRET,
-                        allowed_updates=['message', 'my_chat_member'])
+                        allowed_updates=['message', 'callback_query', 'my_chat_member'])
             self.stdout.write(f'Webhook set to {url}.')
         except TelegramError as error:
             raise CommandError(str(error)) from None

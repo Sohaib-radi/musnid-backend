@@ -75,7 +75,8 @@ class TelegramWebhookCommandTests(SimpleTestCase):
         with mock.patch('telegram_bot.client.TelegramClient.call') as call:
             call_command('telegram_webhook', '--set', stdout=out)
         call.assert_called_once_with('setWebhook', url='https://api.musnid.online/telegram/webhook/',
-                                     secret_token='s3cret', allowed_updates=['message', 'my_chat_member'])
+                                     secret_token='s3cret',
+                                     allowed_updates=['message', 'callback_query', 'my_chat_member'])
         self.assertNotIn('s3cret', out.getvalue())
 
     @override_settings(SITE_URL='http://localhost:8000')

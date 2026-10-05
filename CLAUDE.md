@@ -108,6 +108,7 @@ core/              domain app
     user.py        User, UserManager (email login)
     center.py      Center (single default)
     membership.py  Membership, MembershipQuerySet
+  sites.py         SuperuserAdminSite: the admin is for superusers only (ADR 0024)
   services/        rules spanning several objects (memberships.py, centers.py: registration and review)
   admin.py         Unfold admins: User, Center, Membership, Group
   forms.py         admin forms (Unfold user forms rebound to core.User, center, membership)
@@ -225,7 +226,8 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
   `locale_vendor/<package>/` (listed in `LOCALE_PATHS`), never in `site-packages`. Refresh
   `locale_vendor/unfold` after upgrading Unfold. French words identical to English need
   an entry in `FRENCH_SAME_AS_ENGLISH`.
-- **Admin:** every admin inherits `unfold.admin.ModelAdmin`, every inline Unfold's
+- **Admin:** for platform administrators only: `core.sites.SuperuserAdminSite` lets only
+  superusers in (ADR 0024); centers and users work in the frontend. Every admin inherits `unfold.admin.ModelAdmin`, every inline Unfold's
   `TabularInline`/`StackedInline`; re-register third-party models with an Unfold admin.
   Forms live in `core/forms.py`. Admins never bypass services: memberships save through
   `core.services.memberships`, their inlines are read-only. Action messages use `ngettext`.

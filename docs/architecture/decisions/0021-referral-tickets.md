@@ -59,6 +59,15 @@ The admin needs this queue now; the Telegram bot and the center dashboard need i
   already referred, dated like the question, `answered` at the newest revision when one
   exists, otherwise `open`.
 
+## Amendment (2026-10-05)
+
+- The referral is no longer opened by `ask()`: after a `refer` or `abstain` decision the
+  asker chooses `POST questions/{uuid}/specialist/` with `mode` `live` (a live window of
+  `REFERRAL_LIVE_SECONDS`, `live_until`) or `ticket` (answered later);
+  `qa.services.request_specialist` checks the decision and opens it. Both notify the
+  specialists. The fixed reply now says why the AI does not answer (`refer_personal`,
+  `refer_no_evidence`).
+
 ## Consequences
 
 - Every channel shares one queue and one rule set: the Telegram bot will notify on

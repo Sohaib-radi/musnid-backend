@@ -21,14 +21,12 @@
             <p class="musnid-form-error" role="alert">{{ error }}</p>
         {% endif %}
 
-        {% if can_choose %}
-            <label for="telegram-email">{% translate "Email address of the user" %}</label>
-            <input id="telegram-email" type="email" name="email" value="{{ email }}" dir="ltr" required>
-        {% endif %}
+        <label for="telegram-email">{% translate "Email address of the user" %}</label>
+        <input id="telegram-email" type="email" name="email" value="{{ email }}" dir="ltr" required>
     </section>
     <div class="musnid-dialog-actions">
         <a href="{% url 'admin:telegram_bot_telegrammessage_changelist' %}" class="musnid-btn musnid-btn-outline">{% translate "Cancel" %}</a>
-        <button type="submit" class="musnid-btn musnid-btn-primary">{% if can_choose %}{% translate "Create the link" %}{% else %}{% translate "Create my link" %}{% endif %}</button>
+        <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Create the link" %}</button>
     </div>
 </form>
 {% endblock %}

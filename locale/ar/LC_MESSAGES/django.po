@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 14:43+0000\n"
+"POT-Creation-Date: 2026-10-05 17:33+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -18,20 +18,38 @@ msgstr ""
 msgid "Agents"
 msgstr "الوكلاء"
 
-#: agents/replies.py:25
+#: agents/replies.py:27
 msgid ""
 "This service only answers questions about Islam. Please ask a question about "
 "Islam."
 msgstr ""
 "هذه الخدمة تجيب عن الأسئلة المتعلقة بالإسلام فقط. يُرجى طرح سؤال عن الإسلام."
 
-#: agents/replies.py:27
+#: agents/replies.py:29
 msgid ""
 "Your question needs a specialist. It has been referred to a center of "
 "specialists, who will answer you."
 msgstr "سؤالك يحتاج إلى مختص، وقد أُحيل إلى مركز من المختصين ليجيبك."
 
-#: agents/replies.py:29
+#: agents/replies.py:31
+msgid ""
+"This question asks for a ruling on your personal situation. Musnid does not "
+"issue personal rulings: only a qualified specialist can, knowing your "
+"circumstances. You can send your question to a center of specialists."
+msgstr ""
+"يطلب هذا السؤال حكمًا في حالتك الشخصية. لا يُصدر Musnid فتاوى شخصية: لا يفتي "
+"فيها إلا مختص مؤهل يعرف ظروفك. يمكنك إرسال سؤالك إلى مركز من المختصين."
+
+#: agents/replies.py:34
+msgid ""
+"Our verified sources do not cover this question, so Musnid will not answer "
+"it from its own knowledge. You can send your question to a center of "
+"specialists."
+msgstr ""
+"لا تغطي مصادرنا الموثّقة هذا السؤال، لذلك لن يجيب عنه Musnid من تلقاء نفسه. "
+"يمكنك إرسال سؤالك إلى مركز من المختصين."
+
+#: agents/replies.py:37
 msgid ""
 "We could not find an answer to this question in our sources. Please rephrase "
 "it or ask a center of specialists."
@@ -39,17 +57,17 @@ msgstr ""
 "لم نجد جوابًا لهذا السؤال في مصادرنا. يُرجى إعادة صياغته أو سؤال مركز من "
 "المختصين."
 
-#: agents/replies.py:31
+#: agents/replies.py:39
 msgid "Note: our sources answer this question only in part."
 msgstr "ملاحظة: مصادرنا تجيب عن هذا السؤال جزئيًّا فقط."
 
-#: agents/replies.py:32
+#: agents/replies.py:40
 msgid ""
 "This matter involves scholarly disagreement; consult a specialist for your "
 "situation."
 msgstr "في هذه المسألة خلاف بين العلماء؛ استشر مختصًّا في حالتك."
 
-#: agents/replies.py:34
+#: agents/replies.py:42
 msgid ""
 "The service has reached its limit of questions for today. Please try again "
 "tomorrow."
@@ -81,39 +99,51 @@ msgid ""
 "This center is not operational: it is pending review, rejected or suspended."
 msgstr "هذا المركز غير مفعَّل: إما قيد المراجعة أو مرفوض أو موقوف."
 
-#: api/v1/serializers/auth.py:27
+#: api/v1/serializers/auth.py:34
 msgid "Whether a Telegram account is linked."
 msgstr "هل حساب Telegram مربوط."
 
-#: api/v1/serializers/auth.py:57 core/models/user.py:89 core/models/user.py:135
+#: api/v1/serializers/auth.py:37
+msgid ""
+"True for a platform administrator (superuser): the frontend redirects them "
+"to admin_url."
+msgstr "صحيح لمسؤول المنصة (مستخدم خارق): تعيد الواجهة توجيهه إلى admin_url."
+
+#: api/v1/serializers/auth.py:40
+msgid ""
+"Address of the administration site for a platform administrator; null for "
+"everyone else."
+msgstr "عنوان موقع الإدارة لمسؤول المنصة؛ null لغيره."
+
+#: api/v1/serializers/auth.py:84 core/models/user.py:89 core/models/user.py:135
 msgid "A user with this email address already exists."
 msgstr "يوجد مستخدم بهذا البريد الإلكتروني بالفعل."
 
-#: api/v1/serializers/auth.py:114
+#: api/v1/serializers/auth.py:141
 msgid "A center with this name already exists."
 msgstr "يوجد مركز بهذا الاسم بالفعل."
 
-#: api/v1/serializers/auth.py:120
+#: api/v1/serializers/auth.py:147
 msgid "Unknown country code."
 msgstr "رمز الدولة غير معروف."
 
-#: api/v1/serializers/questions.py:26
+#: api/v1/serializers/questions.py:27
 msgid "Use 8 to 64 letters, digits, \"-\" or \"_\"."
 msgstr "استخدم من 8 إلى 64 حرفًا لاتينيًا أو رقمًا أو ⁦\"-\"⁩ أو ⁦\"_\"⁩."
 
-#: api/v1/views/questions.py:45
+#: api/v1/views/questions.py:48
 msgid "The session_id query parameter is required."
 msgstr "المعامل ⁦session_id⁩ مطلوب في الاستعلام."
 
-#: config/settings.py:143 core/models/choices.py:16
+#: config/settings.py:144 core/models/choices.py:16
 msgid "Arabic"
 msgstr "العربية"
 
-#: config/settings.py:144 core/models/choices.py:17
+#: config/settings.py:145 core/models/choices.py:17
 msgid "English"
 msgstr "الإنجليزية"
 
-#: config/settings.py:145 core/models/choices.py:18
+#: config/settings.py:146 core/models/choices.py:18
 msgid "French"
 msgstr "الفرنسية"
 
@@ -137,7 +167,7 @@ msgstr "الأسئلة"
 msgid "Referrals"
 msgstr "الإحالات"
 
-#: config/unfold.py:118 telegram_bot/models.py:47
+#: config/unfold.py:118 telegram_bot/models.py:48
 msgid "Telegram messages"
 msgstr "رسائل Telegram"
 
@@ -302,7 +332,7 @@ msgstr[3] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 msgstr[4] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 msgstr[5] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 
-#: core/admin.py:393 core/forms.py:117 core/models/credentials.py:43
+#: core/admin.py:393 core/forms.py:131 core/models/credentials.py:43
 msgid "API key"
 msgstr "مفتاح API"
 
@@ -320,6 +350,12 @@ msgstr[2] "عدد مفاتيح API التي أُلغيت: %(count)d."
 msgstr[3] "عدد مفاتيح API التي أُلغيت: %(count)d."
 msgstr[4] "عدد مفاتيح API التي أُلغيت: %(count)d."
 msgstr[5] "عدد مفاتيح API التي أُلغيت: %(count)d."
+
+#: core/forms.py:36
+msgid ""
+"This page is for platform administrators. Please sign in on the Musnid "
+"website."
+msgstr "هذه الصفحة مخصّصة لمسؤولي المنصة. يُرجى تسجيل الدخول في موقع Musnid."
 
 #: core/models/ai_settings.py:21
 msgid "chat model"
@@ -349,7 +385,7 @@ msgstr "تاريخ الإنشاء"
 msgid "updated at"
 msgstr "تاريخ التحديث"
 
-#: core/models/base.py:74 core/models/center.py:106 telegram_bot/models.py:85
+#: core/models/base.py:74 core/models/center.py:106 telegram_bot/models.py:86
 msgid "center"
 msgstr "مركز"
 
@@ -462,7 +498,7 @@ msgstr "يمكن أن يكون مركز واحد فقط هو المركز الا
 msgid "Only an approved center can be the default center."
 msgstr "لا يمكن أن يكون المركز الافتراضي إلا مركزًا مقبولًا."
 
-#: core/models/center.py:125 telegram_bot/linking.py:109
+#: core/models/center.py:125 telegram_bot/linking.py:117
 msgid "This Telegram group is already connected to another center."
 msgstr "مجموعة Telegram هذه مرتبطة بمركز آخر."
 
@@ -527,7 +563,7 @@ msgid "public identifier"
 msgstr "المعرّف العام"
 
 #: core/models/membership.py:60 core/models/user.py:129
-#: telegram_bot/models.py:80
+#: telegram_bot/models.py:81
 msgid "user"
 msgstr "مستخدم"
 
@@ -667,7 +703,7 @@ msgstr "السبب (يُعرض على مقدّم الطلب)"
 #: core/templates/admin/core/center/review_buttons.html:30
 #: qa/templates/admin/qa/question/revise.html:48
 #: qa/templates/admin/qa/referral/close_selected.html:19
-#: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:30
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:28
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -759,11 +795,11 @@ msgstr "المصدر"
 msgid "question number"
 msgstr "رقم السؤال"
 
-#: knowledge/models.py:83 telegram_bot/models.py:38
+#: knowledge/models.py:83 telegram_bot/models.py:39
 msgid "kind"
 msgstr "النوع"
 
-#: knowledge/models.py:86 qa/models.py:58 telegram_bot/models.py:42
+#: knowledge/models.py:86 qa/models.py:58 telegram_bot/models.py:43
 msgid "text"
 msgstr "النص"
 
@@ -821,7 +857,7 @@ msgid "Revise the answer"
 msgstr "راجِع الجواب"
 
 #: qa/admin.py:206 qa/admin.py:356 qa/admin.py:360 qa/models.py:70
-#: qa/models.py:112 qa/models.py:190 qa/models.py:250 telegram_bot/admin.py:88
+#: qa/models.py:112 qa/models.py:190 qa/models.py:257 telegram_bot/admin.py:84
 msgid "question"
 msgstr "سؤال"
 
@@ -904,8 +940,8 @@ msgstr "الرموز"
 msgid "%(input)s in, %(output)s out"
 msgstr "%(input)s مُدخَلة، %(output)s مُخرَجة"
 
-#: qa/admin.py:305 qa/admin.py:312 qa/models.py:134 telegram_bot/admin.py:92
-#: telegram_bot/models.py:43
+#: qa/admin.py:305 qa/admin.py:312 qa/models.py:134 telegram_bot/admin.py:88
+#: telegram_bot/models.py:44
 msgid "error"
 msgstr "الخطأ"
 
@@ -917,8 +953,8 @@ msgstr "نعم"
 msgid "No"
 msgstr "لا"
 
-#: qa/admin.py:366 qa/models.py:253 telegram_bot/admin.py:84
-#: telegram_bot/models.py:41
+#: qa/admin.py:366 qa/models.py:260 telegram_bot/admin.py:80
+#: telegram_bot/models.py:42
 msgid "status"
 msgstr "الحالة"
 
@@ -1060,7 +1096,7 @@ msgstr "الحكم"
 msgid "corrected answer"
 msgstr "الجواب المصحَّح"
 
-#: qa/models.py:163 qa/models.py:197 qa/models.py:252
+#: qa/models.py:163 qa/models.py:197 qa/models.py:259
 msgid "reason"
 msgstr "السبب"
 
@@ -1104,96 +1140,129 @@ msgstr "مراجعة جواب"
 msgid "answer revisions"
 msgstr "مراجعات الأجوبة"
 
-#: qa/models.py:235
+#: qa/models.py:236
 msgid "Personal ruling (level D)"
 msgstr "فتوى شخصية (المستوى D)"
 
-#: qa/models.py:236
+#: qa/models.py:237
 msgid "Not covered by the sources"
 msgstr "لا تغطيه المصادر"
 
-#: qa/models.py:241
+#: qa/models.py:242
 msgid "Open"
 msgstr "مفتوحة"
 
-#: qa/models.py:242
+#: qa/models.py:243
 msgid "In progress"
 msgstr "قيد المعالجة"
 
-#: qa/models.py:243
+#: qa/models.py:244
 msgid "Answered"
 msgstr "أُجيب عنها"
 
-#: qa/models.py:244
+#: qa/models.py:245
 msgid "Closed without an answer"
 msgstr "أُغلقت دون جواب"
 
-#: qa/models.py:257
+#: qa/models.py:250
+msgid "Asked a specialist now"
+msgstr "طُلب مختص فورًا"
+
+#: qa/models.py:251
+msgid "Saved as a ticket"
+msgstr "حُفظ كتذكرة"
+
+#: qa/models.py:261
+msgid "mode"
+msgstr "الطريقة"
+
+#: qa/models.py:265
 msgid "assigned to"
 msgstr "مُسندة إلى"
 
-#: qa/models.py:259
+#: qa/models.py:270
+msgid "live until"
+msgstr "مباشر حتى"
+
+#: qa/models.py:271
+msgid ""
+"End of the live window in which specialists are expected to answer at once."
+msgstr "نهاية المدة التي يُنتظر فيها أن يجيب المختصون فورًا."
+
+#: qa/models.py:273
 msgid "answered at"
 msgstr "تاريخ الجواب"
 
-#: qa/models.py:260
+#: qa/models.py:274
 msgid "closed at"
 msgstr "تاريخ الإغلاق"
 
-#: qa/models.py:261
+#: qa/models.py:275
 msgid "closing note"
 msgstr "ملاحظة الإغلاق"
 
-#: qa/models.py:262
+#: qa/models.py:276
 msgid "Why the center closed it without an answer; never shown to the asker."
 msgstr "سبب إغلاق المركز لها دون جواب؛ لا تُعرض على السائل أبدًا."
 
-#: qa/models.py:267 telegram_bot/admin.py:96 telegram_bot/models.py:36
+#: qa/models.py:281 telegram_bot/admin.py:92 telegram_bot/models.py:37
 msgid "referral"
 msgstr "إحالة"
 
-#: qa/models.py:268
+#: qa/models.py:282
 msgid "referrals"
 msgstr "إحالات"
 
-#: qa/models.py:274
+#: qa/models.py:288
 msgid "An answered referral needs the date of its answer."
 msgstr "الإحالة التي أُجيب عنها تحتاج إلى تاريخ جوابها."
 
-#: qa/models.py:279
+#: qa/models.py:293
 msgid "A closed referral needs the date it was closed."
 msgstr "الإحالة المغلقة تحتاج إلى تاريخ إغلاقها."
 
-#: qa/services.py:57
+#: qa/services.py:60 telegram_bot/updates.py:139
 msgid "You cannot revise answers of this center."
 msgstr "لا يمكنك مراجعة أجوبة هذا المركز."
 
-#: qa/services.py:60
+#: qa/services.py:63
 msgid "Write the answer the asker should see."
 msgstr "اكتب الجواب الذي ينبغي أن يراه السائل."
 
-#: qa/services.py:62
+#: qa/services.py:65
 #, python-format
 msgid "The answer is limited to %(max)d characters."
 msgstr "الحد الأقصى للجواب %(max)d حرف."
 
-#: qa/services.py:65
+#: qa/services.py:68
 msgid "Choose why the answer is revised."
 msgstr "اختر سبب مراجعة الجواب."
 
-#: qa/services.py:106
+#: qa/services.py:108
+msgid "Choose to ask a specialist now or to save a ticket."
+msgstr "اختر طلب مختص الآن أو حفظ تذكرة."
+
+#: qa/services.py:113
+msgid "This question was answered; it cannot be sent to a specialist."
+msgstr "أُجيب عن هذا السؤال؛ لا يمكن إرساله إلى مختص."
+
+#: qa/services.py:116
+msgid "This question was already sent to the specialists."
+msgstr "أُرسل هذا السؤال إلى المختصين من قبل."
+
+#: qa/services.py:156
 msgid "Assign the referral to an active member of its center."
 msgstr "أسنِد الإحالة إلى عضو نشط في مركزها."
 
-#: qa/services.py:130
+#: qa/services.py:180
 msgid "Write why the referral is closed without an answer."
 msgstr "اكتب سبب إغلاق الإحالة دون جواب."
 
-#: qa/services.py:144
+#: qa/services.py:194
 msgid "You cannot handle referrals of this center."
 msgstr "لا يمكنك معالجة إحالات هذا المركز."
 
-#: qa/services.py:151
+#: qa/services.py:201
 msgid "This referral is already answered or closed."
 msgstr "هذه الإحالة أُجيب عنها أو أُغلقت من قبل."
 
@@ -1467,25 +1536,25 @@ msgstr ""
 msgid "Reason (for the center and staff, never shown to the asker)"
 msgstr "السبب (للمركز والفريق فقط، لا يُعرض على السائل أبدًا)"
 
-#: telegram_bot/admin.py:56
+#: telegram_bot/admin.py:55
 #: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:8
 #: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:6
 msgid "Link a Telegram account"
 msgstr "ربط حساب Telegram"
 
-#: telegram_bot/admin.py:67
+#: telegram_bot/admin.py:63
 msgid "No user has this email address."
 msgstr "لا يوجد مستخدم بهذا البريد الإلكتروني."
 
-#: telegram_bot/admin.py:75
+#: telegram_bot/admin.py:71
 msgid "Telegram could not be reached. Try again in a moment."
 msgstr "تعذّر الوصول إلى Telegram. أعد المحاولة بعد قليل."
 
-#: telegram_bot/admin.py:103
+#: telegram_bot/admin.py:99
 msgid "Send selected failed messages again"
 msgstr "أعد إرسال الرسائل الفاشلة المحددة"
 
-#: telegram_bot/admin.py:119
+#: telegram_bot/admin.py:115
 #, python-format
 msgid "%(count)d message was sent."
 msgid_plural "%(count)d messages were sent."
@@ -1496,7 +1565,7 @@ msgstr[3] "عدد الرسائل التي أُرسلت: %(count)d."
 msgstr[4] "عدد الرسائل التي أُرسلت: %(count)d."
 msgstr[5] "عدد الرسائل التي أُرسلت: %(count)d."
 
-#: telegram_bot/admin.py:123
+#: telegram_bot/admin.py:119
 #, python-format
 msgid "%(count)d message could not be sent: %(reasons)s"
 msgid_plural "%(count)d messages could not be sent: %(reasons)s"
@@ -1515,104 +1584,158 @@ msgstr "بوت Telegram"
 msgid "A deactivated account cannot link Telegram."
 msgstr "لا يمكن لحساب معطّل ربط Telegram."
 
-#: telegram_bot/linking.py:77
+#: telegram_bot/linking.py:85
 msgid "Only a center admin can connect the center's Telegram group."
 msgstr "لا يربط مجموعة Telegram للمركز إلا مسؤول المركز."
 
-#: telegram_bot/linking.py:105 telegram_bot/linking.py:207
+#: telegram_bot/linking.py:113 telegram_bot/linking.py:215
 msgid "This link is invalid or expired. Ask for a new one."
 msgstr "هذا الرابط غير صالح أو منتهي الصلاحية. اطلب رابطًا جديدًا."
 
-#: telegram_bot/linking.py:136
+#: telegram_bot/linking.py:144
 msgid "Only a center admin can disconnect the center's Telegram group."
 msgstr "لا يفصل مجموعة Telegram عن المركز إلا مسؤول المركز."
 
-#: telegram_bot/linking.py:154
+#: telegram_bot/linking.py:162
 #, python-format
 msgid ""
 "This group is no longer connected to %(center)s. Referred questions will no "
 "longer arrive here."
-msgstr "لم تعد هذه المجموعة مرتبطة بـ %(center)s. لن تصل الأسئلة المُحالة إلى هنا بعد الآن."
+msgstr ""
+"لم تعد هذه المجموعة مرتبطة بـ %(center)s. لن تصل الأسئلة المُحالة إلى هنا بعد "
+"الآن."
 
-#: telegram_bot/linking.py:210
+#: telegram_bot/linking.py:218
 msgid "This Telegram account is already linked to another account."
 msgstr "حساب Telegram هذا مرتبط بحساب آخر."
+
+#: telegram_bot/management/commands/telegram_setup.py:19
+msgid ""
+"Musnid connects people who ask about Islam with centers of specialists. "
+"Specialists receive here the questions that need them, and answer in one tap."
+msgstr ""
+"يصل Musnid السائلين عن الإسلام بمراكز المختصين. يتلقى المختصون هنا الأسئلة "
+"التي تحتاج إليهم، ويجيبون عنها بضغطة واحدة."
+
+#: telegram_bot/management/commands/telegram_setup.py:21
+msgid "Questions about Islam, answered by centers of specialists."
+msgstr "أسئلة عن الإسلام يجيب عنها مختصو المراكز."
+
+#: telegram_bot/management/commands/telegram_setup.py:22
+msgid "Start or show the welcome message"
+msgstr "ابدأ أو اعرض رسالة الترحيب"
 
 #: telegram_bot/models.py:27
 msgid "New referral notice"
 msgstr "إشعار بإحالة جديدة"
 
-#: telegram_bot/models.py:32
+#: telegram_bot/models.py:28
+msgid "Answer prompt"
+msgstr "طلب الجواب"
+
+#: telegram_bot/models.py:33
 msgid "Sent"
 msgstr "أُرسلت"
 
-#: telegram_bot/models.py:33
+#: telegram_bot/models.py:34
 msgid "Failed"
 msgstr "فشلت"
 
-#: telegram_bot/models.py:39
+#: telegram_bot/models.py:40
 msgid "chat ID"
 msgstr "معرّف المحادثة"
 
-#: telegram_bot/models.py:40
+#: telegram_bot/models.py:41
 msgid "message ID"
 msgstr "معرّف الرسالة"
 
-#: telegram_bot/models.py:46
+#: telegram_bot/models.py:47
 msgid "Telegram message"
 msgstr "رسالة Telegram"
 
-#: telegram_bot/models.py:53
+#: telegram_bot/models.py:54
 msgid "A sent Telegram message needs its message ID."
 msgstr "رسالة Telegram المُرسلة تحتاج إلى معرّف رسالتها."
 
-#: telegram_bot/models.py:87
+#: telegram_bot/models.py:88
 msgid "code hash"
 msgstr "بصمة الرمز"
 
-#: telegram_bot/models.py:88
+#: telegram_bot/models.py:89
 msgid "expires at"
 msgstr "تاريخ الانتهاء"
 
-#: telegram_bot/models.py:89
+#: telegram_bot/models.py:90
 msgid "used at"
 msgstr "تاريخ الاستخدام"
 
-#: telegram_bot/models.py:94
+#: telegram_bot/models.py:95
 msgid "Telegram link code"
 msgstr "رمز ربط Telegram"
 
-#: telegram_bot/models.py:95
+#: telegram_bot/models.py:96
 msgid "Telegram link codes"
 msgstr "رموز ربط Telegram"
 
-#: telegram_bot/services.py:48
+#: telegram_bot/services.py:52
 msgid "New question referred to your center"
 msgstr "سؤال جديد مُحال إلى مركزكم"
 
-#: telegram_bot/services.py:49
+#: telegram_bot/services.py:53
 msgid "Reason"
 msgstr "السبب"
 
-#: telegram_bot/services.py:50
+#: telegram_bot/services.py:54
 msgid "Language"
 msgstr "اللغة"
 
-#: telegram_bot/services.py:51
+#: telegram_bot/services.py:55
 msgid "Follow-up number"
 msgstr "رقم المتابعة"
 
-#: telegram_bot/services.py:57
-msgid "Open in the admin"
-msgstr "افتحه في لوحة الإدارة"
+#: telegram_bot/services.py:62
+#, python-format
+msgid ""
+"⏱ Answer within %(minutes)d minute to reply live; after that, it stays in "
+"the center's queue."
+msgid_plural ""
+"⏱ Answer within %(minutes)d minutes to reply live; after that, it stays in "
+"the center's queue."
+msgstr[0] ""
+"⏱ أجب خلال %(minutes)d دقيقة للرد مباشرة؛ بعدها يبقى السؤال في قائمة انتظار "
+"المركز."
+msgstr[1] ""
+"⏱ أجب خلال %(minutes)d دقيقة للرد مباشرة؛ بعدها يبقى السؤال في قائمة انتظار "
+"المركز."
+msgstr[2] ""
+"⏱ أجب خلال دقيقتين للرد مباشرة؛ بعدها يبقى السؤال في قائمة انتظار المركز."
+msgstr[3] ""
+"⏱ أجب خلال %(minutes)d دقائق للرد مباشرة؛ بعدها يبقى السؤال في قائمة انتظار "
+"المركز."
+msgstr[4] ""
+"⏱ أجب خلال %(minutes)d دقيقة للرد مباشرة؛ بعدها يبقى السؤال في قائمة انتظار "
+"المركز."
+msgstr[5] ""
+"⏱ أجب خلال %(minutes)d دقيقة للرد مباشرة؛ بعدها يبقى السؤال في قائمة انتظار "
+"المركز."
 
-#: telegram_bot/services.py:96
+#: telegram_bot/services.py:66
+msgid ""
+"🎫 Ticket: answer when you can; the asker will see your answer in their "
+"history."
+msgstr "🎫 تذكرة: أجب حين يتيسر لك؛ وسيرى السائل جوابك في سجله."
+
+#: telegram_bot/services.py:74
+msgid "✍️ Answer"
+msgstr "✍️ أجب"
+
+#: telegram_bot/services.py:134
 msgid "Only failed messages can be sent again."
 msgstr "لا يُعاد إرسال إلا الرسائل الفاشلة."
 
-#: telegram_bot/services.py:99
-msgid "The bot has no token, or the center has no Telegram group."
-msgstr "ليس للبوت رمز، أو ليس للمركز مجموعة Telegram."
+#: telegram_bot/services.py:137
+msgid "The bot has no token."
+msgstr "ليس للبوت رمز."
 
 #: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:9
 #, python-format
@@ -1634,19 +1757,62 @@ msgstr "رابط %(name)s"
 msgid "Open in Telegram"
 msgstr "افتح في Telegram"
 
-#: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:25
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:24
 msgid "Email address of the user"
 msgstr "البريد الإلكتروني للمستخدم"
 
-#: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:31
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:29
 msgid "Create the link"
 msgstr "أنشئ الرابط"
 
-#: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:31
-msgid "Create my link"
-msgstr "أنشئ رابطي"
+#: telegram_bot/updates.py:94
+#, python-format
+msgid ""
+"👋 Welcome back, %(name)s. Questions for your center arrive here: tap ✍️ "
+"Answer to reply; the asker sees your answer at once."
+msgstr ""
+"👋 مرحبًا بعودتك يا %(name)s. تصل أسئلة مركزك إلى هنا: اضغط ✍️ أجب للرد، ويرى "
+"السائل جوابك فورًا."
 
-#: telegram_bot/updates.py:90
+#: telegram_bot/updates.py:97
+msgid ""
+"👋 Welcome to Musnid.\n"
+"\n"
+"Musnid answers questions about Islam from verified sources. When a question "
+"needs a specialist, it is sent here to the specialists of a center, who "
+"answer it directly.\n"
+"\n"
+"Are you a specialist? Connect Telegram from your Musnid dashboard to receive "
+"questions."
+msgstr ""
+"👋 مرحبًا بك في Musnid.\n"
+"\n"
+"يجيب Musnid عن الأسئلة المتعلقة بالإسلام من مصادر موثّقة. وحين يحتاج سؤال إلى "
+"مختص، يُرسل إلى هنا إلى مختصي أحد المراكز، فيجيبون عنه مباشرة.\n"
+"\n"
+"هل أنت مختص؟ اربط Telegram من لوحة التحكم في Musnid لتصلك الأسئلة."
+
+#: telegram_bot/updates.py:115
+msgid "Tap ✍️ Answer under a question to reply to it."
+msgstr "اضغط ✍️ أجب تحت السؤال للرد عليه."
+
+#: telegram_bot/updates.py:117
+msgid "To answer questions, connect Telegram from your Musnid dashboard."
+msgstr "للإجابة عن الأسئلة، اربط Telegram من لوحة التحكم في Musnid."
+
+#: telegram_bot/updates.py:136 telegram_bot/updates.py:235
+msgid "Connect Telegram from your Musnid dashboard first."
+msgstr "اربط Telegram أولًا من لوحة التحكم في Musnid."
+
+#: telegram_bot/updates.py:142
+msgid "✍️ Write your answer to:"
+msgstr "✍️ اكتب جوابك عن:"
+
+#: telegram_bot/updates.py:143
+msgid "Your answer"
+msgstr "جوابك"
+
+#: telegram_bot/updates.py:196
 #, python-format
 msgid ""
 "This group is now connected to %(center)s. Referred questions will arrive "
@@ -1655,27 +1821,19 @@ msgstr ""
 "رُبطت هذه المجموعة بـ %(center)s. ستصل الأسئلة المُحالة إلى هنا، ويجيب "
 "المختصون المرتبطون بالرد عليها."
 
-#: telegram_bot/updates.py:99
-msgid "To answer questions, open the Telegram link your center gives you."
-msgstr "للإجابة عن الأسئلة، افتح رابط Telegram الذي يعطيك إياه مركزك."
-
-#: telegram_bot/updates.py:107
+#: telegram_bot/updates.py:212
 #, python-format
 msgid ""
-"Your Telegram account is now linked to %(name)s. Reply to the bot's messages "
-"in your center's group to answer questions."
+"✅ Your Telegram account is now linked to %(name)s. Questions for your "
+"center will arrive here: tap ✍️ Answer to reply."
 msgstr ""
-"رُبط حسابك في Telegram بـ %(name)s. ردّ على رسائل البوت في مجموعة مركزك "
-"للإجابة عن الأسئلة."
+"✅ رُبط حسابك في Telegram بـ %(name)s. ستصل أسئلة مركزك إلى هنا: اضغط ✍️ أجب "
+"للرد."
 
-#: telegram_bot/updates.py:124
-msgid "Link your Telegram account first: ask your center for your link."
-msgstr "اربط حسابك في Telegram أولًا: اطلب رابطك من مركزك."
-
-#: telegram_bot/updates.py:127
+#: telegram_bot/updates.py:238
 msgid "Send the answer as text."
 msgstr "أرسل الجواب نصًّا."
 
-#: telegram_bot/updates.py:134
-msgid "The answer was sent to the asker."
-msgstr "أُرسل الجواب إلى السائل."
+#: telegram_bot/updates.py:245
+msgid "✅ The answer was sent to the asker."
+msgstr "✅ أُرسل الجواب إلى السائل."

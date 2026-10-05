@@ -19,6 +19,20 @@ class MeTests(APITestCase):
         self.assertEqual(response.data['uuid'], str(user.uuid))
         self.assertEqual(response.data['email'], 'amina@example.com')
         self.assertFalse(response.data['telegram_linked'])
+        self.assertEqual((response.data['is_platform_admin'], response.data['admin_url']), (False, None))
+
+    def test_platform_admin_gets_the_admin_address(self):
+        self.authenticate(is_staff=True, is_superuser=True)
+        with self.settings(SITE_URL='https://api.musnid.online'):
+            response = self.client.get(self.url('me'))
+        self.assertEqual((response.data['is_platform_admin'], response.data['admin_url']),
+                         (True, 'https://api.musnid.online/admin/'))
+        with self.settings(SITE_URL=''):
+            self.assertEqual(self.client.get(self.url('me')).data['admin_url'], 'http://testserver/admin/')
+
+    def test_staff_who_are_not_superusers_are_not_platform_admins(self):
+        self.authenticate(is_staff=True)
+        self.assertFalse(self.client.get(self.url('me')).data['is_platform_admin'])
 
     def test_patch_changes_profile_but_not_email(self):
         user = self.authenticate(email='amina@example.com')

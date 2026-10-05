@@ -12,7 +12,8 @@ from unfold.admin import StackedInline, TabularInline
 
 from core.admin import pending_centers_badge
 from knowledge.models import SourceChunk, SourceDocument
-from qa.models import Question
+from qa.models import Question, Referral
+from telegram_bot.models import TelegramMessage
 from core.models import AISettings, ApiCredential, Center, Membership, User
 from core.tests.support import (
     TEST_ENCRYPTION_KEYS, make_center, make_credential, make_membership, make_openai_key, make_user,
@@ -43,7 +44,7 @@ class UnfoldEverywhereTests(TestCase):
         self.assertEqual(
             set(admin.site._registry),
             {User, Center, Membership, Group, OutstandingToken, BlacklistedToken, ApiCredential,
-             SourceDocument, SourceChunk, AISettings, Question},
+             SourceDocument, SourceChunk, AISettings, Question, Referral, TelegramMessage},
         )
 
 
@@ -313,14 +314,16 @@ class CenterReviewAdminTests(AdminTestCase):
         response = self.client.post(self.review_url(self.pending, 'approve'), {'next': 'https://evil.example/'})
         self.assertRedirects(response, self.url(Center, 'changelist'), fetch_redirect_response=False)
 
-    def test_view_only_staff_get_no_buttons_and_403(self):
+    def test_staff_who_are_not_superusers_cannot_enter(self):
         viewer = make_user(is_staff=True)
         viewer.user_permissions.add(Permission.objects.get(codename='view_center'))
         self.client.force_login(viewer)
         response = self.client.get(self.url(Center, 'changelist'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, f'id="approve-{self.pending.pk}"')
-        self.assertEqual(self.client.post(self.review_url(self.pending, 'approve')).status_code, 403)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('admin:login'), response['Location'])
+        self.assertEqual(self.client.post(self.review_url(self.pending, 'approve')).status_code, 302)
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.status, Center.Status.PENDING)
 
     def run_action(self, action, centers, **extra):
         return self.client.post(self.url(Center, 'changelist'), {
@@ -439,3 +442,26 @@ class ApiCredentialAdminTests(AdminTestCase):
         request._dont_enforce_csrf_checks = True
         admin.site._registry[ApiCredential].add_view(request)
         self.assertEqual(request.sensitive_post_parameters, ('secret',))
+
+
+class SuperuserOnlyAdminTests(TestCase):
+    """The admin is for platform administrators only (core/sites.py)."""
+
+    def login(self, user):
+        return self.client.post(reverse('admin:login'), {'username': user.email, 'password': 'secret-pass-123',
+                                                         'next': reverse('admin:index')})
+
+    def test_the_site_is_the_superuser_site(self):
+        self.assertEqual(type(admin.site).__name__, 'SuperuserAdminSite')
+
+    def test_superuser_signs_in(self):
+        superuser = make_user(is_staff=True, is_superuser=True, password='secret-pass-123')
+        self.assertRedirects(self.login(superuser), reverse('admin:index'), fetch_redirect_response=False)
+
+    def test_staff_and_center_members_are_sent_to_the_website(self):
+        for user in (make_user(is_staff=True, password='secret-pass-123'),
+                     make_membership(user=make_user(is_staff=True, password='secret-pass-123')).user):
+            with self.subTest(user=user.email):
+                response = self.login(user)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, 'This page is for platform administrators.')

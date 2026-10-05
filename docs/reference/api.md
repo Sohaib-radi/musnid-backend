@@ -74,8 +74,10 @@ claim `user_uuid`.
 
 | Method and path | Who | Request | Response |
 | --- | --- | --- | --- |
-| `GET me/` | authenticated | | `uuid`, `email`, `full_name`, `preferred_lang`, `avatar`, `is_verified`, `telegram_linked` |
+| `GET me/` | authenticated | | `uuid`, `email`, `full_name`, `preferred_lang`, `avatar`, `is_verified`, `telegram_linked`, `is_platform_admin` (superuser), `admin_url` (the admin's address for a platform administrator, else null; [ADR 0024](../architecture/decisions/0024-admin-for-platform-administrators.md)) |
 | `PATCH me/` | authenticated | `full_name`, `preferred_lang` (others are read-only) | the profile |
+| `POST me/telegram/link/` | authenticated | | 201 `{"url", "expires_at"}`: a one-time `t.me/<bot>?start=` link that links the caller's Telegram ("Connect Telegram"); 503 `telegram_unavailable` |
+| `POST me/telegram/unlink/` | authenticated | | `{"telegram_linked": false}` |
 | `GET me/questions/` | authenticated | | paginated questions the caller asked while logged in, newest first, in the question shape ([Questions](#questions)) |
 | `GET me/memberships/` | authenticated | | paginated memberships, active first: `uuid`, `role`, `is_active`, `created_at`, `left_at`, `center` (a center, below) |
 
@@ -129,6 +131,7 @@ frontend generates (for example a random UUID kept in local storage).
 | `POST questions/` | `text` (3 to 2,000 characters), `session_id` | 201 question; waits for the answer (19.8 to 45.6 s measured) |
 | `GET questions/?session_id=…` | | paginated, newest first |
 | `GET questions/{uuid}/` | | question |
+| `POST questions/{uuid}/specialist/` | `mode` (`live` or `ticket`), `session_id` (anonymous askers) | 201 question; sends a question the AI did not answer (`refer` or `abstain`) to the specialists. Only the asker (404 otherwise); 400 `not_referable`, `referral_exists`; throttled like asking |
 | `GET me/questions/` | login required | the caller's questions from every session, paginated, newest first |
 
 There is no `PUT`, `PATCH` or `DELETE` (405).
@@ -181,6 +184,9 @@ Question:
 | `notes` | Empty when the answer was revised. Otherwise, fixed notes after an answer: `partial` (the sources answer only in part), `level_c` (scholarly disagreement). Clients style them by `code`. |
 | `verification` | Number of sentences kept and removed by the quote and entailment checks. |
 | `follow_up_number` | For `refer`: the question's `uuid`, to quote when the specialist's reply is attached later. `null` otherwise. |
+| `can_ask_specialist` | True when the AI did not answer and the question was not sent yet: show "Ask a specialist now" and "Save as a ticket". |
+| `referral_mode` | `live` or `ticket`; null when not sent. |
+| `referral_live_until` | For a live request: end of the 1-minute live window (`REFERRAL_LIVE_SECONDS`); null otherwise. |
 | `referral_status` | For `refer`: where the center's ticket stands, `open`, `in_progress`, `answered` or `closed` (closed without an answer) ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)). `null` otherwise. |
 
 Limits on `POST`:

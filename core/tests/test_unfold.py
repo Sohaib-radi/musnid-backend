@@ -109,7 +109,8 @@ class SettingsTests(SimpleTestCase):
 
     def test_unfold_precedes_django_admin(self):
         apps = settings.INSTALLED_APPS
-        self.assertLess(apps.index('unfold'), apps.index('django.contrib.admin'))
+        # Unfold is installed through core.sites.SuperuserAdminConfig (ADR 0024)
+        self.assertLess(apps.index('core.sites.SuperuserAdminConfig'), apps.index('django.contrib.admin'))
 
     def test_site_identity_is_the_untranslated_brand(self):
         self.assertEqual(UNFOLD['SITE_TITLE'], 'Musnid')
@@ -129,6 +130,7 @@ class SidebarTests(TestCase):
         ]
         self.assertEqual(layout, [
             (['Centers', 'Memberships'], 'Centers'),
+            (['Questions', 'Referrals', 'Telegram messages'], 'Questions and answers'),
             (['Users', 'Groups'], 'Accounts'),
             (['Source documents', 'Source chunks'], 'Knowledge base'),
             (['API Keys', 'AI settings'], 'Configuration'),
@@ -141,6 +143,7 @@ class SidebarTests(TestCase):
             '/admin/token_blacklist/outstandingtoken/', '/admin/token_blacklist/blacklistedtoken/',
             '/admin/core/apicredential/', '/admin/core/aisettings/',
             '/admin/knowledge/sourcedocument/', '/admin/knowledge/sourcechunk/',
+            '/admin/qa/question/', '/admin/qa/referral/', '/admin/telegram_bot/telegrammessage/',
         }
         seen = set()
         for group in UNFOLD['SIDEBAR']['navigation']:
@@ -155,6 +158,6 @@ class SidebarTests(TestCase):
         request = RequestFactory().get('/admin/')
         items = [item for group in UNFOLD['SIDEBAR']['navigation'] for item in group['items']]
         request.user = make_user(is_staff=True)
-        self.assertEqual([item['permission'](request) for item in items], [False] * 10)
+        self.assertEqual([item['permission'](request) for item in items], [False] * len(items))
         request.user = make_user(is_staff=True, is_superuser=True)
-        self.assertEqual([item['permission'](request) for item in items], [True] * 10)
+        self.assertEqual([item['permission'](request) for item in items], [True] * len(items))

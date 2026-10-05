@@ -18,7 +18,9 @@ def fixed_reply(kind, language):
     """
     A fixed reply in ``language`` (English for any other language).
 
-    ``kind``: out_of_scope, refer, abstain, partial, disagreement, daily_capacity.
+    ``kind``: out_of_scope, refer, refer_personal, refer_no_evidence, abstain, partial,
+    disagreement, daily_capacity. The two ``refer_*`` replies tell the asker why the AI
+    does not answer: a personal ruling (level D), or sources that do not cover it.
     """
     with translation.override(language if language in REPLY_LANGUAGES else 'en'):
         return {
@@ -26,6 +28,12 @@ def fixed_reply(kind, language):
                               'Please ask a question about Islam.'),
             'refer': _('Your question needs a specialist. It has been referred to a center of '
                        'specialists, who will answer you.'),
+            'refer_personal': _('This question asks for a ruling on your personal situation. Musnid does not '
+                                'issue personal rulings: only a qualified specialist can, knowing your '
+                                'circumstances. You can send your question to a center of specialists.'),
+            'refer_no_evidence': _('Our verified sources do not cover this question, so Musnid will not answer '
+                                   'it from its own knowledge. You can send your question to a center of '
+                                   'specialists.'),
             'abstain': _('We could not find an answer to this question in our sources. '
                          'Please rephrase it or ask a center of specialists.'),
             'partial': _('Note: our sources answer this question only in part.'),

@@ -185,7 +185,7 @@ class AskFlow(Flow[QAState]):
 
     @listen('refer')
     def reply_refer(self):
-        self._fixed('refer')
+        self._fixed('refer', reply='refer_personal')  # level D: a ruling on the asker's own situation
 
     @listen('abstain')
     def reply_abstain(self):
@@ -265,7 +265,7 @@ class AskFlow(Flow[QAState]):
         text = CITATION.sub(keep_valid, answer).strip()
         self.state.citations = sorted(set(cited))
         if coverage == 'none' or not cited:
-            self._fixed('refer')
+            self._fixed('refer', reply='refer_no_evidence')  # the verified sources do not support an answer
             return
         self.state.decision = 'partial' if coverage == 'partial' else 'answer'
         notes_text = [note['text'] for note in notes(self.state.decision, self.state.level, self.state.language)]
@@ -273,9 +273,14 @@ class AskFlow(Flow[QAState]):
 
     # Helpers
 
-    def _fixed(self, kind):
-        """End with a fixed reply; no sentence of the writer is shown."""
-        self.state.answer = fixed_reply(kind, self.state.language)
+    def _fixed(self, kind, reply=None):
+        """
+        End with decision ``kind`` and a fixed reply; no sentence of the writer is shown.
+
+        ``reply`` picks a more precise fixed text than ``kind``'s, such as why a
+        question is referred; the decision stays ``kind``.
+        """
+        self.state.answer = fixed_reply(reply or kind, self.state.language)
         self.state.decision = kind
         self.state.sentences = []
 

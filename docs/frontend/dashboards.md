@@ -28,7 +28,8 @@ Every field and error: [REST API](../reference/api.md). Types: `npm run api:type
 
 ## Who sees which dashboard
 
-Call `GET me/memberships/` after login:
+Call `GET me/` after login: if `is_platform_admin` is true, redirect the whole page to
+`admin_url` (the Django admin) and stop. Otherwise call `GET me/memberships/`:
 
 | Memberships | Dashboard |
 | --- | --- |
@@ -51,7 +52,9 @@ Call `GET me/memberships/` after login:
   "preferred_lang": "fr",
   "avatar": null,
   "is_verified": false,
-  "telegram_linked": false
+  "telegram_linked": false,
+  "is_platform_admin": false,
+  "admin_url": null
 }
 ```
 
@@ -225,6 +228,32 @@ A membership in the list:
 
 Roles: `specialist`, `center_admin`. Removed members stay in the list with
 `is_active: false` and `left_at`.
+
+## Telegram for each specialist
+
+Every member of an operational center connects their own Telegram; questions for their
+center then arrive in their private chat with the bot, with a "✍️ Answer" button.
+
+| Step | Call |
+| --- | --- |
+| On load | `GET me/` → `telegram_linked` |
+| "Connect Telegram" | `POST me/telegram/link/` → open `url`; spinner polling `GET me/` every 2 s until `telegram_linked` is true, or `expires_at` passes |
+| "Disconnect" | `POST me/telegram/unlink/` |
+
+The group flow above is optional and can stay hidden.
+
+## Asking a specialist (asker side)
+
+When `can_ask_specialist` is true, show `answer` (it says why the AI does not answer) and
+two buttons; each calls `POST questions/{uuid}/specialist/` with
+`{"mode": "live" | "ticket", "session_id": "…"}`:
+
+| Mode | Then |
+| --- | --- |
+| `live` ("Ask a specialist now") | Countdown to `referral_live_until`, poll every 5 s; at 0, "the center will answer you here", poll every 60 s |
+| `ticket` ("Save as a ticket") | "Your ticket was saved", poll every 60 s while the page is open |
+
+`referral_status` `answered` → show `answer`, "Answered by `review.center`".
 
 ## Not available yet
 

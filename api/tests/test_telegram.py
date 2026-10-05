@@ -73,3 +73,25 @@ class TelegramConnectAPITests(APITestCase):
         self.authenticate(self.specialist)
         self.assertError(self.client.post(self.url('center-telegram-disconnect', 'dar')), 403, 'not_center_admin')
 
+
+
+class MyTelegramAPITests(APITestCase):
+    """Each specialist connects their own Telegram: a start link, then unlink."""
+
+    def test_link_returns_a_start_link_and_unlink_forgets_the_account(self):
+        user = self.authenticate(telegram_chat_id=None)
+        with mock.patch('api.v1.views.telegram.TelegramClient', return_value=FakeClient()):
+            response = self.client.post(self.url('my-telegram-link'))
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertTrue(response.data['url'].startswith('https://t.me/musnid_test_bot?start='))
+        user.telegram_chat_id = 42
+        user.save(update_fields=['telegram_chat_id', 'updated_at'])
+        self.assertEqual(self.client.post(self.url('my-telegram-unlink')).data, {'telegram_linked': False})
+        user.refresh_from_db()
+        self.assertIsNone(user.telegram_chat_id)
+
+    def test_bot_off_is_503_and_anonymous_401(self):
+        self.assertError(self.client.post(self.url('my-telegram-link')), 401, 'not_authenticated')
+        self.authenticate()
+        with mock.patch('api.v1.views.telegram.TelegramClient', return_value=FakeClient(enabled=False)):
+            self.assertError(self.client.post(self.url('my-telegram-link')), 503, 'telegram_unavailable')

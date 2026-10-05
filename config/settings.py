@@ -43,7 +43,8 @@ ALLOWED_HOSTS = env.csv_list('DJANGO_ALLOWED_HOSTS')
 
 INSTALLED_APPS = [
     # Unfold must precede django.contrib.admin so its templates take priority.
-    'unfold',
+    # Unfold, with an admin site open to superusers only (core/sites.py)
+    'core.sites.SuperuserAdminConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -241,6 +242,13 @@ FIELD_ENCRYPTION_KEYS = env.csv_list('FIELD_ENCRYPTION_KEYS')
 OPENAI_API_KEY = env.optional('OPENAI_API_KEY', '')
 
 
+# Referrals (ADR 0021)
+# Seconds the asker waits for a live answer from a specialist; after that the
+# question stays in the center's queue and is answered later.
+
+REFERRAL_LIVE_SECONDS = env.integer('REFERRAL_LIVE_SECONDS', 60)
+
+
 # Telegram bot (ADR 0022)
 # Empty token: the bot is off and nothing is sent. SITE_URL is this backend's
 # public origin (https://api.musnid.online), used to link admin pages from
@@ -250,6 +258,9 @@ TELEGRAM_BOT_TOKEN = env.optional('TELEGRAM_BOT_TOKEN', '')
 # Secret Telegram sends with each webhook update (ADR 0023); empty: webhook off (404).
 TELEGRAM_WEBHOOK_SECRET = env.optional('TELEGRAM_WEBHOOK_SECRET', '')
 SITE_URL = env.optional('DJANGO_SITE_URL', '').rstrip('/')
+# The public origin may be served through a proxy (nginx, ngrok) that Django sees as
+# plain HTTP; trusting it lets admin forms posted from that origin pass the CSRF check.
+CSRF_TRUSTED_ORIGINS = [SITE_URL] if SITE_URL.startswith('https://') else []
 
 
 # CORS (ADR 0012)

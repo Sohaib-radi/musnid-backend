@@ -14,6 +14,7 @@ from agents.replies import notes
 from api.exceptions import AskingUnavailable, DailyCapacityReached
 from knowledge.models import SourceChunk
 from qa.models import Question, Referral
+from qa.services import REFERABLE_DECISIONS
 
 SESSION_PATTERN = r'^[A-Za-z0-9_-]{8,64}$'
 TEXT_MIN, TEXT_MAX = 3, 2000
@@ -164,11 +165,19 @@ class QuestionSerializer(serializers.ModelSerializer):
     notes = serializers.SerializerMethodField()
     verification = serializers.SerializerMethodField()
     follow_up_number = serializers.SerializerMethodField(
-        help_text='For a referred question: the number to quote when following up (its uuid).')
+        help_text='Once sent to the specialists: the number to quote when following up (its uuid).')
     answered_by = serializers.SerializerMethodField(
         help_text='ai: the AI answer with its sources; center: a specialist revised it (answer is their text, '
                   'without sentences or notes).')
     review = serializers.SerializerMethodField()
+    can_ask_specialist = serializers.SerializerMethodField(
+        help_text='True when the AI did not answer (refer or abstain) and the question was not sent to the '
+                  'specialists yet: show "Ask a specialist now" and "Save as a ticket".')
+    referral_mode = serializers.SerializerMethodField(
+        help_text='live (the asker waits for a live answer) or ticket (answered later); null if not sent.')
+    referral_live_until = serializers.SerializerMethodField(
+        help_text='For a referred question, end of the live window: until then a specialist is expected to '
+                  'answer at once (show a countdown); afterwards the center answers later. Null otherwise.')
     referral_status = serializers.SerializerMethodField(
         help_text='For a referred question, where its ticket stands (ADR 0021): open, in_progress, answered or '
                   'closed (closed without an answer). Null when the question was not referred.')
@@ -176,7 +185,8 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer', 'answered_by', 'review',
-                  'sentences', 'notes', 'verification', 'follow_up_number', 'referral_status', 'created_at']
+                  'sentences', 'notes', 'verification', 'follow_up_number', 'can_ask_specialist', 'referral_mode', 'referral_status', 'referral_live_until',
+                  'created_at']
         read_only_fields = fields
         list_serializer_class = QuestionListSerializer
 
@@ -229,13 +239,42 @@ class QuestionSerializer(serializers.ModelSerializer):
         return {'kept': len(interaction.sentences) if interaction else 0,
                 'removed': len(interaction.dropped) if interaction else 0}
 
+    @staticmethod
+    def _referral(question):
+        try:
+            return question.referral
+        except ObjectDoesNotExist:
+            return None
+
     def get_follow_up_number(self, question) -> str | None:
+        return str(question.uuid) if self._referral(question) else None
+
+    def get_can_ask_specialist(self, question) -> bool:
         interaction = self._interaction(question)
-        return str(question.uuid) if interaction and interaction.decision == 'refer' else None
+        return bool(interaction and interaction.decision in REFERABLE_DECISIONS and not self._referral(question))
+
+    @extend_schema_field(serializers.ChoiceField(choices=Referral.Mode.values, allow_null=True))
+    def get_referral_mode(self, question):
+        referral = self._referral(question)
+        return referral.mode if referral else None
 
     @extend_schema_field(serializers.ChoiceField(choices=Referral.Status.values, allow_null=True))
     def get_referral_status(self, question):
-        try:
-            return question.referral.status
-        except ObjectDoesNotExist:
-            return None
+        referral = self._referral(question)
+        return referral.status if referral else None
+
+    @extend_schema_field(serializers.DateTimeField(allow_null=True))
+    def get_referral_live_until(self, question):
+        referral = self._referral(question)
+        live_until = referral.live_until if referral else None
+        return serializers.DateTimeField().to_representation(live_until) if live_until else None
+
+
+class SpecialistRequestSerializer(serializers.Serializer):
+    """The asker's choice for a question the AI did not answer (ADR 0021)."""
+
+    mode = serializers.ChoiceField(choices=Referral.Mode.choices,
+                                   help_text='live: ask a specialist now (1-minute live window); ticket: answered later.')
+    session_id = serializers.CharField(required=False, allow_blank=True, max_length=64,
+                                       help_text='The session that asked; required for anonymous askers.')
+

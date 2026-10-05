@@ -30,7 +30,7 @@ def group_reply(to_message_id, text='The answer from the specialist.', sender=SP
 
 
 class StartTests(TestCase):
-    """``/start <code>`` links the sender; without a code the bot explains."""
+    """``/start <code>`` links the sender; without a code the bot welcomes them."""
 
     def test_start_with_a_code_links_and_confirms(self):
         user = make_user(full_name='Amina', preferred_lang='fr')
@@ -42,11 +42,20 @@ class StartTests(TestCase):
         self.assertIn('Amina', client.replies[0][2])
         self.assertIn('Votre compte Telegram', client.replies[0][2])
 
-    def test_start_without_or_with_a_bad_code(self):
+    def test_start_without_a_code_welcomes_in_the_telegram_language(self):
         client = FakeClient()
-        self.assertEqual(handle_update(private('/start'), client), 'refused')
+        update = private('/start')
+        update['message']['from']['language_code'] = 'fr'
+        self.assertEqual(handle_update(update, client), 'welcomed')
+        self.assertIn('Bienvenue sur Musnid', client.replies[0][2])
+        make_user(telegram_chat_id=SPECIALIST_ID, full_name='Amina', preferred_lang='en')
+        handle_update(private('/start'), client)
+        self.assertIn('Welcome back, Amina', client.replies[1][2])
+
+    def test_start_with_a_bad_code(self):
+        client = FakeClient()
         self.assertEqual(handle_update(private('/start nope'), client), 'refused')
-        self.assertIn('invalid or expired', client.replies[1][2])
+        self.assertIn('invalid or expired', client.replies[0][2])
 
 
 class AnswerTests(TestCase):
@@ -55,7 +64,7 @@ class AnswerTests(TestCase):
     def setUp(self):
         self.center = make_center(telegram_chat_id=GROUP, languages=['en'])
         self.referral = make_referral(center=self.center)
-        self.notice = notify_referral(self.referral, FakeClient())
+        [self.notice] = notify_referral(self.referral, FakeClient())  # the group only: nobody is linked yet
         self.specialist = make_membership(center=self.center, user=make_user(telegram_chat_id=SPECIALIST_ID)).user
         self.client_ = FakeClient()
 
@@ -68,11 +77,11 @@ class AnswerTests(TestCase):
                           AnswerRevision.Reason.SPECIALIST_ANSWER, 'Telegram'))
         self.referral.refresh_from_db()
         self.assertEqual(self.referral.status, Referral.Status.ANSWERED)
-        self.assertEqual(self.client_.replies, [(GROUP, 77, 'The answer was sent to the asker.')])
+        self.assertEqual(self.client_.replies, [(GROUP, 77, '✅ The answer was sent to the asker.')])
 
     def test_unlinked_sender_is_told_to_link(self):
         self.assertEqual(handle_update(group_reply(self.notice.message_id, sender=222), self.client_), 'refused')
-        self.assertIn('Link your Telegram account first', self.client_.replies[0][2])
+        self.assertIn('Connect Telegram from your Musnid dashboard first', self.client_.replies[0][2])
         self.assertFalse(AnswerRevision.objects.exists())
 
     def test_linked_user_outside_the_center_is_refused(self):
@@ -87,7 +96,6 @@ class AnswerTests(TestCase):
     def test_other_messages_are_ignored(self):
         self.assertIsNone(handle_update(group_reply(999), self.client_))  # a reply to another message
         self.assertIsNone(handle_update(group_reply(self.notice.message_id, chat=-555), self.client_))
-        self.assertIsNone(handle_update(private('hello'), self.client_))
         self.assertIsNone(handle_update({'update_id': 3, 'my_chat_member': {}}, self.client_))
         self.assertEqual(self.client_.replies, [])
 
@@ -135,4 +143,53 @@ class GroupConnectionUpdateTests(TestCase):
         self.assertEqual(handle_update(removed, self.client_), 'disconnected')
         self.center.refresh_from_db()
         self.assertIsNone(self.center.telegram_chat_id)
+
+
+class PrivateAnswerTests(TestCase):
+    """The private flow: the Answer button opens a reply box; the reply is the answer."""
+
+    def setUp(self):
+        self.center = make_center(languages=['ar'])
+        self.specialist = make_membership(center=self.center, user=make_user(
+            telegram_chat_id=SPECIALIST_ID, preferred_lang='en')).user
+        self.referral = make_referral(center=self.center)
+        [self.notice] = notify_referral(self.referral, FakeClient())
+        self.client_ = FakeClient()
+
+    def press(self, data=None, sender=SPECIALIST_ID):
+        data = data or f'answer:{self.referral.question.uuid}'
+        return handle_update({'update_id': 7, 'callback_query': {
+            'id': 'cb1', 'from': {'id': sender}, 'data': data,
+            'message': {'message_id': self.notice.message_id, 'chat': {'id': SPECIALIST_ID, 'type': 'private'}}}},
+            self.client_)
+
+    def private_reply(self, to_message_id, text='The answer, privately.'):
+        return handle_update({'update_id': 8, 'message': {
+            'message_id': 90, 'from': {'id': SPECIALIST_ID}, 'text': text,
+            'chat': {'id': SPECIALIST_ID, 'type': 'private'}, 'reply_to_message': {'message_id': to_message_id}}},
+            self.client_)
+
+    def test_button_opens_the_reply_box_and_the_reply_is_the_answer(self):
+        self.assertEqual(self.press(), 'prompted')
+        self.assertTrue(self.client_.markups[0]['force_reply'])
+        self.assertEqual(self.client_.callbacks, [('cb1', '')])
+        prompt = TelegramMessage.objects.get(kind=TelegramMessage.Kind.ANSWER_PROMPT)
+        self.assertEqual(self.private_reply(prompt.message_id), 'answered')
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.status, Referral.Status.ANSWERED)
+        self.assertEqual(AnswerRevision.objects.get().text, 'The answer, privately.')
+
+    def test_replying_to_the_notice_itself_also_answers(self):
+        self.assertEqual(self.private_reply(self.notice.message_id), 'answered')
+
+    def test_button_refusals(self):
+        make_user(telegram_chat_id=999)
+        self.assertEqual(self.press(sender=999), 'refused')  # linked, but not a member of the center
+        self.assertEqual(self.press(sender=555), 'refused')  # not linked
+        self.assertIsNone(self.press(data='answer:not-a-uuid'))
+        self.assertFalse(TelegramMessage.objects.filter(kind=TelegramMessage.Kind.ANSWER_PROMPT).exists())
+
+    def test_other_private_messages_get_help(self):
+        self.assertEqual(handle_update(private('hello'), self.client_), 'help')
+        self.assertIn('Tap ✍️ Answer', self.client_.replies[0][2])
 

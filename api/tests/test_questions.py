@@ -37,7 +37,7 @@ class QuestionAPITestCase(APITestCase):
         self.askers = []
 
     def saved(self, text=QUESTION, session_id=SESSION, lang='ar', decision='answer', level='B',
-              sentences=None, dropped=None, answer='الإسلام لم ينتشر بالسيف [Q229].', asker=None):
+              sentences=None, dropped=None, answer='الإسلام لم ينتشر بالسيف [Q229].', asker=None, sent=False):
         """Save a question and its interaction as ``agents.services.ask`` would."""
         question = Question.objects.create(center=self.center, text=text, lang=lang, session_id=session_id,
                                            asker=asker)
@@ -45,7 +45,7 @@ class QuestionAPITestCase(APITestCase):
             sentences = [{'text': 'الإسلام لم ينتشر بالسيف.', 'quote': QUOTE, 'number': 229}]
         interaction = Interaction.objects.create(question=question, decision=decision, level=level,
                                                  answer_text=answer, sentences=sentences, dropped=dropped or [])
-        if decision == 'refer':
+        if sent:  # the asker chose to send it to the specialists
             open_referral(question, Referral.Reason.LEVEL_D if level == 'D' else Referral.Reason.NO_EVIDENCE)
         return interaction
 
@@ -74,7 +74,8 @@ class AskTests(QuestionAPITestCase):
         data = response.data
         self.assertEqual(list(data), ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer',
                                       'answered_by', 'review', 'sentences', 'notes', 'verification',
-                                      'follow_up_number', 'referral_status', 'created_at'])
+                                      'follow_up_number', 'can_ask_specialist', 'referral_mode', 'referral_status',
+                                      'referral_live_until', 'created_at'])
         self.assertEqual(data['uuid'], str(Question.objects.get().uuid))
         self.assertEqual((data['language'], data['level'], data['decision']), ('ar', 'C', 'partial'))
         self.assertEqual(data['sentences'], [{
@@ -96,8 +97,8 @@ class AskTests(QuestionAPITestCase):
         with self.fake_ask(decision='refer', level='D', sentences=[], answer=fixed_reply('refer', 'ar')):
             response = self.post()
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['follow_up_number'], response.data['uuid'])
-        self.assertEqual(response.data['referral_status'], 'open')
+        self.assertEqual((response.data['can_ask_specialist'], response.data['referral_status']), (True, None))
+        self.assertIsNone(response.data['follow_up_number'])  # nothing sent before the asker chooses
         self.assertEqual((response.data['sentences'], response.data['notes']), ([], []))
 
     def test_source_missing_from_the_knowledge_base_is_empty_not_an_error(self):
@@ -265,7 +266,7 @@ class HistoryTests(QuestionAPITestCase):
         self.assertEqual(response.data['codes'], {'session_id': ['invalid']})
 
     def test_detail_by_uuid(self):
-        interaction = self.saved(decision='refer', sentences=[])
+        interaction = self.saved(decision='refer', sentences=[], sent=True)
         response = self.client.get(self.url('question', interaction.question.uuid))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['follow_up_number'], str(interaction.question.uuid))
@@ -321,15 +322,57 @@ class ReferralStatusTests(QuestionAPITestCase):
         self.assertIsNone(self.status_of(self.saved().question))
 
     def test_status_follows_the_ticket_until_answered(self):
-        question = self.saved(decision='refer', level='D', sentences=[], answer=fixed_reply('refer', 'ar')).question
+        question = self.saved(decision='refer', level='D', sentences=[], answer=fixed_reply('refer', 'ar'),
+                              sent=True).question
         self.assertEqual(self.status_of(question), 'open')
         revise(question, self.reviser, 'Answered by the center.', AnswerRevision.Reason.SPECIALIST_ANSWER)
         self.assertEqual(self.status_of(question), 'answered')
 
     def test_history_with_referrals_keeps_its_query_count(self):
         for decision in ('answer', 'refer', 'refer'):
-            self.saved(decision=decision)
+            self.saved(decision=decision, sent=decision == 'refer')
         # count, page with interactions, centers and referrals, revisions of the page, sources
         with self.assertNumQueries(4):
             response = self.client.get(self.url('questions'), {'session_id': SESSION})
         self.assertEqual([q['referral_status'] for q in response.json()['results']], ['open', 'open', None])
+
+
+class SpecialistRequestTests(QuestionAPITestCase):
+    """The asker sends a question the AI did not answer to the specialists: live or as a ticket."""
+
+    def request(self, question, mode='live', session_id=SESSION):
+        return self.client.post(self.url('question-specialist', question.uuid),
+                                {'mode': mode, 'session_id': session_id}, format='json')
+
+    def test_live_request_opens_a_live_referral(self):
+        question = self.saved(decision='refer', level='D', sentences=[]).question
+        response = self.request(question)
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual((response.data['referral_mode'], response.data['referral_status'],
+                          response.data['can_ask_specialist']), ('live', 'open', False))
+        self.assertIsNotNone(response.data['referral_live_until'])
+        self.assertEqual(response.data['follow_up_number'], str(question.uuid))
+
+    def test_ticket_has_no_live_window_and_abstentions_qualify(self):
+        question = self.saved(decision='abstain', level='B', sentences=[]).question
+        response = self.request(question, mode='ticket')
+        self.assertEqual((response.data['referral_mode'], response.data['referral_live_until']), ('ticket', None))
+        self.assertEqual(Referral.objects.get().reason, Referral.Reason.NO_EVIDENCE)
+
+    def test_only_the_asker(self):
+        question = self.saved(decision='refer', sentences=[]).question
+        self.assertError(self.request(question, session_id='another-session'), 404, 'not_found')
+        mine = self.saved(decision='refer', sentences=[], asker=make_user()).question
+        self.assertError(self.request(mine), 404, 'not_found')
+        self.authenticate(mine.asker)
+        self.assertEqual(self.request(mine, session_id='').status_code, 201)
+
+    def test_refusals(self):
+        answered = self.saved().question
+        self.assertError(self.request(answered), 400, 'not_referable')
+        question = self.saved(decision='refer', sentences=[]).question
+        self.request(question)
+        self.assertError(self.request(question), 400, 'referral_exists')
+        response = self.request(self.saved(decision='refer', sentences=[]).question, mode='soon')
+        self.assertEqual(response.data['codes']['mode'], ['invalid_choice'])
+

@@ -10,6 +10,9 @@ creates it, ``assign`` gives it to a specialist, ``close`` ends it without an
 answer, and ``revise`` marks it answered.
 """
 
+from datetime import timedelta
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -73,16 +76,63 @@ def revise(question, author, text, reason, note=''):
         return revision
 
 
-def open_referral(question, reason):
+#: Decisions after which the asker may send the question to the specialists
+REFERABLE_DECISIONS = ('refer', 'abstain')
+
+
+def can_request_specialist(question):
+    """True when the AI did not answer ``question`` and it was not sent to the specialists yet."""
+    interaction = getattr(question, 'interaction', None)
+    return (interaction is not None and interaction.decision in REFERABLE_DECISIONS
+            and not Referral.objects.filter(question=question).exists())
+
+
+def referral_reason(interaction):
+    """Why the AI did not answer: a personal ruling (level D), otherwise sources that do not cover it."""
+    return Referral.Reason.LEVEL_D if interaction.level == 'D' else Referral.Reason.NO_EVIDENCE
+
+
+def request_specialist(question, mode):
+    """
+    Send ``question`` to its center's specialists at the asker's request; return the referral.
+
+    ``mode`` is ``Referral.Mode``: ``live`` (the asker waits; specialists have
+    ``REFERRAL_LIVE_SECONDS`` to answer at once) or ``ticket`` (answered later).
+    Both notify the specialists. The caller checks that the requester owns the question.
+
+    Raises:
+        ValidationError: ``not_referable`` (the AI answered it, or it was not
+            saved), ``referral_exists`` (already sent) or ``invalid_mode``.
+    """
+    if mode not in Referral.Mode.values:
+        raise ValidationError(_('Choose to ask a specialist now or to save a ticket.'), code='invalid_mode')
+    with transaction.atomic():
+        locked = Question.objects.select_for_update().get(pk=question.pk)
+        interaction = getattr(locked, 'interaction', None)
+        if interaction is None or interaction.decision not in REFERABLE_DECISIONS:
+            raise ValidationError(_('This question was answered; it cannot be sent to a specialist.'),
+                                  code='not_referable')
+        if Referral.objects.filter(question=locked).exists():
+            raise ValidationError(_('This question was already sent to the specialists.'), code='referral_exists')
+        return open_referral(locked, referral_reason(interaction), mode)
+
+
+def open_referral(question, reason, mode=Referral.Mode.LIVE):
     """
     Open the referral of ``question``, owned by the question's center; return it.
 
-    Called by ``agents.services.ask`` in the transaction that saves the question.
+    Called by ``request_specialist`` once the asker chose to send the question.
     ``reason`` is a ``Referral.Reason`` value, chosen by code, never by the asker.
+    A live referral gets ``live_until``, ``settings.REFERRAL_LIVE_SECONDS`` ahead
+    (the live window); a ticket has none.
     Once that transaction commits, ``referral_opened`` is sent (``send_robust``:
     a failing receiver, such as the Telegram notice, never fails the question).
     """
-    referral = Referral.objects.create(question=question, center=question.center, reason=reason)
+    live_until = None
+    if mode == Referral.Mode.LIVE:
+        live_until = timezone.now() + timedelta(seconds=settings.REFERRAL_LIVE_SECONDS)
+    referral = Referral.objects.create(question=question, center=question.center, reason=reason, mode=mode,
+                                       live_until=live_until)
     transaction.on_commit(lambda: referral_opened.send_robust(sender=Referral, referral=referral))
     return referral
 

@@ -1,11 +1,11 @@
-"""Tests for telegram_bot/services.py and receivers.py: the referral notice and its log (ADR 0022)."""
+"""Tests for telegram_bot/services.py and receivers.py: notices to specialists and their log (ADR 0022, 0023)."""
 
 from unittest import mock
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
-from core.tests.support import make_center, make_interaction, make_question, make_referral, make_user
+from core.tests.support import make_center, make_interaction, make_membership, make_question, make_referral, make_user
 from qa.models import Referral
 from qa.services import open_referral
 from telegram_bot.models import TelegramMessage
@@ -13,98 +13,97 @@ from telegram_bot.services import QUESTION_MAX, notify_referral, referral_notice
 from telegram_bot.tests.support import FakeClient
 
 GROUP = -1001234567890
+SPECIALIST = 111
 
 
 class NoticeTests(TestCase):
-    """What the group reads: in the center's language, escaped, without the asker."""
+    """What a specialist reads: in a given language, escaped, without the asker, with the live line or 🎫."""
 
-    def referral(self, text='Can I pray <sitting>?', lang='en', languages=('fr',), **fields):
-        center = make_center(telegram_chat_id=GROUP, languages=list(languages))
-        question = make_question(center=center, text=text, lang=lang, **fields)
-        return make_referral(question=make_interaction(question=question, decision='refer').question)
+    def referral(self, text='Can I pray <sitting>?', lang='en', mode=Referral.Mode.LIVE, **fields):
+        question = make_question(text=text, lang=lang, **fields)
+        return make_referral(question=make_interaction(question=question, decision='refer').question, mode=mode)
 
-    def test_in_the_center_language_with_reason_language_and_follow_up_number(self):
+    def test_in_the_given_language_with_reason_language_and_follow_up_number(self):
         referral = self.referral()
-        notice = referral_notice(referral)
-        self.assertIn('Motif', notice)
-        self.assertIn('Non couverte par les sources', notice)
-        self.assertIn('Anglais', notice)
-        self.assertIn(f'<code>{referral.question.uuid}</code>', notice)
+        notice = referral_notice(referral, 'fr')
+        for expected in ('Motif', 'Non couverte par les sources', 'Anglais', f'<code>{referral.question.uuid}</code>'):
+            self.assertIn(expected, notice)
 
     def test_question_is_escaped_and_the_asker_never_shown(self):
-        asker = make_user(email='asker@example.com')
-        notice = referral_notice(self.referral(asker=asker))
+        notice = referral_notice(self.referral(asker=make_user(email='asker@example.com')), 'en')
         self.assertIn('<blockquote>Can I pray &lt;sitting&gt;?</blockquote>', notice)
         self.assertNotIn('asker@example.com', notice)
 
-    def test_center_without_languages_uses_the_default_language(self):
-        self.assertIn('New question referred to your center', referral_notice(self.referral(languages=())))
-
     def test_long_question_is_cut(self):
-        notice = referral_notice(self.referral(text='x' * (QUESTION_MAX + 50)))
+        notice = referral_notice(self.referral(text='x' * (QUESTION_MAX + 50)), 'en')
         self.assertIn('x' * QUESTION_MAX + '…', notice)
         self.assertNotIn('x' * (QUESTION_MAX + 1), notice)
 
-    def test_admin_link_only_with_site_url(self):
-        referral = self.referral()
-        with override_settings(SITE_URL=''):
-            self.assertNotIn('href', referral_notice(referral))
-        with override_settings(SITE_URL='https://api.musnid.online'):
-            self.assertIn(f'href="https://api.musnid.online/admin/qa/question/?q={referral.question.uuid}"',
-                          referral_notice(referral))
+    @override_settings(REFERRAL_LIVE_SECONDS=60)
+    def test_live_window_or_ticket_line(self):
+        self.assertIn('⏱ Answer within 1 minute', referral_notice(self.referral(), 'en'))
+        self.assertIn('🎫 Ticket', referral_notice(self.referral(mode=Referral.Mode.TICKET), 'en'))
 
 
 class NotifyTests(TestCase):
-    """``notify_referral`` and ``resend`` log every attempt; nothing is sent without a token or a group."""
+    """``notify_referral`` reaches linked specialists privately (and the group); every attempt is logged."""
 
     def setUp(self):
-        self.referral = make_referral(center=make_center(telegram_chat_id=GROUP))
+        self.center = make_center(languages=['ar'])
+        self.referral = make_referral(center=self.center)
+        self.specialist = make_membership(center=self.center, user=make_user(
+            telegram_chat_id=SPECIALIST, preferred_lang='fr')).user
 
-    def test_sent_notice_is_logged_with_its_message_id(self):
+    def test_linked_specialists_get_a_private_notice_with_the_answer_button(self):
+        make_membership(center=self.center, user=make_user())  # not linked: nothing sent
         client = FakeClient()
-        message = notify_referral(self.referral, client)
-        self.assertEqual(client.sent, [(GROUP, message.text)])
-        self.assertEqual((message.status, message.message_id, message.chat_id),
-                         (TelegramMessage.Status.SENT, 101, GROUP))
-        self.assertEqual(message.kind, TelegramMessage.Kind.REFERRAL_NOTICE)
+        [message] = notify_referral(self.referral, client)
+        self.assertEqual((message.chat_id, message.status, message.message_id),
+                         (SPECIALIST, TelegramMessage.Status.SENT, 101))
+        self.assertIn('Nouvelle question', client.sent[0][1])  # the specialist's own language
+        button = client.markups[0]['inline_keyboard'][0][0]
+        self.assertEqual(button['callback_data'], f'answer:{self.referral.question.uuid}')
+
+    def test_a_connected_group_also_gets_it_in_the_center_language(self):
+        self.center.telegram_chat_id = GROUP
+        self.center.save(update_fields=['telegram_chat_id', 'updated_at'])
+        client = FakeClient()
+        notify_referral(self.referral, client)
+        self.assertEqual([chat for chat, _text in client.sent], [SPECIALIST, GROUP])
+        self.assertIn('سؤال جديد', client.sent[1][1])
+
+    def test_former_members_and_deactivated_accounts_get_nothing(self):
+        self.specialist.memberships.update(is_active=False, left_at=self.referral.created_at,
+                                           updated_at=self.referral.created_at)
+        self.assertEqual(notify_referral(self.referral, FakeClient()), [])
 
     def test_failed_notice_is_logged_not_raised(self):
         with self.assertLogs('telegram_bot.services', 'WARNING'):
-            message = notify_referral(self.referral, FakeClient(error='sendMessage: 403 Forbidden: bot was kicked'))
-        message.refresh_from_db()
-        self.assertEqual((message.status, message.message_id), (TelegramMessage.Status.FAILED, None))
-        self.assertEqual(message.error, 'sendMessage: 403 Forbidden: bot was kicked')
+            [message] = notify_referral(self.referral, FakeClient(error='sendMessage: 403 Forbidden: bot was blocked'))
+        self.assertEqual((message.status, message.error),
+                         (TelegramMessage.Status.FAILED, 'sendMessage: 403 Forbidden: bot was blocked'))
 
-    def test_nothing_sent_without_token_or_group(self):
-        client = FakeClient(enabled=False)
-        self.assertIsNone(notify_referral(self.referral, client))
-        self.assertIsNone(notify_referral(make_referral(), FakeClient()))  # center without a group
+    def test_nothing_sent_without_token(self):
+        self.assertEqual(notify_referral(self.referral, FakeClient(enabled=False)), [])
         self.assertFalse(TelegramMessage.objects.exists())
 
-    def test_resend_adds_an_attempt_and_keeps_the_failed_one(self):
+    def test_resend_to_the_same_chat_and_refusals(self):
         with self.assertLogs('telegram_bot.services', 'WARNING'):
-            failed = notify_referral(self.referral, FakeClient(error='sendMessage: Timeout'))
+            [failed] = notify_referral(self.referral, FakeClient(error='sendMessage: Timeout'))
         attempt = resend(failed, FakeClient())
-        self.assertEqual(attempt.status, TelegramMessage.Status.SENT)
-        self.assertEqual(TelegramMessage.objects.count(), 2)
-
-    def test_resend_refusals(self):
-        sent = notify_referral(self.referral, FakeClient())
-        with self.assertRaises(ValidationError) as caught:
-            resend(sent, FakeClient())
-        self.assertEqual(caught.exception.code, 'telegram_not_failed')
-        sent.status, sent.message_id = TelegramMessage.Status.FAILED, None
-        with self.assertRaises(ValidationError) as caught:
-            resend(sent, FakeClient(enabled=False))
-        self.assertEqual(caught.exception.code, 'telegram_unavailable')
+        self.assertEqual((attempt.chat_id, attempt.status), (SPECIALIST, TelegramMessage.Status.SENT))
+        for message, client, code in ((attempt, FakeClient(), 'telegram_not_failed'),
+                                      (failed, FakeClient(enabled=False), 'telegram_unavailable')):
+            with self.subTest(code=code), self.assertRaises(ValidationError) as caught:
+                resend(message, client)
+            self.assertEqual(caught.exception.code, code)
 
 
 class ReceiverTests(TestCase):
-    """Opening a referral notifies the center once the transaction commits."""
+    """Opening a referral notifies the specialists once the transaction commits."""
 
     def test_open_referral_notifies_after_commit(self):
-        question = make_interaction(question=make_question(center=make_center(telegram_chat_id=GROUP)),
-                                    decision='refer').question
+        question = make_interaction(decision='refer').question
         with mock.patch('telegram_bot.receivers.notify_referral') as notify:
             with self.captureOnCommitCallbacks(execute=False) as callbacks:
                 referral = open_referral(question, Referral.Reason.LEVEL_D)

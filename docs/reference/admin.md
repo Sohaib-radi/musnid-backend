@@ -14,6 +14,9 @@ sidebar). URL: `/admin/`.
 
 ## Rules
 
+- Only active superusers can open the admin (`core.sites.SuperuserAdminSite`,
+  [ADR 0024](../architecture/decisions/0024-admin-for-platform-administrators.md)); the
+  login form refuses every other account with a message pointing to the website.
 - Every admin inherits `unfold.admin.ModelAdmin`; every inline uses Unfold's
   `TabularInline` or `StackedInline`. `core/tests/test_admin.py` fails otherwise.
   Third-party models are re-registered with an Unfold admin (currently `Group`).
@@ -178,7 +181,7 @@ Every message the bot sent or tried to send ([ADR 0022](../architecture/decision
 | Filters | status, kind; date drill-down on created at |
 | Search | question text, error |
 | Page | created at, kind, status, chat ID, Telegram message ID, a link to the referral, the text sent, the error |
-| Link a Telegram account | a button above the list opening `link/`: a superuser enters a user's email, other staff create their own link; the page shows a one-time `t.me` link valid 10 minutes ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)) |
+| Link a Telegram account | a button above the list opening `link/`: a superuser enters a user's email; the page shows a one-time `t.me` link valid 10 minutes ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)) |
 | Send selected failed messages again | calls `telegram_bot.services.resend` for each: a new attempt is logged, the failed row stays; sent messages and a bot without token or group are refused with the reason |
 | Add, change, delete | not allowed (403) |
 

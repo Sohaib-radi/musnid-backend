@@ -12,12 +12,19 @@ class FakeClient:
         self.sent = []
         self.replies = []
         self.left = []
+        self.markups = []
+        self.callbacks = []
 
-    def send_message(self, chat_id, text):
+    def send_message(self, chat_id, text, reply_markup=None):
         if self.error:
             raise TelegramError(self.error)
         self.sent.append((chat_id, text))
+        self.markups.append(reply_markup)
         return {'message_id': 100 + len(self.sent)}
+
+    def answer_callback(self, callback_id, text=''):
+        self.callbacks.append((callback_id, text))
+        return True
 
     def reply(self, chat_id, message_id, text):
         if self.error:

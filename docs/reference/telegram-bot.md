@@ -17,7 +17,7 @@ to the specialists and the answer back to the asker
 | Step | Who | What |
 | --- | --- | --- |
 | Group | Center admin | Creates one Telegram group, then clicks **Connect to Telegram** in the center dashboard and picks that group. The page shows a spinner, then "Connected"; the bot confirms in the group. The admin's own account is linked at the same time. |
-| Specialists | Each specialist | Opens their personal link (admin → Telegram messages → "Link a Telegram account"; later a QR code in the center dashboard) and presses **Start**. The bot answers "Your Telegram account is now linked to Amina." Then joins the center's group. |
+| Specialists | Each specialist | Opens their personal link (created by a platform administrator in admin → Telegram messages → "Link a Telegram account"; later a QR code in the center dashboard) and presses **Start**. The bot answers "Your Telegram account is now linked to Amina." Then joins the center's group. |
 
 Many specialists can be linked; each link works once, for 10 minutes. **Disconnect** in
 the dashboard removes the group: the bot says goodbye and leaves it.
@@ -63,6 +63,29 @@ hers). The ticket is **Answered**.
 | An expired or used link | "This link is invalid or expired. Ask for a new one." |
 
 Messages that are not replies to the bot's notices are ignored.
+
+## Languages
+
+Two different settings, often confused:
+
+| Setting | Belongs to | Decides |
+| --- | --- | --- |
+| `preferred_lang` (`ar`, `en`, `fr`) | each **user** (asker or specialist) | The language the bot writes to that person in: notices, "✍️ Answer", confirmations. Saved on the account: the frontend sends it at registration and with `PATCH /api/v1/me/` on every language switch. |
+| Languages served (`Center.languages`) | the **center** | The languages its specialists can handle. Today it sets the language of messages posted in the center's group (its first language); later it will choose which center receives a question in the asker's language, and the target of the translation crew. |
+
+| Message | Language |
+| --- | --- |
+| Private message to a linked specialist | The specialist's `preferred_lang` |
+| Message in a center's group | The center's first language served |
+| Welcome to someone not linked yet | Their Telegram app's language (`ar`, `fr`, otherwise English) |
+| Bot description and menu | The phone's language, set once with `manage.py telegram_setup` |
+
+**Example.** Amina's account is in Arabic: she receives «سؤال جديد مُحال إلى مركزكم» and
+the button «✍️ أجب». Switching her site language to French sends
+`PATCH /me/ {"preferred_lang": "fr"}`; the next notice arrives in French.
+
+Only the bot's fixed texts are translated (the `.po` catalogs). The question and the answer
+are shown as written: translating content is the planned translation crew.
 
 ## 4. Running it
 

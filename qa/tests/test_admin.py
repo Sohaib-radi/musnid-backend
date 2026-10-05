@@ -149,13 +149,14 @@ class QuestionAdminTests(AdminTestCase):
         self.assertContains(response, 'Write the answer the asker should see.')
         self.assertFalse(AnswerRevision.objects.exists())
 
-    def test_staff_without_permission_get_no_button_and_403(self):
+    def test_staff_who_are_not_superusers_cannot_enter(self):
         viewer = make_user(is_staff=True)
-        viewer.user_permissions.add(*Permission.objects.filter(codename__in=['view_question']))
+        viewer.user_permissions.add(*Permission.objects.filter(codename__in=['view_question', 'add_answerrevision']))
         self.client.force_login(viewer)
         question = make_interaction().question
-        self.assertNotContains(self.change_page(question), '/revise/')
-        self.assertEqual(self.client.get(self.revise_url(question)).status_code, 403)
+        for response in (self.change_page(question), self.client.get(self.revise_url(question))):
+            self.assertEqual(response.status_code, 302)
+            self.assertIn(reverse('admin:login'), response['Location'])
 
     def test_answered_by_column(self):
         answered = make_interaction(question=make_question(text='Revised?')).question

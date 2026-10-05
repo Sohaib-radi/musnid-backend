@@ -223,9 +223,10 @@ class Referral(BaseModel, CenterLinkedModel):
     """
     The ticket of a question the AI referred to a center of specialists (ADR 0021).
 
-    Opened by ``agents.services.ask`` when the decision is ``refer``, and changed
-    only through ``qa.services`` (``assign``, ``close``, ``revise``): status and
-    dates are never edited directly. The asker sees the status, never the assignee
+    Opened when the asker chooses to send a question the AI did not answer
+    (``refer`` or ``abstain``) to the specialists, live or as a ticket
+    (``qa.services.request_specialist``), and changed only through ``qa.services``
+    (``assign``, ``close``, ``revise``): status and dates are never edited directly. The asker sees the status, never the assignee
     or the closing note.
     """
 
@@ -243,6 +244,12 @@ class Referral(BaseModel, CenterLinkedModel):
         ANSWERED = 'answered', _('Answered')
         CLOSED = 'closed', _('Closed without an answer')
 
+    class Mode(models.TextChoices):
+        """What the asker chose when sending the question to the specialists."""
+
+        LIVE = 'live', _('Asked a specialist now')
+        TICKET = 'ticket', _('Saved as a ticket')
+
     #: Statuses of a ticket still waiting for an answer
     PENDING = (Status.OPEN, Status.IN_PROGRESS)
 
@@ -251,10 +258,17 @@ class Referral(BaseModel, CenterLinkedModel):
     )
     reason = models.CharField(_('reason'), max_length=12, choices=Reason.choices)
     status = models.CharField(_('status'), max_length=12, choices=Status.choices, default=Status.OPEN)
+    mode = models.CharField(_('mode'), max_length=8, choices=Mode.choices, default=Mode.LIVE)
     # SET_NULL: offboarding or deleting an account must not delete the ticket
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='assigned_referrals', verbose_name=_('assigned to'),
+    )
+    # Until then the asker waits for a live answer; afterwards the ticket stays in the
+    # center's queue (no background job: the deadline is only a date clients compare to)
+    live_until = models.DateTimeField(
+        _('live until'), null=True, blank=True,
+        help_text=_('End of the live window in which specialists are expected to answer at once.'),
     )
     answered_at = models.DateTimeField(_('answered at'), null=True, blank=True)
     closed_at = models.DateTimeField(_('closed at'), null=True, blank=True)

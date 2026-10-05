@@ -3,10 +3,10 @@
 
 Every question is saved with its ``Interaction`` (decision, retrieval,
 citations, model, prompt version, latency, tokens, masked error), owned by
-the default center. A referred question also opens its ``Referral``, the
-ticket of the center (ADR 0021), in the same transaction. Without a default
-center nothing can be saved, so the fixed abstain is returned with an unsaved
-interaction (and no referral).
+the default center. A question the AI does not answer is sent to the
+specialists only if the asker then asks for it (``qa.services.request_specialist``).
+Without a default center nothing can be saved, so the fixed abstain is returned
+with an unsaved interaction.
 
 A global daily limit (``settings.ASK_DAILY_LIMIT`` questions since 00:00 UTC)
 protects the OpenAI budget: past it, ``ask()`` raises ``DailyLimitReached``
@@ -23,8 +23,7 @@ from agents.flow import AskFlow, mask_secrets
 from agents.replies import fixed_reply
 from core.models import AISettings, Center
 from knowledge.embeddings import OpenAIEmbedder
-from qa.models import Interaction, Question, Referral
-from qa.services import open_referral
+from qa.models import Interaction, Question
 
 
 class DailyLimitReached(Exception):
@@ -86,11 +85,4 @@ def ask(text, session_id='', asker=None, embedder=None, classify_crew=None, answ
                                            asker=asker)
         interaction.question = question
         interaction.save()
-        if interaction.decision == Interaction.Decision.REFER:
-            open_referral(question, referral_reason(state.level))
     return interaction
-
-
-def referral_reason(level):
-    """Why a question was referred: a personal ruling (level D), otherwise sources that do not cover it."""
-    return Referral.Reason.LEVEL_D if level == 'D' else Referral.Reason.NO_EVIDENCE

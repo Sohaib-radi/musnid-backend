@@ -15,8 +15,11 @@ from rest_framework.response import Response
 
 from api.authentication import OptionalJWTAuthentication
 from api.throttling import AskDayThrottle, AskMinuteThrottle
-from api.v1.serializers.questions import AskSerializer, QuestionSerializer, SessionQuerySerializer
+from api.v1.serializers.questions import (
+    AskSerializer, QuestionSerializer, SessionQuerySerializer, SpecialistRequestSerializer,
+)
 from qa.models import Question
+from qa.services import request_specialist
 
 
 class PublicMixin:
@@ -69,6 +72,38 @@ class QuestionDetailView(PublicMixin, generics.RetrieveAPIView):
     serializer_class = QuestionSerializer
     queryset = Question.objects.with_answers()
     lookup_field = 'uuid'
+
+
+@extend_schema(tags=['questions'], request=SpecialistRequestSerializer, responses={201: QuestionSerializer})
+class SpecialistRequestView(PublicMixin, generics.GenericAPIView):
+    """
+    Send a question the AI did not answer to the specialists: live, or as a ticket.
+
+    Only the asker: the logged-in account that asked, or the same ``session_id``
+    for an anonymous question; anyone else gets 404, as if the question did not
+    exist. Throttled like asking.
+    """
+
+    serializer_class = SpecialistRequestSerializer
+    throttle_classes = [AskMinuteThrottle, AskDayThrottle]
+
+    def post(self, request, uuid):
+        body = SpecialistRequestSerializer(data=request.data)
+        body.is_valid(raise_exception=True)
+        question = Question.objects.filter(uuid=uuid).first()
+        if question is None or not self._owns(request, question, body.validated_data.get('session_id', '')):
+            raise exceptions.NotFound
+        request_specialist(question, body.validated_data['mode'])
+        question = Question.objects.with_answers().get(pk=question.pk)
+        return Response(QuestionSerializer(question, context=self.get_serializer_context()).data,
+                        status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def _owns(request, question, session_id):
+        """The asker: their account when logged in, or the session that asked."""
+        if question.asker_id is not None:
+            return request.user.is_authenticated and request.user.pk == question.asker_id
+        return bool(session_id) and session_id == question.session_id
 
 
 @extend_schema(tags=['me'])
