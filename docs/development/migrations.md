@@ -19,6 +19,7 @@ description: Migration history of the project and the conventions for writing mi
 | `qa` | `0001_initial` | 2026-10-04 | `Question` (center-owned, anonymous), `Interaction` (one per question), `HumanLabel`. |
 | `knowledge` | `0002_source_document_pdf_url` | 2026-10-04 | Adds `SourceDocument.pdf_url` and help texts; sets the dawa.center page and PDF of an existing `bayyinat-ar` (no re-ingestion). |
 | `qa` | `0004_answer_revision` | 2026-10-05 | Creates `AnswerRevision` ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)); no data change. |
+| `qa` | `0005_referral` | 2026-10-05 | Creates `Referral` ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)); opens a ticket for every question already referred (answered when it has a revision, otherwise open). |
 | `qa` | `0003_question_asker` | 2026-10-05 | Adds the nullable `Question.asker` (`SET_NULL`) and the index `question_asker_recent` (`asker`, `-created_at`); no data change ([ADR 0019](../architecture/decisions/0019-link-questions-to-logged-in-askers.md)). |
 | `qa` | `0002_question_uuid_sentences` | 2026-10-04 | Adds `Question.uuid` in three steps (nullable, one value per existing row, then unique with a default), the index `question_session_recent` (`session_id`, `-created_at`), and `Interaction.sentences` and `Interaction.dropped`. |
 

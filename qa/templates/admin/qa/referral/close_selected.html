@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{# Intermediate page of the "Close selected referrals" action: asks why (ADR 0021). #}
+{% block content %}
+<form method="post" class="musnid-reject-selected">
+    {% csrf_token %}
+    <p>{% translate "These referrals will be closed without an answer. Only open or in-progress referrals are closed; others are skipped." %}</p>
+    <ul>
+        {% for referral in referrals %}
+            <li dir="auto">{{ referral.question.text|truncatechars:90 }} — {{ referral.get_status_display }}</li>
+            <input type="hidden" name="{{ action_checkbox_name }}" value="{{ referral.pk }}">
+        {% endfor %}
+    </ul>
+    <label for="close_note">{% translate "Reason (for the center and staff, never shown to the asker)" %}</label>
+    <textarea id="close_note" name="close_note" dir="auto" rows="4" required></textarea>
+    <input type="hidden" name="action" value="close_selected">
+    <input type="hidden" name="apply" value="1">
+    <div class="musnid-dialog-actions">
+        <a href="" class="musnid-btn musnid-btn-outline">{% translate "Cancel" %}</a>
+        <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Close selected referrals without an answer" %}</button>
+    </div>
+</form>
+{% endblock %}

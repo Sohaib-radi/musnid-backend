@@ -36,6 +36,7 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 | Centers | Centers | `apartment` | `admin:core_center_changelist` | `core.view_center` |
 | Centers | Memberships | `badge` | `admin:core_membership_changelist` | `core.view_membership` |
 | Questions and answers | Questions | `forum` | `admin:qa_question_changelist` | `qa.view_question` |
+| Questions and answers | Referrals | `support_agent` | `admin:qa_referral_changelist` | `qa.view_referral` |
 | Accounts | Users | `person` | `admin:core_user_changelist` | `core.view_user` |
 | Accounts | Groups | `group` | `admin:auth_group_changelist` | `auth.view_group` |
 | Knowledge base | Source documents | `menu_book` | `admin:knowledge_sourcedocument_changelist` | `knowledge.view_sourcedocument` |
@@ -46,7 +47,8 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 | Security | Blacklisted tokens | `block` | `admin:token_blacklist_blacklistedtoken_changelist` | `token_blacklist.view_blacklistedtoken` |
 
 The Centers item shows a badge with the number of pending centers
-(`core.admin.pending_centers_badge`), empty when there are none.
+(`core.admin.pending_centers_badge`), and the Referrals item the number of referrals
+waiting for an answer (`qa.admin.pending_referrals_badge`); both are empty when zero.
 
 The user menu at the bottom of the sidebar has a language switcher
 (`UNFOLD["SHOW_LANGUAGES"]`) for Arabic, English and French. It posts to Django's
@@ -131,8 +133,8 @@ Details: [Provider API keys](api-keys.md).
 
 Every question asked through `POST /api/v1/questions/`, with how the AI answered it
 ([ADR 0016](../architecture/decisions/0016-question-answering-flow.md)). Read-only: an
-`Interaction` is the audit record of one answer, so it is never edited here. Editing an
-answer will come with tracked revisions.
+`Interaction` is the audit record of one answer, so it is never edited here. What the
+asker sees changes through revisions (below).
 
 | Aspect | Definition |
 | --- | --- |
@@ -148,6 +150,22 @@ answer will come with tracked revisions.
 | Revisions | read-only inline on the question page, newest first: date, author, reason, text, internal note |
 | Revise the answer | a button on the question page, shown when `qa.services.can_revise` allows it, opening `<id>/revise/`: the question, a text prefilled with what the asker sees now (the AI answer without `[Q<n>]` markers, or the latest revision), the reason (preselected "Answer by a specialist" for referred and abstained questions) and an internal note. Saving calls `revise`; a refusal is shown on the form; others get 403 ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)). |
 | Add, change, delete | not allowed for questions and interactions (403); answers change only through revisions |
+
+## Referrals (`qa/admin.py`)
+
+The tickets of referred questions ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)).
+Read-only: status and dates change only through `qa.services`.
+
+| Aspect | Definition |
+| --- | --- |
+| List columns | question (first 90 characters), reason, status (badge: amber open, blue in progress, green answered, red closed), assigned to, center, created at, answered at |
+| Filters | status, reason, center; date drill-down on created at |
+| Search | question text, assignee email |
+| Page | a link to the question's page (where the answer is revised), reason, status, assignee, center, dates, closing note |
+| Assign selected referrals to me | calls `assign(referral, user, user)` for each; refusals are listed with their reason |
+| Close selected referrals without an answer | an intermediate page asks for the note (required), then calls `close` for each |
+| Answering | on the question's "Revise the answer" page; saving marks the referral answered |
+| Add, change, delete | not allowed (403) |
 
 Text from the model is escaped (`format_html`), never rendered as HTML.
 Styles are the `musnid-*` classes in `core/static/core/css/admin.css`, written with logical

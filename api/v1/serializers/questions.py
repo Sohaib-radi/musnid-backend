@@ -5,6 +5,7 @@ The answer is returned both as full text and as sentences, each with its support
 quote and its Bayyinat source, so the UI can link every sentence to the book.
 """
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -12,7 +13,7 @@ from rest_framework import serializers
 from agents.replies import notes
 from api.exceptions import AskingUnavailable, DailyCapacityReached
 from knowledge.models import SourceChunk
-from qa.models import Question
+from qa.models import Question, Referral
 
 SESSION_PATTERN = r'^[A-Za-z0-9_-]{8,64}$'
 TEXT_MIN, TEXT_MAX = 3, 2000
@@ -168,11 +169,14 @@ class QuestionSerializer(serializers.ModelSerializer):
         help_text='ai: the AI answer with its sources; center: a specialist revised it (answer is their text, '
                   'without sentences or notes).')
     review = serializers.SerializerMethodField()
+    referral_status = serializers.SerializerMethodField(
+        help_text='For a referred question, where its ticket stands (ADR 0021): open, in_progress, answered or '
+                  'closed (closed without an answer). Null when the question was not referred.')
 
     class Meta:
         model = Question
         fields = ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer', 'answered_by', 'review',
-                  'sentences', 'notes', 'verification', 'follow_up_number', 'created_at']
+                  'sentences', 'notes', 'verification', 'follow_up_number', 'referral_status', 'created_at']
         read_only_fields = fields
         list_serializer_class = QuestionListSerializer
 
@@ -228,3 +232,10 @@ class QuestionSerializer(serializers.ModelSerializer):
     def get_follow_up_number(self, question) -> str | None:
         interaction = self._interaction(question)
         return str(question.uuid) if interaction and interaction.decision == 'refer' else None
+
+    @extend_schema_field(serializers.ChoiceField(choices=Referral.Status.values, allow_null=True))
+    def get_referral_status(self, question):
+        try:
+            return question.referral.status
+        except ObjectDoesNotExist:
+            return None

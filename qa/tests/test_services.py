@@ -1,4 +1,4 @@
-"""Tests for qa/services.py: who may revise an answer, and what a revision saves (ADR 0020)."""
+"""Tests for qa/services.py: revising answers (ADR 0020) and handling referrals (ADR 0021)."""
 
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ValidationError
@@ -6,9 +6,11 @@ from django.test import TestCase
 from django.utils import timezone
 
 from core.models import Center, Membership
-from core.tests.support import make_center, make_interaction, make_membership, make_question, make_user
-from qa.models import AnswerRevision
-from qa.services import TEXT_MAX, can_revise, revise
+from core.tests.support import (
+    make_center, make_interaction, make_membership, make_question, make_referral, make_user,
+)
+from qa.models import AnswerRevision, Referral
+from qa.services import TEXT_MAX, assign, can_revise, close, open_referral, revise
 
 
 class CanReviseTests(TestCase):
@@ -87,3 +89,85 @@ class ReviseTests(TestCase):
         self.assertRefused('revision_text_required', text='   ')
         self.assertRefused('revision_text_too_long', text='x' * (TEXT_MAX + 1))
         self.assertRefused('revision_reason_invalid', reason='because')
+
+
+class ReferralServiceTests(TestCase):
+    """``open_referral``, ``assign``, ``close``, and ``revise`` marking a referral answered (ADR 0021)."""
+
+    def setUp(self):
+        self.referral = make_referral()
+        self.center = self.referral.center
+        self.specialist = make_membership(center=self.center).user
+
+    def assertRefused(self, code, call):
+        with self.assertRaises(ValidationError) as caught:
+            call()
+        self.assertEqual(caught.exception.code, code)
+
+    def test_open_referral_belongs_to_the_question_center(self):
+        question = make_interaction(decision='refer').question
+        referral = open_referral(question, Referral.Reason.LEVEL_D)
+        self.assertEqual((referral.center, referral.status, referral.reason),
+                         (question.center, Referral.Status.OPEN, Referral.Reason.LEVEL_D))
+
+    def test_a_specialist_takes_a_referral(self):
+        referral = assign(self.referral, self.specialist, self.specialist)
+        self.referral.refresh_from_db()
+        self.assertEqual((self.referral.status, self.referral.assigned_to),
+                         (Referral.Status.IN_PROGRESS, self.specialist))
+        self.assertEqual(referral.pk, self.referral.pk)
+
+    def test_reassigning_a_referral_in_progress(self):
+        colleague = make_membership(center=self.center).user
+        assign(self.referral, self.specialist, self.specialist)
+        assign(self.referral, self.specialist, colleague)
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.assigned_to, colleague)
+
+    def test_assign_refusals(self):
+        outsider = make_membership().user
+        former = make_membership(center=self.center).user
+        now = timezone.now()
+        Membership.objects.filter(user=former).update(is_active=False, left_at=now, updated_at=now)
+        self.assertRefused('referral_not_allowed', lambda: assign(self.referral, outsider, outsider))
+        self.assertRefused('referral_assignee_invalid', lambda: assign(self.referral, self.specialist, outsider))
+        self.assertRefused('referral_assignee_invalid', lambda: assign(self.referral, self.specialist, former))
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.status, Referral.Status.OPEN)
+
+    def test_close_keeps_the_note_and_the_date(self):
+        close(self.referral, self.specialist, '  Duplicate of an earlier question.  ')
+        self.referral.refresh_from_db()
+        self.assertEqual((self.referral.status, self.referral.close_note),
+                         (Referral.Status.CLOSED, 'Duplicate of an earlier question.'))
+        self.assertIsNotNone(self.referral.closed_at)
+
+    def test_close_refusals(self):
+        self.assertRefused('referral_not_allowed', lambda: close(self.referral, make_user(), 'Why.'))
+        self.assertRefused('referral_note_required', lambda: close(self.referral, self.specialist, '  '))
+
+    def test_answered_or_closed_referrals_cannot_be_assigned_or_closed(self):
+        close(self.referral, self.specialist, 'Duplicate.')
+        self.assertRefused('referral_not_pending', lambda: assign(self.referral, self.specialist, self.specialist))
+        self.assertRefused('referral_not_pending', lambda: close(self.referral, self.specialist, 'Again.'))
+
+    def test_revise_marks_the_referral_answered(self):
+        revise(self.referral.question, self.specialist, 'The answer.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.status, Referral.Status.ANSWERED)
+        answered_at = self.referral.answered_at
+        self.assertIsNotNone(answered_at)
+        revise(self.referral.question, self.specialist, 'Clarified.', AnswerRevision.Reason.CLARIFICATION)
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.answered_at, answered_at)
+
+    def test_answering_a_closed_referral_marks_it_answered(self):
+        close(self.referral, self.specialist, 'Duplicate.')
+        revise(self.referral.question, self.specialist, 'Answered anyway.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.status, Referral.Status.ANSWERED)
+
+    def test_revising_a_question_without_referral_opens_none(self):
+        question = make_interaction().question
+        revise(question, make_user(is_staff=True, is_superuser=True), 'Corrected.', AnswerRevision.Reason.CORRECTION)
+        self.assertFalse(Referral.objects.filter(question=question).exists())

@@ -14,8 +14,8 @@ from api.tests.base import APITestCase
 from core.tests.support import make_center, make_user
 from knowledge.services.ingest import ingest
 from knowledge.tests.support import FakeEmbedder, make_question
-from qa.models import AnswerRevision, Interaction, Question
-from qa.services import revise
+from qa.models import AnswerRevision, Interaction, Question, Referral
+from qa.services import open_referral, revise
 
 SESSION = 'session-0001'
 QUESTION = 'هل انتشر الإسلام بالسيف؟'
@@ -43,8 +43,11 @@ class QuestionAPITestCase(APITestCase):
                                            asker=asker)
         if sentences is None:
             sentences = [{'text': 'الإسلام لم ينتشر بالسيف.', 'quote': QUOTE, 'number': 229}]
-        return Interaction.objects.create(question=question, decision=decision, level=level, answer_text=answer,
-                                          sentences=sentences, dropped=dropped or [])
+        interaction = Interaction.objects.create(question=question, decision=decision, level=level,
+                                                 answer_text=answer, sentences=sentences, dropped=dropped or [])
+        if decision == 'refer':
+            open_referral(question, Referral.Reason.LEVEL_D if level == 'D' else Referral.Reason.NO_EVIDENCE)
+        return interaction
 
     def fake_ask(self, **outcome):
         """A replacement for ``ask`` that records its arguments and saves ``outcome``."""
@@ -71,7 +74,7 @@ class AskTests(QuestionAPITestCase):
         data = response.data
         self.assertEqual(list(data), ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer',
                                       'answered_by', 'review', 'sentences', 'notes', 'verification',
-                                      'follow_up_number', 'created_at'])
+                                      'follow_up_number', 'referral_status', 'created_at'])
         self.assertEqual(data['uuid'], str(Question.objects.get().uuid))
         self.assertEqual((data['language'], data['level'], data['decision']), ('ar', 'C', 'partial'))
         self.assertEqual(data['sentences'], [{
@@ -94,6 +97,7 @@ class AskTests(QuestionAPITestCase):
             response = self.post()
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['follow_up_number'], response.data['uuid'])
+        self.assertEqual(response.data['referral_status'], 'open')
         self.assertEqual((response.data['sentences'], response.data['notes']), ([], []))
 
     def test_source_missing_from_the_knowledge_base_is_empty_not_an_error(self):
@@ -306,3 +310,26 @@ class RevisionPayloadTests(QuestionAPITestCase):
                          self.client.get(self.url('my-questions'))):
             self.assertEqual(response.json()['results'][0]['answer'], 'Answered by the center.')
 
+
+class ReferralStatusTests(QuestionAPITestCase):
+    """The asker follows a referred question through ``referral_status`` (ADR 0021)."""
+
+    def status_of(self, question):
+        return self.client.get(self.url('question', question.uuid)).json()['referral_status']
+
+    def test_a_question_not_referred_has_no_status(self):
+        self.assertIsNone(self.status_of(self.saved().question))
+
+    def test_status_follows_the_ticket_until_answered(self):
+        question = self.saved(decision='refer', level='D', sentences=[], answer=fixed_reply('refer', 'ar')).question
+        self.assertEqual(self.status_of(question), 'open')
+        revise(question, self.reviser, 'Answered by the center.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        self.assertEqual(self.status_of(question), 'answered')
+
+    def test_history_with_referrals_keeps_its_query_count(self):
+        for decision in ('answer', 'refer', 'refer'):
+            self.saved(decision=decision)
+        # count, page with interactions, centers and referrals, revisions of the page, sources
+        with self.assertNumQueries(4):
+            response = self.client.get(self.url('questions'), {'session_id': SESSION})
+        self.assertEqual([q['referral_status'] for q in response.json()['results']], ['open', 'open', None])

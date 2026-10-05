@@ -9,6 +9,9 @@ errors have API keys masked.
 A specialist can revise an answer (``AnswerRevision``, ADR 0020): the asker then
 sees the latest revision instead of the AI's answer, which stays untouched in
 ``Interaction`` as the audit record.
+
+A question the AI refers opens a ``Referral`` (ADR 0021): the ticket a center of
+specialists works through, from open to answered or closed.
 """
 
 import uuid
@@ -34,8 +37,8 @@ class QuestionQuerySet(CenterQuerySet):
         return self.filter(asker=user).order_by('-created_at')
 
     def with_answers(self):
-        """Load what the public payload needs in three queries: interaction, center, revisions."""
-        return self.select_related('interaction', 'center').prefetch_related('revisions')
+        """Load what the public payload needs in two queries: interaction, center and referral; revisions."""
+        return self.select_related('interaction', 'center', 'referral').prefetch_related('revisions')
 
     def asked_today(self):
         """Questions created since 00:00 UTC today, across all centers."""
@@ -202,3 +205,85 @@ class AnswerRevision(BaseModel):
     def __str__(self):
         return f'{self.get_reason_display()}: {self.question}'
 
+
+
+class ReferralQuerySet(CenterQuerySet):
+    """Queries on referrals: the center's queue and a specialist's own tickets."""
+
+    def pending(self):
+        """Referrals still waiting for an answer: open or in progress."""
+        return self.filter(status__in=Referral.PENDING)
+
+    def assigned_to(self, user):
+        """The referrals assigned to ``user``."""
+        return self.filter(assigned_to=user)
+
+
+class Referral(BaseModel, CenterLinkedModel):
+    """
+    The ticket of a question the AI referred to a center of specialists (ADR 0021).
+
+    Opened by ``agents.services.ask`` when the decision is ``refer``, and changed
+    only through ``qa.services`` (``assign``, ``close``, ``revise``): status and
+    dates are never edited directly. The asker sees the status, never the assignee
+    or the closing note.
+    """
+
+    class Reason(models.TextChoices):
+        """Why the AI referred the question."""
+
+        LEVEL_D = 'level_d', _('Personal ruling (level D)')
+        NO_EVIDENCE = 'no_evidence', _('Not covered by the sources')
+
+    class Status(models.TextChoices):
+        """Where the ticket stands."""
+
+        OPEN = 'open', _('Open')
+        IN_PROGRESS = 'in_progress', _('In progress')
+        ANSWERED = 'answered', _('Answered')
+        CLOSED = 'closed', _('Closed without an answer')
+
+    #: Statuses of a ticket still waiting for an answer
+    PENDING = (Status.OPEN, Status.IN_PROGRESS)
+
+    question = models.OneToOneField(
+        Question, on_delete=models.CASCADE, related_name='referral', verbose_name=_('question'),
+    )
+    reason = models.CharField(_('reason'), max_length=12, choices=Reason.choices)
+    status = models.CharField(_('status'), max_length=12, choices=Status.choices, default=Status.OPEN)
+    # SET_NULL: offboarding or deleting an account must not delete the ticket
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='assigned_referrals', verbose_name=_('assigned to'),
+    )
+    answered_at = models.DateTimeField(_('answered at'), null=True, blank=True)
+    closed_at = models.DateTimeField(_('closed at'), null=True, blank=True)
+    close_note = models.TextField(_('closing note'), blank=True,
+                                  help_text=_('Why the center closed it without an answer; never shown to the asker.'))
+
+    objects = ReferralQuerySet.as_manager()
+
+    class Meta(BaseModel.Meta):
+        verbose_name = _('referral')
+        verbose_name_plural = _('referrals')
+        indexes = [models.Index(fields=['center', 'status', '-created_at'], name='referral_center_queue')]
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(status='answered') | models.Q(answered_at__isnull=False),
+                name='referral_answered_has_date',
+                violation_error_message=_('An answered referral needs the date of its answer.'),
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(status='closed') | models.Q(closed_at__isnull=False),
+                name='referral_closed_has_date',
+                violation_error_message=_('A closed referral needs the date it was closed.'),
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.get_status_display()}: {self.question}'
+
+    @property
+    def is_pending(self):
+        """True while the ticket waits for an answer (open or in progress)."""
+        return self.status in self.PENDING

@@ -113,6 +113,8 @@ UNFOLD = {
                 'separator': True,
                 'items': [
                     _nav_item(_('Questions'), 'forum', 'admin:qa_question_changelist', 'qa.view_question'),
+                    _nav_item(_('Referrals'), 'support_agent', 'admin:qa_referral_changelist', 'qa.view_referral',
+                              badge='qa.admin.pending_referrals_badge'),
                 ],
             },
             {

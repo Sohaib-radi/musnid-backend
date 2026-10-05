@@ -9,6 +9,9 @@ come from the ask API, and an interaction is the audit record of one answer.
 Changing what the asker sees is a revision (ADR 0020): the "Revise the answer"
 page saves one through ``qa.services.revise``, and the page lists every revision,
 read-only.
+
+Referrals (ADR 0021) are the tickets of referred questions: a read-only list per
+status, with actions that call ``qa.services.assign`` and ``qa.services.close``.
 """
 
 import re
@@ -25,11 +28,12 @@ from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 from unfold.admin import ModelAdmin, TabularInline
-from unfold.decorators import display
+from unfold.decorators import action, display
 
 from qa import services
-from qa.models import AnswerRevision, Interaction, Question
+from qa.models import AnswerRevision, Interaction, Question, Referral
 from qa.services import TEXT_MAX
 
 #: Badge colour of each decision, from served (green) to not answered (red)
@@ -39,6 +43,14 @@ DECISION_COLORS = {
     Interaction.Decision.REFER: 'warning',
     Interaction.Decision.ABSTAIN: 'danger',
     Interaction.Decision.OUT_OF_SCOPE: 'danger',
+}
+
+#: Badge colour of each referral status, from waiting (orange) to done (green)
+REFERRAL_STATUS_COLORS = {
+    Referral.Status.OPEN: 'warning',
+    Referral.Status.IN_PROGRESS: 'info',
+    Referral.Status.ANSWERED: 'success',
+    Referral.Status.CLOSED: 'danger',
 }
 
 #: Why the verification removed a sentence (``Interaction.dropped[].reason``)
@@ -304,3 +316,93 @@ class QuestionAdmin(ModelAdmin):
         if interaction is None:
             return '-'
         return ('yes', _('Yes')) if interaction.error else ('no', _('No'))
+
+
+def pending_referrals_badge(request):
+    """Sidebar badge: the number of referrals waiting for an answer (empty when none)."""
+    count = Referral.objects.pending().count()
+    return str(count) if count else ''
+
+
+@admin.register(Referral)
+class ReferralAdmin(ModelAdmin):
+    """
+    Referred questions, as tickets: open, in progress, answered or closed.
+
+    Read-only: status and dates change only through ``qa.services``. A specialist
+    answers from the question's "Revise the answer" page, which marks the
+    referral answered.
+    """
+
+    list_display = ['short_question', 'reason', 'status', 'assigned_to', 'center', 'created_at', 'answered_at']
+    list_filter = ['status', 'reason', 'center']
+    search_fields = ['question__text', 'assigned_to__email']
+    list_select_related = ['question', 'center', 'assigned_to']
+    date_hierarchy = 'created_at'
+    actions = ['assign_to_me', 'close_selected']
+    fields = ['question_link', 'reason', 'status', 'assigned_to', 'center', 'created_at', 'answered_at', 'closed_at',
+              'close_note']
+    readonly_fields = fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @display(description=_('question'))
+    def short_question(self, referral):
+        return Truncator(referral.question.text).chars(90)
+
+    @display(description=_('question'))
+    def question_link(self, referral):
+        """The referred question's page, where its answer is revised."""
+        return format_html('<a href="{}" dir="auto">{}</a>',
+                           reverse('admin:qa_question_change', args=[referral.question_id]), referral.question.text)
+
+    @display(description=_('status'), ordering='status', label=REFERRAL_STATUS_COLORS)
+    def status(self, referral):
+        return referral.status, referral.get_status_display()
+
+    @action(description=_('Assign selected referrals to me'))
+    def assign_to_me(self, request, queryset):
+        """Take each selected referral through ``assign``; refusals are counted with their reason."""
+        self._apply(request, queryset, lambda referral: services.assign(referral, request.user, request.user))
+
+    @action(description=_('Close selected referrals without an answer'))
+    def close_selected(self, request, queryset):
+        """Ask why on an intermediate page, then close each selected referral through ``close``."""
+        if 'apply' not in request.POST:
+            return TemplateResponse(request, 'admin/qa/referral/close_selected.html', {
+                **self.admin_site.each_context(request),
+                'title': _('Close selected referrals without an answer'),
+                'opts': self.model._meta,
+                'referrals': queryset.select_related('question'),
+                'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
+            })
+        note = request.POST.get('close_note', '')
+        self._apply(request, queryset, lambda referral: services.close(referral, request.user, note))
+        return None
+
+    def _apply(self, request, queryset, change):
+        """Apply ``change`` to each referral; report successes and refusals with ngettext."""
+        done, refused = 0, []
+        for referral in queryset.select_related('question__center', 'center'):
+            try:
+                change(referral)
+                done += 1
+            except ValidationError as error:
+                refused.append(f'{Truncator(referral.question.text).chars(40)}: {" ".join(error.messages)}')
+        if done:
+            self.message_user(request, ngettext(
+                '%(count)d referral was updated.', '%(count)d referrals were updated.', done,
+            ) % {'count': done}, messages.SUCCESS)
+        if refused:
+            self.message_user(request, ngettext(
+                '%(count)d referral could not be updated: %(reasons)s',
+                '%(count)d referrals could not be updated: %(reasons)s',
+                len(refused),
+            ) % {'count': len(refused), 'reasons': '; '.join(refused)}, messages.ERROR)

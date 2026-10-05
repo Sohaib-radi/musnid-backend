@@ -158,6 +158,7 @@ Question:
   "notes": [{"code": "partial", "text": "…"}, {"code": "level_c", "text": "…"}],
   "verification": {"kept": 4, "removed": 1},
   "follow_up_number": null,
+  "referral_status": null,
   "created_at": "2026-10-04T17:30:00Z"
 }
 ```
@@ -176,6 +177,7 @@ Question:
 | `notes` | Empty when the answer was revised. Otherwise, fixed notes after an answer: `partial` (the sources answer only in part), `level_c` (scholarly disagreement). Clients style them by `code`. |
 | `verification` | Number of sentences kept and removed by the quote and entailment checks. |
 | `follow_up_number` | For `refer`: the question's `uuid`, to quote when the specialist's reply is attached later. `null` otherwise. |
+| `referral_status` | For `refer`: where the center's ticket stands, `open`, `in_progress`, `answered` or `closed` (closed without an answer) ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)). `null` otherwise. |
 
 Limits on `POST`:
 

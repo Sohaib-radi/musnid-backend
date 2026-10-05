@@ -120,7 +120,7 @@ core/              domain app
 knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embeddings, services/search
   extraction/      PDF text repair and Bayyinat parsing (never imports PyMuPDF)
   management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
-qa/                Question, Interaction, AnswerRevision, HumanLabel; services.py (revise); admin
+qa/                Question, Interaction, AnswerRevision, Referral, HumanLabel; services.py (revise, referrals); admin
 agents/            CrewAI: flow.py (steps, routing, fixed replies), services.py (ask), crews/ (YAML)
 api/               REST API, no models
   v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)
@@ -246,6 +246,8 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
   Model choice lives in AISettings (verifier on gpt-4o).
 - **Answers:** change what the asker sees only through `qa.services.revise` (a new
   `AnswerRevision`); never edit an `Interaction`, it is the audit record (ADR 0020).
+- **Referrals:** a `refer` decision opens a `Referral` in `ask()`; change it only through
+  `qa.services` (`assign`, `close`, `revise`), never by direct saves (ADR 0021).
 - **Center review:** never edit `Center.status` directly; use
   `core.services.centers.approve`/`reject`. Center-admin endpoints require an operational
   center (approved and active).

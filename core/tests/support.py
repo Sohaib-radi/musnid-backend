@@ -21,7 +21,7 @@ from core.models import (
     BaseModel, Center, CenterLinkedModel, CreatedByMixin, Membership, User,
 )
 from core.services import credentials
-from qa.models import Interaction, Question
+from qa.models import Interaction, Question, Referral
 
 _sequence = itertools.count(1)
 
@@ -116,3 +116,13 @@ def make_interaction(**fields):
     fields.setdefault('decision', Interaction.Decision.ANSWER)
     fields.setdefault('answer_text', 'An answer [Q1].')
     return Interaction.objects.create(**fields)
+
+
+def make_referral(**fields):
+    """Create an open referral of a new referred question unless ``question`` is given; reason ``no_evidence``."""
+    if 'question' not in fields:
+        question = make_question(center=fields['center']) if 'center' in fields else make_question()
+        fields['question'] = make_interaction(question=question, decision=Interaction.Decision.REFER).question
+    fields.setdefault('center', fields['question'].center)
+    fields.setdefault('reason', Referral.Reason.NO_EVIDENCE)
+    return Referral.objects.create(**fields)

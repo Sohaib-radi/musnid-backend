@@ -1,11 +1,12 @@
-"""Tests for qa/admin.py: the read-only questions admin and what its pages show."""
+"""Tests for qa/admin.py: the read-only questions and referrals admins and what their pages show."""
 
 from django.contrib.auth.models import Permission
 from django.urls import reverse
 
-from core.tests.support import make_center, make_interaction, make_question, make_user
+from core.tests.support import make_center, make_interaction, make_membership, make_question, make_referral, make_user
 from core.tests.test_admin import AdminTestCase
-from qa.models import AnswerRevision, Interaction, Question
+from qa.admin import pending_referrals_badge
+from qa.models import AnswerRevision, Interaction, Question, Referral
 from qa.services import revise
 
 
@@ -166,3 +167,71 @@ class QuestionAdminTests(AdminTestCase):
     def change_page_url(self, question):
         return reverse('admin:qa_question_change', args=[question.pk])
 
+
+class ReferralAdminTests(AdminTestCase):
+    """The referrals list, its actions through ``qa.services``, and the sidebar badge (ADR 0021)."""
+
+    def setUp(self):
+        super().setUp()
+        self.referral = make_referral(question=make_interaction(
+            question=make_question(text='Can I combine prayers while travelling?'), decision='refer').question)
+        make_membership(center=self.referral.center, user=self.superuser)
+
+    def changelist(self, **params):
+        return self.client.get(reverse('admin:qa_referral_changelist'), params)
+
+    def run_action(self, action, referrals, **extra):
+        return self.client.post(reverse('admin:qa_referral_changelist'), {
+            'action': action, '_selected_action': [referral.pk for referral in referrals], **extra,
+        }, follow=True)
+
+    def test_list_shows_the_question_and_the_status_badge(self):
+        response = self.changelist()
+        self.assertContains(response, 'Can I combine prayers while travelling?')
+        self.assertContains(response, 'Not covered by the sources')
+        self.assertContains(response, 'Open')
+
+    def test_filter_by_status(self):
+        make_referral(question=make_interaction(question=make_question(text='Already answered?'),
+                                                decision='refer').question,
+                      status=Referral.Status.ANSWERED, answered_at=self.referral.created_at)
+        response = self.changelist(status__exact='open')
+        self.assertContains(response, 'Can I combine prayers while travelling?')
+        self.assertNotContains(response, 'Already answered?')
+
+    def test_change_page_links_to_the_question(self):
+        response = self.client.get(reverse('admin:qa_referral_change', args=[self.referral.pk]))
+        self.assertContains(response, reverse('admin:qa_question_change', args=[self.referral.question_id]))
+
+    def test_read_only(self):
+        self.assertEqual(self.client.get(reverse('admin:qa_referral_add')).status_code, 403)
+        response = self.client.get(reverse('admin:qa_referral_change', args=[self.referral.pk]))
+        self.assertNotContains(response, 'name="_save"')
+
+    def test_assign_to_me(self):
+        response = self.run_action('assign_to_me', [self.referral])
+        self.assertEqual(self.messages(response), ['1 referral was updated.'])
+        self.referral.refresh_from_db()
+        self.assertEqual((self.referral.status, self.referral.assigned_to),
+                         (Referral.Status.IN_PROGRESS, self.superuser))
+
+    def test_assign_to_me_reports_refusals(self):
+        other = make_referral()  # another center: the superuser is not a member
+        response = self.run_action('assign_to_me', [other])
+        self.assertIn('Assign the referral to an active member of its center.', self.messages(response)[0])
+        other.refresh_from_db()
+        self.assertEqual(other.status, Referral.Status.OPEN)
+
+    def test_close_asks_why_then_closes(self):
+        response = self.run_action('close_selected', [self.referral])
+        self.assertContains(response, 'name="close_note"')
+        self.referral.refresh_from_db()
+        self.assertEqual(self.referral.status, Referral.Status.OPEN)
+        self.run_action('close_selected', [self.referral], apply='1', close_note='Duplicate.')
+        self.referral.refresh_from_db()
+        self.assertEqual((self.referral.status, self.referral.close_note), (Referral.Status.CLOSED, 'Duplicate.'))
+
+    def test_sidebar_badge_counts_pending_referrals(self):
+        self.assertEqual(pending_referrals_badge(None), '1')
+        revise(self.referral.question, self.superuser, 'Answer.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        self.assertEqual(pending_referrals_badge(None), '')

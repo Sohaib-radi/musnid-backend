@@ -1,12 +1,13 @@
-"""Tests for qa/models.py: public identifier, session history and the daily count."""
+"""Tests for qa/models.py: public identifier, session history, the daily count and referrals."""
 
 from datetime import timedelta
 
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.utils import timezone
 
-from core.tests.support import make_center
-from qa.models import Question
+from core.tests.support import make_center, make_referral, make_user
+from qa.models import Question, Referral
 
 
 class QuestionTests(TestCase):
@@ -36,3 +37,21 @@ class QuestionTests(TestCase):
         Question.objects.filter(pk=yesterday.pk).update(created_at=midnight - timedelta(seconds=1),
                                                         updated_at=timezone.now())
         self.assertEqual(list(Question.objects.asked_today()), [today])
+
+
+class ReferralTests(TestCase):
+    """``ReferralQuerySet`` and the date constraints of ``Referral`` (ADR 0021)."""
+
+    def test_pending_and_assigned_to(self):
+        waiting = make_referral()
+        taken = make_referral(status=Referral.Status.IN_PROGRESS, assigned_to=make_user())
+        make_referral(status=Referral.Status.ANSWERED, answered_at=timezone.now())
+        make_referral(status=Referral.Status.CLOSED, closed_at=timezone.now())
+        self.assertCountEqual(Referral.objects.pending(), [waiting, taken])
+        self.assertEqual(list(Referral.objects.assigned_to(taken.assigned_to)), [taken])
+        self.assertTrue(waiting.is_pending)
+
+    def test_answered_and_closed_need_their_date(self):
+        for status in (Referral.Status.ANSWERED, Referral.Status.CLOSED):
+            with self.subTest(status=status), self.assertRaises(IntegrityError), transaction.atomic():
+                make_referral(status=status)

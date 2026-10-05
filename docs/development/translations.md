@@ -139,6 +139,7 @@ Use these terms consistently. Add a row when a new domain term appears.
 | email address | البريد الإلكتروني | adresse e-mail |
 | public identifier | المعرّف العام | identifiant public |
 | referred question | سؤال مُحال | question transmise |
+| referral (ticket) | إحالة | transmission |
 | follow-up number | رقم المتابعة | numéro de suivi |
 | asker | السائل | auteur de la question |
 | answer revision | مراجعة الجواب | révision de la réponse |

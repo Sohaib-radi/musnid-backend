@@ -232,7 +232,7 @@ Public links, used for the sources of answers ([ADR 0017](../architecture/decisi
 | `page_url(language)` | `url` with `?lang=<language>` for `ar`, `en`, `fr`; `url` unchanged otherwise; empty without `url`. |
 | `pdf_page_url(page)` | `pdf_url#page=<page + 1>`: printed page numbers equal the 0-based PDF index, viewers count from 1. Empty without `pdf_url`. |
 
-## `Question` and `Interaction` (`qa/models.py`)
+## `Question`, `Interaction` and `Referral` (`qa/models.py`)
 
 Every question and how it was answered ([ADR 0016](../architecture/decisions/0016-question-answering-flow.md)). Anonymous unless the asker was logged in ([ADR 0019](../architecture/decisions/0019-link-questions-to-logged-in-askers.md)).
 
@@ -252,7 +252,42 @@ Every question and how it was answered ([ADR 0016](../architecture/decisions/001
 | Method | Returns |
 | --- | --- |
 | `for_session(session_id)` | That session's questions, newest first (index `question_session_recent`). |
-| `with_answers()` | Joins the interaction and center and prefetches the revisions, for the public payload. |
+| `with_answers()` | Joins the interaction, center and referral and prefetches the revisions, for the public payload. |
 | `for_asker(user)` | That user's questions from every session, newest first (index `question_asker_recent`). |
 | `asked_today()` | Questions created since 00:00 UTC, across all centers; counted for `ASK_DAILY_LIMIT`. |
+
+### `Referral` (`qa/models.py`)
+
+The ticket of a referred question ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)).
+A `CenterLinkedModel`; opened by `agents.services.ask` when the decision is `refer`, and
+changed only through `qa.services`.
+
+| Field | Meaning |
+| --- | --- |
+| `question` | One-to-one with the referred `Question` (`related_name="referral"`). |
+| `center` | The center that should answer; the question's center when opened. |
+| `reason` | `level_d` (personal ruling, classifier level D) or `no_evidence` (not covered by the sources). Set in code. |
+| `status` | `open` (default), `in_progress`, `answered`, `closed` (closed without an answer). |
+| `assigned_to` | The specialist handling it; `SET_NULL`. |
+| `answered_at`, `closed_at` | Dates of the first answer and of closing. |
+| `close_note` | Why it was closed without an answer; internal, never returned by the API. |
+
+| Constraint or index | Rule |
+| --- | --- |
+| `referral_answered_has_date` | `status = answered` requires `answered_at`. |
+| `referral_closed_has_date` | `status = closed` requires `closed_at`. |
+| `referral_center_queue` | Index on `center`, `status`, `-created_at`, for a center's queue. |
+
+`ReferralQuerySet` (based on `CenterQuerySet`): `pending()` (open or in progress),
+`assigned_to(user)`. `Referral.is_pending` is the same test on one row.
+
+### Services (`qa/services.py`)
+
+| Function | Rule |
+| --- | --- |
+| `can_revise(user, question)` | Active staff with `qa.add_answerrevision`, or an active member of the question's operational center. |
+| `revise(question, author, text, reason, note="")` | Adds an `AnswerRevision`; marks the question's referral `answered` if it is not already. Codes: `revision_not_allowed`, `revision_text_required`, `revision_text_too_long`, `revision_reason_invalid`. |
+| `open_referral(question, reason)` | Opens the referral, owned by the question's center. |
+| `assign(referral, user, assignee)` | `user` must pass `can_revise`; `assignee` must be an active member of the center; status `in_progress`. Codes: `referral_not_allowed`, `referral_assignee_invalid`, `referral_not_pending`. |
+| `close(referral, user, note)` | Status `closed` with the note. Codes: `referral_not_allowed`, `referral_note_required`, `referral_not_pending`. |
 

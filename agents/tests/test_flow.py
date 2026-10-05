@@ -13,7 +13,7 @@ from agents.tests.support import QUOTE, FakeCrew, answered, classified
 from core.tests.support import make_center, make_user
 from knowledge.services.ingest import ingest
 from knowledge.tests.support import FakeEmbedder, make_question
-from qa.models import Interaction, Question
+from qa.models import Interaction, Question, Referral
 
 QUESTION = 'هل انتشر الإسلام بالسيف؟'
 
@@ -188,7 +188,7 @@ class AnswerTests(FlowTestCase):
 
 
 class SavingTests(FlowTestCase):
-    """Questions and interactions are saved with their trace."""
+    """Questions and interactions are saved with their trace; a referral opens its ticket."""
 
     def test_saved_with_trace_and_version_stamp(self):
         interaction = self.run_ask(classified())
@@ -226,6 +226,22 @@ class SavingTests(FlowTestCase):
         self.assertEqual(interaction.decision, 'abstain')
         self.assertIn('no default center', interaction.error)
         self.assertFalse(Question.objects.exists())
+
+    def test_level_d_opens_a_referral_for_a_personal_ruling(self):
+        interaction = self.run_ask(classified('D', 'ar'))
+        referral = Referral.objects.get()
+        self.assertEqual((referral.question, referral.center), (interaction.question, self.center))
+        self.assertEqual((referral.reason, referral.status), (Referral.Reason.LEVEL_D, Referral.Status.OPEN))
+
+    def test_unsupported_answer_opens_a_referral_for_missing_evidence(self):
+        self.run_ask(classified(), answered(coverage='none'))
+        self.assertEqual(Referral.objects.get().reason, Referral.Reason.NO_EVIDENCE)
+
+    def test_answers_and_abstentions_open_no_referral(self):
+        self.run_ask(classified())
+        self.run_ask(classified('B', 'ar', 'كلمات لا علاقة لها مطلقا'))
+        self.assertEqual(sorted(Interaction.objects.values_list('decision', flat=True)), ['abstain', 'answer'])
+        self.assertFalse(Referral.objects.exists())
 
 
 class FixedReplyTests(TestCase):

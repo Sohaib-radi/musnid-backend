@@ -63,6 +63,8 @@ All modes were last run in step 2 (serial, `--parallel 4`, `--keepdb` twice); si
 | `make_center(**fields)` | An active, non-default center with a unique name and slug. |
 | `make_membership(**fields)` | An active specialist membership; new user and center unless given. |
 | `make_note(**fields)` | A test-only `Note` in a new center unless given. |
+| `make_question(**fields)`, `make_interaction(**fields)` | A question in a new center; its saved answer (decision `answer`). |
+| `make_referral(**fields)` | An open referral (`no_evidence`) of a new referred question unless `question` is given; owned by the question's center. |
 
 Tests create objects through these factories, not `objects.create()`, so a new required
 field is handled in one place.
@@ -88,7 +90,7 @@ field is handled in one place.
 | `core/tests/test_services_memberships.py` | 30 | `add_member`, `change_role`, `offboard` and the check-only `validate_add_member`, `validate_change_role`: every error code and the last-admin rule. |
 | `core/tests/test_translations.py` | 13 | Both catalogs (project, Unfold vendor) in ar and fr: complete, not fuzzy, French allowlist, `.mo` current, extraction current (temporary copy, skipped without gettext); labels, choices, actions, sidebar translated; login and center pages rendered in ar (`dir="rtl"`) and fr. |
 | `core/tests/test_unfold.py` | 13 | Brand colour anchors, scales ordered, WCAG AA contrast of the text pairs, no colour in `admin.css` but the accent, fonts and licence, login image, app order, site title, sidebar icons, links and permissions. |
-| `core/tests/test_settings.py` | 6 | `config.settings` imported in a fresh process: a clear error for each missing required variable, `DJANGO_DEBUG` parsing, database and CORS origin defaults and overrides. |
+| `core/tests/test_settings.py` | 12 | `config.settings` imported in a fresh process: a clear error for each missing required variable, `DJANGO_DEBUG` parsing, database and CORS origin defaults and overrides. |
 | `core/tests/test_user.py` | 18 | User defaults, case-insensitive email uniqueness and login, `create_user`, `create_superuser`. |
 | `api/tests/test_admin.py` | 2 | Token blacklist admins use Unfold; "Security" sidebar group. |
 | `api/tests/test_auth.py` | 14 | Both registrations, login (any email case, uuid claim), refresh rotation and blacklist, logout, throttling of the `auth` scope. |
@@ -96,13 +98,15 @@ field is handled in one place.
 | `api/tests/test_cors.py` | 4 | Allowed origin on `/api/`, other origins refused, no CORS on the admin, CORS headers on errors, no credentials. |
 | `api/tests/test_errors.py` | 7 | Exception handler: domain errors to 400 with code, field `codes`, DRF and Django errors with codes; permission codes. |
 | `api/tests/test_me.py` | 8 | Profile GET and PATCH, no PUT, memberships with center states, countries translated. |
-| `api/tests/test_questions.py` | 20 | Anonymous asking: full response format (sentences with sources and links, notes with codes, verification), book link in the question's language, referral follow-up number, missing source, stale token ignored, input codes, `daily_capacity` in Arabic, `unavailable`; per-IP throttle (sixth question, free history reads, per-IP quotas, `X-Forwarded-For` ignored without proxies and used behind one, no IP in the cache); history newest first, sources in one query, `session_required`, detail by uuid, 404, no PUT/PATCH/DELETE. |
+| `api/tests/test_questions.py` | 32 | Anonymous asking: full response format (sentences with sources and links, notes with codes, verification), book link in the question's language, referral follow-up number and `referral_status` (none, open, answered; history still in 4 queries), missing source, stale token ignored, input codes, `daily_capacity` in Arabic, `unavailable`; per-IP throttle (sixth question, free history reads, per-IP quotas, `X-Forwarded-For` ignored without proxies and used behind one, no IP in the cache); history newest first, sources in one query, `session_required`, detail by uuid, 404, no PUT/PATCH/DELETE. |
 | `api/tests/test_memberships.py` | 11 | List, add by email, change role, offboard, service codes, no DELETE, other centers 404, permissions, pending center blocked. |
 | `api/tests/test_schema.py` | 3 | Schema without warnings, public identifiers only, docs page on sidecar assets. |
 | `knowledge/tests/` (6 files) | 47 | Text repair, Bayyinat parsing and validation, PyMuPDF isolation, normalization rules by Unicode name, chunking, ingestion (idempotent, failure-safe), search (best chunk per question, `ef_search`), evidence, read-only admin; public page and PDF links of a document; with a fake embedder. |
-| `agents/tests/` (3 files) | 59 | Every route (out of scope, level D, low score, failures of each step, unreadable output), evidence only for the writer, citation stripping, quote check (translated quotes count as missing; 90% word match in one passage, short quotes exact), CrewAI trace prompt declined before import (fresh interpreter), kept sentences saved with their code-found source and drops with their reason, notes by code, daily limit before any model call, batched entailment check, script-based language, partial note, level-C notice, saving and version stamp, fixed replies in 3 languages, key masking, crew YAML, LLM and verifier model from AISettings, CrewAI switches. |
-| `qa/tests/test_models.py` | 3 | Distinct question uuids, session history newest first, questions since midnight UTC. |
-| **Total** | **422** | |
+| `agents/tests/` (3 files) | 64 | Every route (out of scope, level D, low score, failures of each step, unreadable output), evidence only for the writer, citation stripping, quote check (translated quotes count as missing; 90% word match in one passage, short quotes exact), CrewAI trace prompt declined before import (fresh interpreter), kept sentences saved with their code-found source and drops with their reason, notes by code, daily limit before any model call, batched entailment check, script-based language, partial note, level-C notice, saving and version stamp, referral opened for level D and unsupported answers (none for answers and abstentions), fixed replies in 3 languages, key masking, crew YAML, LLM and verifier model from AISettings, CrewAI switches. |
+| `qa/tests/test_admin.py` | 27 | Questions admin: decision badge, filters, search by text, email and follow-up number, kept and removed sentences, escaping, read-only, help dialogs, revise page and its permissions, Answered by column; referrals admin: list and status badge, status filter, link to the question, read-only, assign to me (and refusals), close with a note, sidebar badge. |
+| `qa/tests/test_models.py` | 5 | Distinct question uuids, session history newest first, questions since midnight UTC; `Referral.objects.pending()` and `assigned_to()`, both date constraints. |
+| `qa/tests/test_services.py` | 20 | `can_revise` (staff permission, members, other and former members, non-operational center, deactivated users), `revise` (saved, latest, refusal codes); `open_referral`, `assign` (take, reassign, refusal codes), `close` (note and date, codes), no change once answered or closed, `revise` marks the referral answered (also when closed). |
+| **Total** | **494** | |
 
 Last full run: 263 tests, all passing, 43.0 s serial, on 2026-10-04 (step 4). Flow tests use `TransactionTestCase`: CrewAI runs steps in worker threads, which do not
 see data inside a `TestCase` transaction.
