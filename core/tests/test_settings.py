@@ -31,7 +31,13 @@ PROBE = (
     'db = s.DATABASES["default"]; '
     'print(json.dumps({"DEBUG": s.DEBUG, "ALLOWED_HOSTS": s.ALLOWED_HOSTS, '
     '"ENGINE": db["ENGINE"], "HOST": db["HOST"], "PORT": db["PORT"], '
-    '"CORS_ALLOWED_ORIGINS": s.CORS_ALLOWED_ORIGINS}))'
+    '"CORS_ALLOWED_ORIGINS": s.CORS_ALLOWED_ORIGINS, '
+    '"SECURE_PROXY_SSL_HEADER": getattr(s, "SECURE_PROXY_SSL_HEADER", None), '
+    '"SESSION_COOKIE_SECURE": getattr(s, "SESSION_COOKIE_SECURE", False), '
+    '"CSRF_COOKIE_SECURE": getattr(s, "CSRF_COOKIE_SECURE", False), '
+    '"SECURE_SSL_REDIRECT": getattr(s, "SECURE_SSL_REDIRECT", False), '
+    '"SECURE_HSTS_SECONDS": s.SECURE_HSTS_SECONDS, '
+    '"MIDDLEWARE": s.MIDDLEWARE, "STORAGES": s.STORAGES}))'
 )
 
 
@@ -46,7 +52,7 @@ def import_settings(**overrides):
     """
     environ = {**os.environ, **REQUIRED}
     for name in ('DJANGO_DEBUG', 'DJANGO_ALLOWED_HOSTS', 'POSTGRES_HOST', 'POSTGRES_PORT',
-                 'DJANGO_CORS_ALLOWED_ORIGINS'):
+                 'DJANGO_CORS_ALLOWED_ORIGINS', 'DJANGO_HTTPS', 'DJANGO_HSTS_SECONDS'):
         environ[name] = ''
     environ.update(overrides)
     return subprocess.run(
@@ -111,3 +117,44 @@ class OptionalVariableTests(SimpleTestCase):
         self.assertEqual(values['PORT'], '5432')
         self.assertEqual(values['ALLOWED_HOSTS'], ['localhost', '127.0.0.1'])
         self.assertEqual(values['CORS_ALLOWED_ORIGINS'], ['https://app.example.org', 'http://localhost:3000'])
+
+
+class HttpsTests(SimpleTestCase):
+    """HTTPS hardening is off by default (local HTTP) and complete with DJANGO_HTTPS."""
+
+    def test_off_by_default_so_local_http_keeps_working(self):
+        values = load_settings()
+        self.assertIsNone(values['SECURE_PROXY_SSL_HEADER'])
+        self.assertIs(values['SESSION_COOKIE_SECURE'], False)
+        self.assertIs(values['CSRF_COOKIE_SECURE'], False)
+        self.assertIs(values['SECURE_SSL_REDIRECT'], False)
+        self.assertEqual(values['SECURE_HSTS_SECONDS'], 0)
+
+    def test_https_flag_trusts_the_proxy_and_secures_cookies(self):
+        values = load_settings(DJANGO_HTTPS='True')
+        self.assertEqual(values['SECURE_PROXY_SSL_HEADER'], ['HTTP_X_FORWARDED_PROTO', 'https'])
+        self.assertIs(values['SESSION_COOKIE_SECURE'], True)
+        self.assertIs(values['CSRF_COOKIE_SECURE'], True)
+        self.assertIs(values['SECURE_SSL_REDIRECT'], True)
+
+    def test_flag_is_strict(self):
+        # Same rule as DJANGO_DEBUG: a lowercase "true" must not half-enable HTTPS.
+        self.assertIsNone(load_settings(DJANGO_HTTPS='true')['SECURE_PROXY_SSL_HEADER'])
+
+    def test_hsts_seconds_override(self):
+        self.assertEqual(load_settings(DJANGO_HSTS_SECONDS='3600')['SECURE_HSTS_SECONDS'], 3600)
+
+
+class StaticFilesTests(SimpleTestCase):
+    """WhiteNoise serves static files from gunicorn (ADR 0018)."""
+
+    def test_whitenoise_follows_security_middleware(self):
+        middleware = load_settings()['MIDDLEWARE']
+        self.assertEqual(middleware[:2], [
+            'django.middleware.security.SecurityMiddleware',
+            'whitenoise.middleware.WhiteNoiseMiddleware',
+        ])
+
+    def test_compressed_storage_without_manifest(self):
+        backend = load_settings()['STORAGES']['staticfiles']['BACKEND']
+        self.assertEqual(backend, 'whitenoise.storage.CompressedStaticFilesStorage')

@@ -132,13 +132,14 @@ api/               REST API, no models
 locale/            ar and fr catalogs (.po and .mo, both committed)
 locale_vendor/unfold/  our ar and fr translations of Unfold's strings (Unfold ships none)
 docs/              Docusaurus content (Markdown only)
-  getting-started/ local development, Docker, configuration
+  getting-started/ local development, Docker, configuration, deployment (VPS)
   architecture/decisions/  ADRs (NNNN-kebab-title.md)
   reference/       models and admin: every field, constraint, admin, action
   development/     testing, translations, migrations
   technology-stack.md      every dependency: version, role, license
 data/raw/, data/processed/ source books and extracted text (git-ignored)
 Dockerfile, docker-compose.yml, .dockerignore
+deploy/nginx/       production nginx site for api.musnid.online (ADR 0018)
 requirements.txt   exact pins (pip freeze)
 .env.example       template for .env
 ```
@@ -152,7 +153,7 @@ requirements.txt   exact pins (pip freeze)
   at import, `DJANGO_DEBUG` is on only for the exact string `True`.
 - Required: `DJANGO_SECRET_KEY`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
   Optional: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `POSTGRES_HOST` (`localhost`),
-  `POSTGRES_PORT` (`5435`). Full reference: `docs/getting-started/configuration.md`.
+  `POSTGRES_PORT` (`5435`), `DJANGO_HTTPS` and `DJANGO_HSTS_SECONDS` (production only, ADR 0018). Full reference: `docs/getting-started/configuration.md`.
   A new variable must be added to `.env.example` and that page.
 - Secret values must use a URL-safe alphabet: Compose interpolates `$` in env files.
 - `requirements.txt` holds exact pins only. Install with

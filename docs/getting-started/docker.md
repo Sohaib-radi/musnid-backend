@@ -51,6 +51,9 @@ The admin is then at `http://127.0.0.1:8011/admin/`.
   gunicorn PID 1 so it receives `SIGTERM` from `docker compose stop` directly.
 - A proxy in front of port 8011 must allow at least 120 s per request, and
   `DJANGO_NUM_PROXIES` must count it so per-IP limits see the client's address.
+- Static files are collected at build time and served by WhiteNoise inside gunicorn
+  ([ADR 0018](../architecture/decisions/0018-single-vps-deployment.md)), so the admin keeps
+  its styles with `DEBUG` off. Production setup: [Deployment](deployment.md).
 - Only active under the `web` profile, so `docker compose up -d db` never builds it.
 
 ## Image
@@ -101,10 +104,5 @@ keeps as a separate line, so `sh` never passed them. The command is now on one l
   fresh container writes it again on start. Checked in the rebuilt image: no prompt in a
   brand-new container whose first process was `ask_test`.
 
-- **Static files are not served by gunicorn yet.** `collectstatic` runs at build time,
-  but gunicorn does not serve `/static/`, so `/static/admin/css/base.css` returns 404 and
-  the admin renders without styling at port 8011. Use `manage.py runserver` with
-  `DJANGO_DEBUG=True` for development (see [Local development](local-development.md)).
-  Static file serving (WhiteNoise or nginx) comes with deployment.
 - **Migrations run on every start.** Acceptable with a single `web` container; with
   several replicas, migrations should move to a one-off job.

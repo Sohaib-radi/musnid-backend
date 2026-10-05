@@ -17,7 +17,10 @@ updating this page in the same commit.
 | Python | 3.12 (image `python:3.12-slim`) | Language runtime. Version chosen in [ADR 0001](architecture/decisions/0001-python-3-12.md). | PSF-2.0 |
 | PostgreSQL with pgvector | image `pgvector/pgvector:pg17` (pgvector 0.8.7 measured) | Primary database; pgvector stores and searches embeddings. | PostgreSQL License |
 | GNU gettext | 0.26 on the development machine | `makemessages` and `compilemessages`; development only, not in the image. | GPL-3.0-or-later |
-| Docker Compose | v2 | Runs the `db` and `web` services locally. | Apache-2.0 |
+| Docker Compose | v2 | Runs the `db` and `web` services locally and on the VPS. | Apache-2.0 |
+| Ubuntu | 22.04 LTS | Production VPS operating system ([Deployment](getting-started/deployment.md)). | Various (mostly GPL) |
+| nginx | Ubuntu 22.04 package | Production reverse proxy and TLS termination on the host ([ADR 0018](architecture/decisions/0018-single-vps-deployment.md)). | BSD-2-Clause |
+| certbot (with `python3-certbot-nginx`) | Ubuntu 22.04 package | Let's Encrypt certificate for `api.musnid.online` and its renewal timer. | Apache-2.0 |
 
 ## Python packages
 
@@ -34,6 +37,7 @@ The file is the output of `pip freeze`, so it also pins transitive dependencies.
 | `djangorestframework_simplejwt` | 5.5.1 | JWT access and refresh tokens, with its `token_blacklist` app ([ADR 0010](architecture/decisions/0010-jwt-authentication.md)). | MIT |
 | `drf-spectacular` | 0.30.0 | OpenAPI 3 schema at `/api/schema/` and Swagger UI at `/api/docs/`. | BSD-3-Clause |
 | `drf-spectacular-sidecar` | 2026.10.1 | Self-hosted Swagger UI and Redoc assets (no CDN). | BSD |
+| `whitenoise` | 6.12.0 | Serves collected static files from gunicorn, gzip-compressed ([ADR 0018](architecture/decisions/0018-single-vps-deployment.md)). Pure Python (`py3-none-any`). | MIT |
 | `django-cors-headers` | 4.9.0 | CORS for `/api/` ([ADR 0012](architecture/decisions/0012-cors-policy.md)). | MIT |
 | `PyJWT` | 2.15.1 | Transitive: token encoding for SimpleJWT. | MIT |
 | `PyYAML` | 6.0.3 | Transitive: YAML schema output for drf-spectacular. | MIT |

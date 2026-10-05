@@ -28,6 +28,8 @@ through the helpers in `config/env.py`.
 | `POSTGRES_PORT` | No | `5435` | Database port. The `web` container overrides it to `5432`. |
 | `ASK_DAILY_LIMIT` | No | `150` | Questions per UTC day for the whole service; past it `POST /api/v1/questions/` returns 429 `daily_capacity` without calling OpenAI ([ADR 0017](../architecture/decisions/0017-anonymous-ask-api.md)). |
 | `DJANGO_NUM_PROXIES` | No | `0` | Proxies in front of the app. `0` uses `REMOTE_ADDR` as the client IP; behind one host proxy set `1`, so per-IP limits read `X-Forwarded-For`. |
+| `DJANGO_HTTPS` | No | off | HTTPS behind the host nginx ([ADR 0018](../architecture/decisions/0018-single-vps-deployment.md)). Enabled only by the exact string `True`; it trusts `X-Forwarded-Proto: https`, makes session and CSRF cookies HTTPS-only and redirects HTTP to HTTPS. Leave it off locally. |
+| `DJANGO_HSTS_SECONDS` | No | `0` (no header) | Django `SECURE_HSTS_SECONDS`. Set it only after HTTPS works: browsers then refuse plain HTTP to the host for that long. [Deployment](deployment.md) raises it in steps. |
 
 `.env.example` lists the same variables with comments and is the template for `.env`.
 
@@ -59,10 +61,10 @@ if it cannot be written, a warning is logged and the prompt times out after 20 s
   (`manage.py`, gunicorn, tests) stops immediately with
   `django.core.exceptions.ImproperlyConfigured` and a message naming the variable, for
   example `Required environment variable DJANGO_SECRET_KEY is not set.`
-- **Booleans are strict.** `DJANGO_DEBUG` is on only for `True`. `true`, `1`, `yes` and
-  every other value leave it off, so a typo can never enable debug mode.
+- **Booleans are strict.** `DJANGO_DEBUG` and `DJANGO_HTTPS` are on only for `True`. `true`, `1`, `yes` and
+  every other value leave them off, so a typo can never enable debug mode.
 - **Lists** are comma-separated; blanks and empty items are dropped.
-- **Integers** (`ASK_DAILY_LIMIT`, `DJANGO_NUM_PROXIES`) must be non-negative whole
+- **Integers** (`ASK_DAILY_LIMIT`, `DJANGO_NUM_PROXIES`, `DJANGO_HSTS_SECONDS`) must be non-negative whole
   numbers; any other value stops the process at startup with `ImproperlyConfigured`.
 
 ## Precedence

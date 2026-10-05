@@ -67,6 +67,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Right after SecurityMiddleware (WhiteNoise's documented position): static files are
+    # answered before sessions, locale or CSRF run (ADR 0018).
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     # Before any middleware that can return a response, so error responses get CORS headers too.
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -160,6 +163,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# WhiteNoise serves the collected files from gunicorn, so the admin keeps its styles
+# with DEBUG off and nginx needs no static volume (ADR 0018). Compressed (gzip) but not
+# hashed: the manifest variant fails on any template whose file was not collected, which
+# breaks tests and local runs that skip collectstatic.
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
+}
+
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -187,6 +199,20 @@ CACHES = {
         'LOCATION': 'django_cache',
     },
 }
+
+# HTTPS behind the host nginx (ADR 0018). Off by default so local development keeps
+# plain HTTP. With DJANGO_HTTPS=True Django trusts nginx's X-Forwarded-Proto: nginx
+# must overwrite that header, never pass the client's. Cookies are then HTTPS-only.
+HTTPS = env.flag('DJANGO_HTTPS')
+if HTTPS:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # nginx redirects port 80; this also covers a request that reaches gunicorn over HTTP.
+    SECURE_SSL_REDIRECT = True
+# 0 (default) sends no HSTS header. Raise it only once HTTPS works: browsers then refuse
+# plain HTTP to this host for that many seconds, and the setting cannot be taken back early.
+SECURE_HSTS_SECONDS = env.integer('DJANGO_HSTS_SECONDS', 0)
 
 # Proxies in front of the app: DRF then takes the client IP from X-Forwarded-For.
 # 0 (default) uses REMOTE_ADDR; behind one host proxy set 1. Never leave DRF's own

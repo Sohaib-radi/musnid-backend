@@ -1,4 +1,4 @@
-# Local services for the Musnid backend.
+# Services for the Musnid backend, locally and on the VPS (ADR 0018).
 #
 #   docker compose up -d db                  # PostgreSQL + pgvector only
 #   docker compose --profile web up -d --build   # also the Django app (gunicorn)
