@@ -140,6 +140,8 @@ Question:
   "level": "B",
   "decision": "answer",
   "answer": "… [Q229]. …\n\n<notes>",
+  "answered_by": "ai",
+  "review": null,
   "sentences": [
     {
       "text": "<sentence without [Q<n>] markers>",
@@ -165,11 +167,13 @@ Question:
 | `language` | `ar`, `en` or `fr`; empty if classification failed. |
 | `level` | `A`, `B`, `C`, `D` or `out_of_scope`; `null` if classification failed. |
 | `decision` | `answer`, `partial`, `refer`, `abstain` or `out_of_scope`. |
-| `answer` | The full text shown to the asker, with `[Q<n>]` markers and the notes. For `refer`, `abstain` and `out_of_scope` it is the fixed reply. |
-| `sentences` | Each kept sentence with its quote and its source. The source is the evidence question whose text contains the quote, found in code. Empty for fixed replies. |
+| `answer` | The full text shown to the asker, with `[Q<n>]` markers and the notes. For `refer`, `abstain` and `out_of_scope` it is the fixed reply. When a specialist revised it, the latest revision's plain text. |
+| `answered_by` | `ai`, or `center` when a specialist revised the answer ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)). |
+| `review` | `null`, or `{"center": <center name>, "revised_at": <date>}` for a revised answer. The specialist's name is never returned. |
+| `sentences` | Each kept sentence with its quote and its source; empty when the answer was revised. The source is the evidence question whose text contains the quote, found in code. Empty for fixed replies. |
 | `source.url` | The book's page on dawa.center, interface in the question's language. The book is published as one Arabic PDF; there is no page per question. |
 | `source.pdf_url` | The same PDF as the knowledge base (SHA-256 checked), opened at the question's first page. |
-| `notes` | Fixed notes after an answer: `partial` (the sources answer only in part), `level_c` (scholarly disagreement). Clients style them by `code`. |
+| `notes` | Empty when the answer was revised. Otherwise, fixed notes after an answer: `partial` (the sources answer only in part), `level_c` (scholarly disagreement). Clients style them by `code`. |
 | `verification` | Number of sentences kept and removed by the quote and entailment checks. |
 | `follow_up_number` | For `refer`: the question's `uuid`, to quote when the specialist's reply is attached later. `null` otherwise. |
 

@@ -14,7 +14,8 @@ from api.tests.base import APITestCase
 from core.tests.support import make_center, make_user
 from knowledge.services.ingest import ingest
 from knowledge.tests.support import FakeEmbedder, make_question
-from qa.models import Interaction, Question
+from qa.models import AnswerRevision, Interaction, Question
+from qa.services import revise
 
 SESSION = 'session-0001'
 QUESTION = 'هل انتشر الإسلام بالسيف؟'
@@ -32,6 +33,7 @@ class QuestionAPITestCase(APITestCase):
         ingest([make_question(229, title=QUESTION, page_start=1074, page_end=1081)], FakeEmbedder(),
                slug='bayyinat-ar', title='بينات', lang='ar', url=BOOK, pdf_url=PDF)
         self.calls = []
+        self.reviser = make_user(is_staff=True, is_superuser=True)
         self.askers = []
 
     def saved(self, text=QUESTION, session_id=SESSION, lang='ar', decision='answer', level='B',
@@ -68,7 +70,8 @@ class AskTests(QuestionAPITestCase):
         self.assertEqual(self.calls, [(QUESTION, SESSION)])
         data = response.data
         self.assertEqual(list(data), ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer',
-                                      'sentences', 'notes', 'verification', 'follow_up_number', 'created_at'])
+                                      'answered_by', 'review', 'sentences', 'notes', 'verification',
+                                      'follow_up_number', 'created_at'])
         self.assertEqual(data['uuid'], str(Question.objects.get().uuid))
         self.assertEqual((data['language'], data['level'], data['decision']), ('ar', 'C', 'partial'))
         self.assertEqual(data['sentences'], [{
@@ -244,10 +247,12 @@ class HistoryTests(QuestionAPITestCase):
                          [str(second.question.uuid), str(first.question.uuid)])
 
     def test_sources_of_a_page_are_loaded_in_one_query(self):
-        for _ in range(5):
-            self.saved()
-        # count, page of questions with their interactions, sources
-        with self.assertNumQueries(3):
+        for index in range(5):
+            interaction = self.saved()
+            if index % 2:
+                revise(interaction.question, self.reviser, 'Revised.', AnswerRevision.Reason.CORRECTION)
+        # count, page with interactions and centers, revisions of the page, sources
+        with self.assertNumQueries(4):
             self.client.get(self.url('questions'), {'session_id': SESSION})
 
     def test_session_id_is_required_and_checked(self):
@@ -268,3 +273,36 @@ class HistoryTests(QuestionAPITestCase):
         url = self.url('question', self.saved().question.uuid)
         for method in (self.client.put, self.client.patch, self.client.delete):
             self.assertEqual(method(url, {}).status_code, 405)
+
+
+class RevisionPayloadTests(QuestionAPITestCase):
+    """A revised answer replaces the AI's for the asker, signed with the center's name (ADR 0020)."""
+
+    def test_unrevised_answer_comes_from_the_ai(self):
+        question = self.saved().question
+        body = self.client.get(self.url('question', question.uuid)).json()
+        self.assertEqual((body['answered_by'], body['review']), ('ai', None))
+        self.assertEqual(len(body['sentences']), 1)
+
+    def test_latest_revision_replaces_the_answer_sentences_and_notes(self):
+        question = self.saved(level='C').question
+        revise(question, self.reviser, 'First correction.', AnswerRevision.Reason.CORRECTION)
+        latest = revise(question, self.reviser, 'Second correction.', AnswerRevision.Reason.CLARIFICATION,
+                        note='Internal only')
+        body = self.client.get(self.url('question', question.uuid)).json()
+        self.assertEqual(body['answer'], 'Second correction.')
+        self.assertEqual(body['answered_by'], 'center')
+        self.assertEqual(body['review']['center'], self.center.name)
+        self.assertEqual(body['review']['revised_at'], latest.created_at.isoformat().replace('+00:00', 'Z'))
+        self.assertEqual((body['sentences'], body['notes']), ([], []))
+        self.assertNotIn('Internal only', str(body))
+        self.assertNotIn(self.reviser.email, str(body))
+
+    def test_history_and_my_questions_show_the_revision(self):
+        user = self.authenticate()
+        question = self.saved(asker=user).question
+        revise(question, self.reviser, 'Answered by the center.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        for response in (self.client.get(self.url('questions'), {'session_id': SESSION}),
+                         self.client.get(self.url('my-questions'))):
+            self.assertEqual(response.json()['results'][0]['answer'], 'Answered by the center.')
+

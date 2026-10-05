@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{# Revise the answer the asker sees. Saved through qa.services.revise (ADR 0020); the AI answer stays as is. #}
+{% block content %}
+<form method="post" class="musnid-form">
+    {% csrf_token %}
+
+    <section class="musnid-form-card">
+        <h2>{% translate "Question" %}</h2>
+        <p dir="auto" class="musnid-form-question">{{ question.text }}</p>
+        <p class="musnid-meta">
+            {% if current %}
+                {% blocktranslate with date=current.created_at|date:"DATETIME_FORMAT" trimmed %}
+                    The asker currently sees a revision from {{ date }}. Saving adds a new revision; the
+                    earlier ones stay in the history.
+                {% endblocktranslate %}
+            {% else %}
+                {% translate "The asker currently sees the AI answer. It stays saved for audit, but the asker will only see your text." %}
+            {% endif %}
+        </p>
+    </section>
+
+    {% if error %}
+        <p class="musnid-form-error" role="alert">{{ error }}</p>
+    {% endif %}
+
+    <section class="musnid-form-card">
+        <label for="revision-text">{% translate "Answer shown to the asker" %}</label>
+        <p class="musnid-meta">{% blocktranslate with center=question.center.name trimmed %}
+            Signed with the name of the center, “{{ center }}”, never with your name.
+        {% endblocktranslate %}</p>
+        <textarea id="revision-text" name="text" dir="auto" rows="12" maxlength="{{ text_max }}" required>{{ values.text }}</textarea>
+
+        <label for="revision-reason">{% translate "Reason for the revision" %}</label>
+        <select id="revision-reason" name="reason" required>
+            <option value="">{% translate "Choose a reason" %}</option>
+            {% for value, label in reasons %}
+                <option value="{{ value }}"{% if value == values.reason %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="revision-note">{% translate "Internal note (optional)" %}</label>
+        <p class="musnid-meta">{% translate "For the center and staff only; never shown to the asker." %}</p>
+        <textarea id="revision-note" name="note" dir="auto" rows="3">{{ values.note }}</textarea>
+    </section>
+
+    <div class="musnid-dialog-actions">
+        <a href="{{ change_url }}" class="musnid-btn musnid-btn-outline">{% translate "Cancel" %}</a>
+        <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Save and show to the asker" %}</button>
+    </div>
+</form>
+{% endblock %}

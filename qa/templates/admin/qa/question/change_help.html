@@ -1,6 +1,12 @@
 {% load i18n %}
-{# Button above a question's page opening a visual guide to each section, top to bottom. #}
+{# Above a question's page: "Revise the answer" for users allowed to (revise_url), and a visual guide. #}
 <div class="musnid-help-trigger">
+    {% if revise_url %}
+        <a href="{{ revise_url }}" class="musnid-btn musnid-btn-primary">
+            <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+            {% translate "Revise the answer" %}
+        </a>
+    {% endif %}
     <button type="button" class="musnid-btn musnid-btn-outline"
             onclick="document.getElementById('change_help-dialog').showModal()">
         <span class="material-symbols-outlined" aria-hidden="true">help</span>
@@ -29,6 +35,9 @@
         <li><span class="musnid-step-icon musnid-step-danger material-symbols-outlined" aria-hidden="true">block</span>
             <div><h4>{% translate "Removed sentences" %}</h4>
                 <p>{% translate "Sentences the AI wrote but the checks removed before the answer was shown: the quote was not found in the sources, or it did not support the sentence." %}</p></div></li>
+        <li><span class="musnid-step-icon musnid-step-success material-symbols-outlined" aria-hidden="true">edit_note</span>
+            <div><h4>{% translate "Revisions" %}</h4>
+                <p>{% translate "Corrections written by the center's specialists, newest first. The newest one is what the asker sees, signed with the center's name; the AI answer above is kept unchanged for audit." %}</p></div></li>
         <li><span class="musnid-step-icon material-symbols-outlined" aria-hidden="true">travel_explore</span>
             <div><h4>{% translate "Retrieval" %}</h4>
                 <p>{% translate "The search query the AI wrote and the passages found, best match first. Click the title to open it." %}</p></div></li>

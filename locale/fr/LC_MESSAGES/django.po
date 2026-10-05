@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 08:06+0000\n"
+"POT-Creation-Date: 2026-10-05 08:30+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: French\n"
@@ -497,7 +497,7 @@ msgstr "Spécialiste"
 msgid "Center admin"
 msgstr "Administrateur du centre"
 
-#: core/models/membership.py:54 core/models/user.py:84 qa/models.py:46
+#: core/models/membership.py:54 core/models/user.py:84 qa/models.py:54
 msgid "public identifier"
 msgstr "identifiant public"
 
@@ -641,16 +641,17 @@ msgstr "Motif (affiché au demandeur)"
 #: core/templates/admin/core/center/reject_selected.html:19
 #: core/templates/admin/core/center/review_buttons.html:16
 #: core/templates/admin/core/center/review_buttons.html:30
+#: qa/templates/admin/qa/question/revise.html:48
 msgid "Cancel"
 msgstr "Annuler"
 
 #: core/templates/admin/core/center/review_buttons.html:5
-#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:130
+#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:147
 msgid "Approve"
 msgstr "Approuver"
 
 #: core/templates/admin/core/center/review_buttons.html:7
-#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:132
+#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:149
 msgid "Reject"
 msgstr "Refuser"
 
@@ -679,7 +680,7 @@ msgstr "extraits"
 msgid "title"
 msgstr "titre"
 
-#: knowledge/models.py:27 knowledge/models.py:84 qa/models.py:48
+#: knowledge/models.py:27 knowledge/models.py:84 qa/models.py:56
 msgid "language"
 msgstr "langue"
 
@@ -711,7 +712,8 @@ msgstr "document source"
 msgid "source documents"
 msgstr "documents sources"
 
-#: knowledge/models.py:75 qa/admin.py:62
+#: knowledge/models.py:75 qa/admin.py:94
+#: qa/templates/admin/qa/question/revise.html:9
 msgid "Question"
 msgstr "Question"
 
@@ -719,8 +721,8 @@ msgstr "Question"
 msgid "Summary"
 msgstr "Résumé"
 
-#: knowledge/models.py:77 qa/admin.py:63 qa/models.py:85
-#: qa/templates/admin/qa/question/change_help.html:24
+#: knowledge/models.py:77 qa/admin.py:95 qa/models.py:102
+#: qa/templates/admin/qa/question/change_help.html:30
 #: qa/templates/admin/qa/question/list_help.html:35
 msgid "Answer"
 msgstr "Réponse"
@@ -737,7 +739,7 @@ msgstr "numéro de la question"
 msgid "kind"
 msgstr "type"
 
-#: knowledge/models.py:86 qa/models.py:47
+#: knowledge/models.py:86 qa/models.py:55
 msgid "text"
 msgstr "texte"
 
@@ -761,156 +763,184 @@ msgstr "extrait de source"
 msgid "source chunks"
 msgstr "extraits de sources"
 
-#: qa/admin.py:34
+#: qa/admin.py:46
 msgid "Quote not found in the sources"
 msgstr "Citation introuvable dans les sources"
 
-#: qa/admin.py:35
+#: qa/admin.py:47
 msgid "Quote does not support the sentence"
 msgstr "La citation n’étaye pas la phrase"
 
-#: qa/admin.py:55
-msgid "Search by question text or asker email, or paste a follow-up number."
-msgstr "Recherchez par le texte de la question ou l’e-mail de son auteur, ou collez un numéro de suivi."
+#: qa/admin.py:67
+msgid "Revisions shown to the asker (newest first)"
+msgstr "Révisions affichées à la personne (la plus récente d’abord)"
 
-#: qa/admin.py:64 qa/templates/admin/qa/question/change_help.html:33
+#: qa/admin.py:87
+msgid "Search by question text or asker email, or paste a follow-up number."
+msgstr ""
+"Recherchez par le texte de la question ou l’e-mail de son auteur, ou collez "
+"un numéro de suivi."
+
+#: qa/admin.py:96 qa/templates/admin/qa/question/change_help.html:42
 msgid "Retrieval"
 msgstr "Recherche"
 
-#: qa/admin.py:65 qa/templates/admin/qa/question/change_help.html:36
-#: qa/templates/admin/qa/question/list_help.html:64
+#: qa/admin.py:97 qa/templates/admin/qa/question/change_help.html:45
+#: qa/templates/admin/qa/question/list_help.html:74
 msgid "Run"
 msgstr "Exécution"
 
-#: qa/admin.py:94 qa/models.py:59 qa/models.py:92
+#: qa/admin.py:153
+msgid "The revised answer is now shown to the asker."
+msgstr "La réponse révisée est désormais affichée à la personne."
+
+#: qa/admin.py:157 qa/templates/admin/qa/question/change_help.html:7
+msgid "Revise the answer"
+msgstr "Réviser la réponse"
+
+#: qa/admin.py:194 qa/models.py:67 qa/models.py:109 qa/models.py:187
 msgid "question"
 msgstr "question"
 
-#: qa/admin.py:98 qa/models.py:53
+#: qa/admin.py:198 qa/models.py:61
 msgid "asker"
 msgstr "auteur de la question"
 
-#: qa/admin.py:101
+#: qa/admin.py:201
 msgid "Anonymous"
 msgstr "Anonyme"
 
-#: qa/admin.py:103 qa/models.py:107
+#: qa/admin.py:203 qa/models.py:124
 msgid "decision"
 msgstr "décision"
 
-#: qa/admin.py:110 qa/models.py:94
+#: qa/admin.py:210
+msgid "answered by"
+msgstr "répondu par"
+
+#: qa/admin.py:214 qa/templates/admin/qa/question/list_help.html:53
+msgid "Center"
+msgstr "Centre"
+
+#: qa/admin.py:215 qa/templates/admin/qa/question/list_help.html:51
+msgid "AI"
+msgstr "IA"
+
+#: qa/admin.py:217 qa/models.py:111
 msgid "level"
 msgstr "niveau"
 
-#: qa/admin.py:115 qa/models.py:99
+#: qa/admin.py:222 qa/models.py:116 qa/models.py:193
 msgid "answer"
 msgstr "réponse"
 
-#: qa/admin.py:119
+#: qa/admin.py:226
 msgid "No answer was saved for this question."
 msgstr "Aucune réponse n’a été enregistrée pour cette question."
 
-#: qa/admin.py:122
+#: qa/admin.py:229
 msgid "kept sentences"
 msgstr "phrases conservées"
 
-#: qa/admin.py:131 qa/admin.py:161
+#: qa/admin.py:238 qa/admin.py:268
 #, python-format
 msgid "Bayyinat question %(number)s"
 msgstr "Bayyinat, question %(number)s"
 
-#: qa/admin.py:135
+#: qa/admin.py:242
 msgid "removed sentences"
 msgstr "phrases retirées"
 
-#: qa/admin.py:148 qa/models.py:95
+#: qa/admin.py:255 qa/models.py:112
 msgid "search query"
 msgstr "requête de recherche"
 
-#: qa/admin.py:153 qa/models.py:96
+#: qa/admin.py:260 qa/models.py:113
 msgid "retrieved"
 msgstr "résultats récupérés"
 
-#: qa/admin.py:166 qa/models.py:109
+#: qa/admin.py:273 qa/models.py:126
 msgid "model"
 msgstr "modèle"
 
-#: qa/admin.py:174
+#: qa/admin.py:281
 msgid "response time"
 msgstr "temps de réponse"
 
-#: qa/admin.py:177
+#: qa/admin.py:284
 #, python-format
 msgid "%(seconds).1f s"
 msgstr "%(seconds).1f s"
 
-#: qa/admin.py:179
+#: qa/admin.py:286
 msgid "tokens"
 msgstr "jetons"
 
-#: qa/admin.py:184
+#: qa/admin.py:291
 #, python-format
 msgid "%(input)s in, %(output)s out"
 msgstr "%(input)s en entrée, %(output)s en sortie"
 
-#: qa/admin.py:186 qa/admin.py:193 qa/models.py:114
+#: qa/admin.py:293 qa/admin.py:300 qa/models.py:131
 msgid "error"
 msgstr "erreur"
 
-#: qa/admin.py:199 qa/templates/admin/qa/question/list_help.html:78
+#: qa/admin.py:306 qa/templates/admin/qa/question/list_help.html:88
 msgid "Yes"
 msgstr "Oui"
 
-#: qa/admin.py:199 qa/templates/admin/qa/question/list_help.html:76
+#: qa/admin.py:306 qa/templates/admin/qa/question/list_help.html:86
 msgid "No"
 msgstr "Non"
 
-#: qa/models.py:49
+#: qa/models.py:57
 msgid "session"
 msgstr "session"
 
-#: qa/models.py:53
+#: qa/models.py:61
 msgid "The account that asked, when logged in. Empty for anonymous askers."
-msgstr "Le compte qui a posé la question, s’il était connecté. Vide pour une personne anonyme."
+msgstr ""
+"Le compte qui a posé la question, s’il était connecté. Vide pour une "
+"personne anonyme."
 
-#: qa/models.py:60
+#: qa/models.py:68
 msgid "questions"
 msgstr "questions"
 
-#: qa/models.py:80 qa/models.py:89
+#: qa/models.py:97 qa/models.py:106
 #: qa/templates/admin/qa/question/list_help.html:43
 msgid "Out of scope"
 msgstr "Hors champ"
 
-#: qa/models.py:86 qa/templates/admin/qa/question/list_help.html:37
+#: qa/models.py:103 qa/templates/admin/qa/question/list_help.html:37
 msgid "Partial answer"
 msgstr "Réponse partielle"
 
-#: qa/models.py:87 qa/templates/admin/qa/question/list_help.html:41
+#: qa/models.py:104 qa/templates/admin/qa/question/list_help.html:41
 msgid "Abstain"
 msgstr "Abstention"
 
-#: qa/models.py:88 qa/templates/admin/qa/question/list_help.html:39
+#: qa/models.py:105 qa/templates/admin/qa/question/list_help.html:39
 msgid "Referred to a center"
 msgstr "Transmise à un centre"
 
-#: qa/models.py:97
+#: qa/models.py:114
 msgid "Ranked results: question number, score, chunk kind."
 msgstr "Résultats classés : numéro de question, score, type d’extrait."
 
-#: qa/models.py:98
+#: qa/models.py:115
 msgid "evidence question numbers"
 msgstr "numéros des questions de preuve"
 
-#: qa/models.py:100
+#: qa/models.py:117
 msgid "citations"
 msgstr "citations"
 
-#: qa/models.py:102
+#: qa/models.py:119
 msgid "sentences"
 msgstr "phrases"
 
-#: qa/models.py:103
+#: qa/models.py:120
 msgid ""
 "Kept sentences: text without citation markers, supporting quote, source "
 "question number."
@@ -918,81 +948,130 @@ msgstr ""
 "Phrases retenues : texte sans marqueurs de citation, citation justificative, "
 "numéro de la question source."
 
-#: qa/models.py:105
+#: qa/models.py:122
 msgid "dropped sentences"
 msgstr "phrases écartées"
 
-#: qa/models.py:106
+#: qa/models.py:123
 msgid ""
 "Sentences removed by the quote or entailment check: text, quote, reason."
 msgstr ""
 "Phrases retirées par la vérification de la citation ou de l’implication : "
 "texte, citation, motif."
 
-#: qa/models.py:108
+#: qa/models.py:125
 msgid "verifier verdict"
 msgstr "verdict du vérificateur"
 
-#: qa/models.py:110
+#: qa/models.py:127
 msgid "prompt version"
 msgstr "version des consignes"
 
-#: qa/models.py:111
+#: qa/models.py:128
 msgid "latency (ms)"
 msgstr "latence (ms)"
 
-#: qa/models.py:112
+#: qa/models.py:129
 msgid "input tokens"
 msgstr "jetons d’entrée"
 
-#: qa/models.py:113
+#: qa/models.py:130
 msgid "output tokens"
 msgstr "jetons de sortie"
 
-#: qa/models.py:117 qa/models.py:135
+#: qa/models.py:134 qa/models.py:152
 msgid "interaction"
 msgstr "interaction"
 
-#: qa/models.py:118
+#: qa/models.py:135
 msgid "interactions"
 msgstr "interactions"
 
-#: qa/models.py:131
+#: qa/models.py:148
 msgid "Correct"
 msgstr "Corriger"
 
-#: qa/models.py:139
+#: qa/models.py:156
 msgid "reviewer"
 msgstr "réviseur"
 
-#: qa/models.py:141
+#: qa/models.py:158
 msgid "verdict"
 msgstr "verdict"
 
-#: qa/models.py:142
+#: qa/models.py:159
 msgid "corrected answer"
 msgstr "réponse corrigée"
 
-#: qa/models.py:143
+#: qa/models.py:160 qa/models.py:194
 msgid "reason"
 msgstr "motif"
 
-#: qa/models.py:146
+#: qa/models.py:163
 msgid "human label"
 msgstr "évaluation humaine"
 
-#: qa/models.py:147
+#: qa/models.py:164
 msgid "human labels"
 msgstr "évaluations humaines"
 
-#: qa/templates/admin/qa/question/change_help.html:7
-#: qa/templates/admin/qa/question/change_help.html:17
+#: qa/models.py:182
+msgid "Correction of an error"
+msgstr "Correction d’une erreur"
+
+#: qa/models.py:183
+msgid "Clarification or completion"
+msgstr "Précision ou complément"
+
+#: qa/models.py:184
+msgid "Answer by a specialist"
+msgstr "Réponse d’un spécialiste"
+
+#: qa/models.py:191
+msgid "author"
+msgstr "auteur"
+
+#: qa/models.py:195
+msgid "internal note"
+msgstr "note interne"
+
+#: qa/models.py:196 qa/templates/admin/qa/question/revise.html:43
+msgid "For the center and staff only; never shown to the asker."
+msgstr "Réservée au centre et à l’équipe ; jamais affichée à la personne."
+
+#: qa/models.py:199
+msgid "answer revision"
+msgstr "révision de réponse"
+
+#: qa/models.py:200
+msgid "answer revisions"
+msgstr "révisions de réponse"
+
+#: qa/services.py:49
+msgid "You cannot revise answers of this center."
+msgstr "Vous ne pouvez pas réviser les réponses de ce centre."
+
+#: qa/services.py:52
+msgid "Write the answer the asker should see."
+msgstr "Rédigez la réponse que la personne doit voir."
+
+#: qa/services.py:54
+#, python-format
+msgid "The answer is limited to %(max)d characters."
+msgstr "La réponse est limitée à %(max)d caractères."
+
+#: qa/services.py:57
+msgid "Choose why the answer is revised."
+msgstr "Choisissez pourquoi la réponse est révisée."
+
+#: qa/templates/admin/qa/question/change_help.html:13
+#: qa/templates/admin/qa/question/change_help.html:23
 #: qa/templates/admin/qa/question/list_help.html:7
 #: qa/templates/admin/qa/question/list_help.html:17
 msgid "How to read this page"
 msgstr "Comment lire cette page"
 
-#: qa/templates/admin/qa/question/change_help.html:18
+#: qa/templates/admin/qa/question/change_help.html:24
 msgid ""
 "One question and how it was answered, section by section. Nothing here can "
 "be edited."
@@ -1000,17 +1079,17 @@ msgstr ""
 "Une question et la manière dont elle a été traitée, section par section. "
 "Rien ne peut être modifié ici."
 
-#: qa/templates/admin/qa/question/change_help.html:25
+#: qa/templates/admin/qa/question/change_help.html:31
 msgid "The decision, the level and the full text the asker received."
 msgstr ""
 "La décision, le niveau et le texte complet reçu par la personne qui a posé "
 "la question."
 
-#: qa/templates/admin/qa/question/change_help.html:27
+#: qa/templates/admin/qa/question/change_help.html:33
 msgid "Kept sentences"
 msgstr "Phrases conservées"
 
-#: qa/templates/admin/qa/question/change_help.html:28
+#: qa/templates/admin/qa/question/change_help.html:34
 msgid ""
 "Each sentence of the answer, with the quote from the Bayyinat book that "
 "supports it. The quote was checked in code against the source text."
@@ -1018,11 +1097,11 @@ msgstr ""
 "Chaque phrase de la réponse, avec la citation du livre Bayyinat qui l’étaye. "
 "La citation a été vérifiée par le code dans le texte source."
 
-#: qa/templates/admin/qa/question/change_help.html:30
+#: qa/templates/admin/qa/question/change_help.html:36
 msgid "Removed sentences"
 msgstr "Phrases retirées"
 
-#: qa/templates/admin/qa/question/change_help.html:31
+#: qa/templates/admin/qa/question/change_help.html:37
 msgid ""
 "Sentences the AI wrote but the checks removed before the answer was shown: "
 "the quote was not found in the sources, or it did not support the sentence."
@@ -1031,7 +1110,18 @@ msgstr ""
 "l’affichage de la réponse : la citation était introuvable dans les sources, "
 "ou elle n’étayait pas la phrase."
 
-#: qa/templates/admin/qa/question/change_help.html:34
+#: qa/templates/admin/qa/question/change_help.html:39
+msgid "Revisions"
+msgstr "Révisions"
+
+#: qa/templates/admin/qa/question/change_help.html:40
+msgid ""
+"Corrections written by the center's specialists, newest first. The newest "
+"one is what the asker sees, signed with the center's name; the AI answer "
+"above is kept unchanged for audit."
+msgstr "Corrections rédigées par les spécialistes du centre, de la plus récente à la plus ancienne. La plus récente est celle que voit la personne, signée du nom du centre ; la réponse de l’IA ci-dessus est conservée telle quelle pour l’audit."
+
+#: qa/templates/admin/qa/question/change_help.html:43
 msgid ""
 "The search query the AI wrote and the passages found, best match first. "
 "Click the title to open it."
@@ -1039,7 +1129,7 @@ msgstr ""
 "La requête de recherche écrite par l’IA et les passages trouvés, du plus "
 "pertinent au moins pertinent. Cliquez sur le titre pour l’ouvrir."
 
-#: qa/templates/admin/qa/question/change_help.html:37
+#: qa/templates/admin/qa/question/change_help.html:46
 msgid ""
 "The model used, the response time, the tokens and any error. Click the title "
 "to open it."
@@ -1047,8 +1137,8 @@ msgstr ""
 "Le modèle utilisé, le temps de réponse, les jetons et une éventuelle erreur. "
 "Cliquez sur le titre pour l’ouvrir."
 
-#: qa/templates/admin/qa/question/change_help.html:41
-#: qa/templates/admin/qa/question/list_help.html:90
+#: qa/templates/admin/qa/question/change_help.html:50
+#: qa/templates/admin/qa/question/list_help.html:100
 msgid "Close"
 msgstr "Fermer"
 
@@ -1070,7 +1160,9 @@ msgstr "Auteur de la question"
 msgid ""
 "The account's email when the person was logged in; Anonymous otherwise. "
 "Asking needs no account."
-msgstr "L’e-mail du compte si la personne était connectée, sinon « Anonyme ». Poser une question ne nécessite pas de compte."
+msgstr ""
+"L’e-mail du compte si la personne était connectée, sinon « Anonyme ». Poser "
+"une question ne nécessite pas de compte."
 
 #: qa/templates/admin/qa/question/list_help.html:32
 msgid "Decision"
@@ -1109,28 +1201,42 @@ msgid "Not about Islam; the asker gets a fixed reply."
 msgstr "Ne concerne pas l’islam ; la personne reçoit une réponse fixe."
 
 #: qa/templates/admin/qa/question/list_help.html:49
+msgid "Answered by"
+msgstr "Répondu par"
+
+#: qa/templates/admin/qa/question/list_help.html:52
+msgid "The asker sees the AI answer, with its sources."
+msgstr "La personne voit la réponse de l’IA, avec ses sources."
+
+#: qa/templates/admin/qa/question/list_help.html:54
+msgid ""
+"A specialist revised the answer; the asker sees that text, signed with the "
+"center's name."
+msgstr "Un spécialiste a révisé la réponse ; la personne voit ce texte, signé du nom du centre."
+
+#: qa/templates/admin/qa/question/list_help.html:59
 msgid "Level"
 msgstr "Niveau"
 
-#: qa/templates/admin/qa/question/list_help.html:50
+#: qa/templates/admin/qa/question/list_help.html:60
 msgid "Set by the AI before it answers."
 msgstr "Fixé par l’IA avant de répondre."
 
-#: qa/templates/admin/qa/question/list_help.html:53
+#: qa/templates/admin/qa/question/list_help.html:63
 msgid "A settled fact about Islam: beliefs, pillars, history."
 msgstr "Un fait établi sur l’islam : croyances, piliers, histoire."
 
-#: qa/templates/admin/qa/question/list_help.html:55
+#: qa/templates/admin/qa/question/list_help.html:65
 msgid "An explanation or an argument: wisdom, objections, comparisons."
 msgstr "Une explication ou un argument : sagesse, objections, comparaisons."
 
-#: qa/templates/admin/qa/question/list_help.html:57
+#: qa/templates/admin/qa/question/list_help.html:67
 msgid "A matter on which recognized scholars differ; the answer says so."
 msgstr ""
 "Une question sur laquelle les savants reconnus divergent ; la réponse le "
 "précise."
 
-#: qa/templates/admin/qa/question/list_help.html:59
+#: qa/templates/admin/qa/question/list_help.html:69
 msgid ""
 "A personal religious ruling (fatwa) about the asker's own situation. Always "
 "referred to specialists, never answered by the AI."
@@ -1138,11 +1244,11 @@ msgstr ""
 "Un avis religieux personnel (fatwa) sur la situation de la personne. "
 "Toujours transmis aux spécialistes, jamais traité par l’IA."
 
-#: qa/templates/admin/qa/question/list_help.html:67
+#: qa/templates/admin/qa/question/list_help.html:77
 msgid "Response time"
 msgstr "Temps de réponse"
 
-#: qa/templates/admin/qa/question/list_help.html:68
+#: qa/templates/admin/qa/question/list_help.html:78
 msgid ""
 "Seconds from the question to the answer: search, writing and verification of "
 "every sentence."
@@ -1150,11 +1256,11 @@ msgstr ""
 "Secondes entre la question et la réponse : recherche, rédaction et "
 "vérification de chaque phrase."
 
-#: qa/templates/admin/qa/question/list_help.html:71
+#: qa/templates/admin/qa/question/list_help.html:81
 msgid "Tokens"
 msgstr "Jetons"
 
-#: qa/templates/admin/qa/question/list_help.html:72
+#: qa/templates/admin/qa/question/list_help.html:82
 msgid ""
 "Text sent to the AI model (in) and received from it (out). The cost of an "
 "answer depends on these numbers."
@@ -1162,15 +1268,15 @@ msgstr ""
 "Texte envoyé au modèle d’IA (entrée) et reçu de lui (sortie). Le coût d’une "
 "réponse dépend de ces nombres."
 
-#: qa/templates/admin/qa/question/list_help.html:75
+#: qa/templates/admin/qa/question/list_help.html:85
 msgid "Error"
 msgstr "Erreur"
 
-#: qa/templates/admin/qa/question/list_help.html:77
+#: qa/templates/admin/qa/question/list_help.html:87
 msgid "The run completed normally."
 msgstr "L’exécution s’est terminée normalement."
 
-#: qa/templates/admin/qa/question/list_help.html:79
+#: qa/templates/admin/qa/question/list_help.html:89
 msgid ""
 "A step failed and the asker got a fixed reply; the details are on the "
 "question's page."
@@ -1178,12 +1284,52 @@ msgstr ""
 "Une étape a échoué et la personne a reçu une réponse fixe ; les détails sont "
 "sur la page de la question."
 
-#: qa/templates/admin/qa/question/list_help.html:85
+#: qa/templates/admin/qa/question/list_help.html:95
 msgid "Search"
 msgstr "Recherche"
 
-#: qa/templates/admin/qa/question/list_help.html:86
+#: qa/templates/admin/qa/question/list_help.html:96
 msgid ""
 "By question text or asker email, or paste the follow-up number given to the "
 "asker."
-msgstr "Par le texte de la question ou l’e-mail de son auteur, ou collez le numéro de suivi donné à la personne."
+msgstr ""
+"Par le texte de la question ou l’e-mail de son auteur, ou collez le numéro "
+"de suivi donné à la personne."
+
+#: qa/templates/admin/qa/question/revise.html:13
+#, python-format
+msgid ""
+"The asker currently sees a revision from %(date)s. Saving adds a new "
+"revision; the earlier ones stay in the history."
+msgstr "La personne voit actuellement une révision du %(date)s. Enregistrer ajoute une nouvelle révision ; les précédentes restent dans l’historique."
+
+#: qa/templates/admin/qa/question/revise.html:18
+msgid ""
+"The asker currently sees the AI answer. It stays saved for audit, but the "
+"asker will only see your text."
+msgstr "La personne voit actuellement la réponse de l’IA. Elle reste enregistrée pour l’audit, mais la personne ne verra que votre texte."
+
+#: qa/templates/admin/qa/question/revise.html:28
+msgid "Answer shown to the asker"
+msgstr "Réponse affichée à la personne"
+
+#: qa/templates/admin/qa/question/revise.html:29
+#, python-format
+msgid "Signed with the name of the center, “%(center)s”, never with your name."
+msgstr "Signée du nom du centre, « %(center)s », jamais de votre nom."
+
+#: qa/templates/admin/qa/question/revise.html:34
+msgid "Reason for the revision"
+msgstr "Motif de la révision"
+
+#: qa/templates/admin/qa/question/revise.html:36
+msgid "Choose a reason"
+msgstr "Choisissez un motif"
+
+#: qa/templates/admin/qa/question/revise.html:42
+msgid "Internal note (optional)"
+msgstr "Note interne (facultative)"
+
+#: qa/templates/admin/qa/question/revise.html:49
+msgid "Save and show to the asker"
+msgstr "Enregistrer et afficher à la personne"

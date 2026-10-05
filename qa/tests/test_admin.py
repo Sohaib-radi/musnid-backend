@@ -1,10 +1,12 @@
 """Tests for qa/admin.py: the read-only questions admin and what its pages show."""
 
+from django.contrib.auth.models import Permission
 from django.urls import reverse
 
 from core.tests.support import make_center, make_interaction, make_question, make_user
 from core.tests.test_admin import AdminTestCase
-from qa.models import Interaction, Question
+from qa.models import AnswerRevision, Interaction, Question
+from qa.services import revise
 
 
 class QuestionAdminTests(AdminTestCase):
@@ -112,4 +114,55 @@ class QuestionAdminTests(AdminTestCase):
         by_email = self.changelist(q='amina@')
         self.assertContains(by_email, 'Logged in?')
         self.assertNotContains(by_email, 'Anonymous question?')
+
+    def revise_url(self, question):
+        return reverse('admin:qa_question_revise', args=[question.pk])
+
+    def test_revise_page_is_prefilled_with_the_ai_answer_without_markers(self):
+        interaction = make_interaction(sentences=[{'text': 'First.', 'quote': 'q', 'number': 1},
+                                                  {'text': 'Second.', 'quote': 'q', 'number': 2}])
+        response = self.client.get(self.revise_url(interaction.question))
+        self.assertContains(response, 'First. Second.</textarea>')
+
+    def test_referred_question_preselects_a_specialist_answer(self):
+        interaction = make_interaction(decision=Interaction.Decision.REFER, answer_text='Fixed referral reply.')
+        response = self.client.get(self.revise_url(interaction.question))
+        self.assertContains(response, 'value="specialist_answer" selected')
+
+    def test_saving_a_revision(self):
+        question = make_interaction().question
+        response = self.client.post(self.revise_url(question), {
+            'text': 'Corrected by the center.', 'reason': 'correction', 'note': 'Checked the source.'})
+        self.assertRedirects(response, self.change_page_url(question), fetch_redirect_response=False)
+        revision = AnswerRevision.objects.get()
+        self.assertEqual((revision.text, revision.author, revision.note),
+                         ('Corrected by the center.', self.superuser, 'Checked the source.'))
+        page = self.change_page(question)
+        self.assertContains(page, 'Corrected by the center.')
+        self.assertContains(self.changelist(), 'Center')
+
+    def test_refused_revision_is_shown_on_the_form(self):
+        question = make_interaction().question
+        response = self.client.post(self.revise_url(question), {'text': ' ', 'reason': 'correction'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Write the answer the asker should see.')
+        self.assertFalse(AnswerRevision.objects.exists())
+
+    def test_staff_without_permission_get_no_button_and_403(self):
+        viewer = make_user(is_staff=True)
+        viewer.user_permissions.add(*Permission.objects.filter(codename__in=['view_question']))
+        self.client.force_login(viewer)
+        question = make_interaction().question
+        self.assertNotContains(self.change_page(question), '/revise/')
+        self.assertEqual(self.client.get(self.revise_url(question)).status_code, 403)
+
+    def test_answered_by_column(self):
+        answered = make_interaction(question=make_question(text='Revised?')).question
+        revise(answered, self.superuser, 'By the center.', AnswerRevision.Reason.CORRECTION)
+        make_interaction(question=make_question(text='Not revised?'))
+        html = self.changelist().content.decode()
+        self.assertEqual(html.count('field-answered_by'), 2)
+
+    def change_page_url(self, question):
+        return reverse('admin:qa_question_change', args=[question.pk])
 

@@ -3,22 +3,34 @@ Read-only admin for asked questions and how the AI answered them.
 
 A question's page shows its ``Interaction``: the answer, each kept sentence with
 its supporting quote and Bayyinat source, and each sentence the checks removed.
-Nothing can be added, changed or deleted here: questions come from the ask API,
-and an interaction is the audit record of one answer. Editing answers is a
-later step, with tracked revisions.
+Questions and interactions are never added, changed or deleted here: questions
+come from the ask API, and an interaction is the audit record of one answer.
+
+Changing what the asker sees is a revision (ADR 0020): the "Revise the answer"
+page saves one through ``qa.services.revise``, and the page lists every revision,
+read-only.
 """
 
+import re
 import uuid
 
-from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import admin, messages
+from django.contrib.admin.utils import unquote
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
+from django.db.models import Exists, OuterRef
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 
-from qa.models import Interaction, Question
+from qa import services
+from qa.models import AnswerRevision, Interaction, Question
+from qa.services import TEXT_MAX
 
 #: Badge colour of each decision, from served (green) to not answered (red)
 DECISION_COLORS = {
@@ -44,11 +56,31 @@ def interaction_of(question):
         return None
 
 
+class AnswerRevisionInline(TabularInline):
+    """Every revision of the answer, newest first; read-only, added through ``revise``."""
+
+    model = AnswerRevision
+    extra = 0
+    fields = ['created_at', 'author', 'reason', 'text', 'note']
+    readonly_fields = fields
+    ordering = ['-created_at']
+    verbose_name_plural = _('Revisions shown to the asker (newest first)')
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(Question)
 class QuestionAdmin(ModelAdmin):
     """Questions with their decision; each page shows the full AI answer and its checks."""
 
-    list_display = ['short_text', 'asked_by', 'lang', 'decision', 'level', 'latency', 'tokens', 'has_error', 'center',
+    list_display = ['short_text', 'asked_by', 'lang', 'decision', 'answered_by', 'level', 'latency', 'tokens', 'has_error', 'center',
                     'created_at']
     list_filter = ['interaction__decision', 'interaction__level', 'lang', 'center']
     search_fields = ['text', 'asker__email']
@@ -67,6 +99,7 @@ class QuestionAdmin(ModelAdmin):
             'classes': ['collapse'],
         }),
     ]
+    inlines = [AnswerRevisionInline]
     readonly_fields = [
         'text', 'uuid', 'asked_by', 'lang', 'center', 'session_id', 'created_at',
         'decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences',
@@ -75,6 +108,73 @@ class QuestionAdmin(ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def get_queryset(self, request):
+        """Flag revised questions in one query, for the "Answered by" column."""
+        return super().get_queryset(request).annotate(
+            revised=Exists(AnswerRevision.objects.filter(question=OuterRef('pk'))))
+
+    def get_urls(self):
+        return [
+            path('<path:object_id>/revise/', self.admin_site.admin_view(self.revise_view), name='qa_question_revise'),
+            *super().get_urls(),
+        ]
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        """Offer "Revise the answer" to users allowed to revise this question."""
+        question = self.get_object(request, unquote(object_id))
+        extra_context = extra_context or {}
+        if question is not None and services.can_revise(request.user, question):
+            extra_context['revise_url'] = reverse('admin:qa_question_revise', args=[question.pk])
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def revise_view(self, request, object_id):
+        """GET: the revision form, prefilled with what the asker sees now. POST: save it through ``revise``."""
+        question = get_object_or_404(Question.objects.with_answers(), pk=unquote(object_id))
+        if not services.can_revise(request.user, question):
+            raise PermissionDenied
+        current = question.latest_revision()
+        interaction = interaction_of(question)
+        # A question the AI did not answer gets a specialist's answer; otherwise the reason is chosen
+        unanswered = current is None and (interaction is None or interaction.decision in ('refer', 'abstain'))
+        values = {
+            'text': current.text if current else self._plain_answer(question),
+            'reason': AnswerRevision.Reason.SPECIALIST_ANSWER if unanswered else '',
+            'note': '',
+        }
+        error = None
+        if request.method == 'POST':
+            values = {key: request.POST.get(key, '') for key in values}
+            try:
+                services.revise(question, request.user, values['text'], values['reason'], values['note'])
+            except ValidationError as caught:
+                error = ' '.join(caught.messages)
+            else:
+                self.message_user(request, _('The revised answer is now shown to the asker.'), messages.SUCCESS)
+                return HttpResponseRedirect(reverse('admin:qa_question_change', args=[question.pk]))
+        return TemplateResponse(request, 'admin/qa/question/revise.html', {
+            **self.admin_site.each_context(request),
+            'title': _('Revise the answer'),
+            'opts': self.model._meta,
+            'original': question,
+            'question': question,
+            'current': current,
+            'values': values,
+            'error': error,
+            'reasons': AnswerRevision.Reason.choices,
+            'text_max': TEXT_MAX,
+            'change_url': reverse('admin:qa_question_change', args=[question.pk]),
+        })
+
+    @staticmethod
+    def _plain_answer(question):
+        """The AI answer without its ``[Q<n>]`` markers: a starting point for the specialist."""
+        interaction = interaction_of(question)
+        if interaction is None:
+            return ''
+        if interaction.sentences:
+            return ' '.join(sentence.get('text', '') for sentence in interaction.sentences)
+        return re.sub(r'\s*\[Q\d+\]', '', interaction.answer_text)
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -106,6 +206,13 @@ class QuestionAdmin(ModelAdmin):
         if interaction is None:
             return '-'
         return interaction.decision, interaction.get_decision_display()
+
+    @display(description=_('answered by'), ordering='revised', label={'ai': 'info', 'center': 'success'})
+    def answered_by(self, question):
+        """AI until a specialist revises the answer, then Center: what the asker sees now."""
+        if getattr(question, 'revised', False):
+            return 'center', _('Center')
+        return 'ai', _('AI')
 
     @display(description=_('level'), ordering='interaction__level')
     def level(self, question):

@@ -75,6 +75,13 @@ class SourceSerializer(serializers.Serializer):
     pdf_url = serializers.CharField(help_text='The book PDF opened at the question\'s first page.')
 
 
+class ReviewSerializer(serializers.Serializer):
+    """Who stands behind a revised answer: the center, never the person (ADR 0020)."""
+
+    center = serializers.CharField(help_text="The name of the center whose specialist revised the answer.")
+    revised_at = serializers.DateTimeField(help_text='When the shown revision was written.')
+
+
 class SentenceSerializer(serializers.Serializer):
     """One sentence of the answer, its supporting quote and its source."""
 
@@ -157,11 +164,15 @@ class QuestionSerializer(serializers.ModelSerializer):
     verification = serializers.SerializerMethodField()
     follow_up_number = serializers.SerializerMethodField(
         help_text='For a referred question: the number to quote when following up (its uuid).')
+    answered_by = serializers.SerializerMethodField(
+        help_text='ai: the AI answer with its sources; center: a specialist revised it (answer is their text, '
+                  'without sentences or notes).')
+    review = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
-        fields = ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer', 'sentences',
-                  'notes', 'verification', 'follow_up_number', 'created_at']
+        fields = ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer', 'answered_by', 'review',
+                  'sentences', 'notes', 'verification', 'follow_up_number', 'created_at']
         read_only_fields = fields
         list_serializer_class = QuestionListSerializer
 
@@ -178,11 +189,24 @@ class QuestionSerializer(serializers.ModelSerializer):
         return interaction.decision if interaction else ''
 
     def get_answer(self, question) -> str:
+        revision = question.latest_revision()
+        if revision:
+            return revision.text
         interaction = self._interaction(question)
         return interaction.answer_text if interaction else ''
 
+    def get_answered_by(self, question) -> str:
+        return 'center' if question.latest_revision() else 'ai'
+
+    @extend_schema_field(ReviewSerializer(allow_null=True))
+    def get_review(self, question):
+        revision = question.latest_revision()
+        return {'center': question.center.name, 'revised_at': revision.created_at} if revision else None
+
     @extend_schema_field(SentenceSerializer(many=True))
     def get_sentences(self, question):
+        if question.latest_revision():
+            return []  # the revision replaces the AI answer and its sources
         cache = load_sources(self.context, [question])
         kept = getattr(self._interaction(question), 'sentences', [])
         return [{'text': s['text'], 'quote': s['quote'], 'source': cache[(question.lang, s['number'])]}
@@ -190,6 +214,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(NoteSerializer(many=True))
     def get_notes(self, question):
+        if question.latest_revision():
+            return []
         interaction = self._interaction(question)
         return notes(interaction.decision, interaction.level, question.lang) if interaction else []
 

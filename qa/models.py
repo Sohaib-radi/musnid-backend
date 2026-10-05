@@ -5,6 +5,10 @@ Asking needs no account: an anonymous asker is known only by ``session_id``, an
 opaque string. A logged-in asker's questions are also linked to their account
 (``Question.asker``), so they can find them from any device (ADR 0019). Stored
 errors have API keys masked.
+
+A specialist can revise an answer (``AnswerRevision``, ADR 0020): the asker then
+sees the latest revision instead of the AI's answer, which stays untouched in
+``Interaction`` as the audit record.
 """
 
 import uuid
@@ -28,6 +32,10 @@ class QuestionQuerySet(CenterQuerySet):
     def for_asker(self, user):
         """The questions a logged-in user asked, from any device, newest first."""
         return self.filter(asker=user).order_by('-created_at')
+
+    def with_answers(self):
+        """Load what the public payload needs in three queries: interaction, center, revisions."""
+        return self.select_related('interaction', 'center').prefetch_related('revisions')
 
     def asked_today(self):
         """Questions created since 00:00 UTC today, across all centers."""
@@ -65,6 +73,15 @@ class Question(BaseModel, CenterLinkedModel):
 
     def __str__(self):
         return self.text[:80]
+
+    def latest_revision(self):
+        """The newest ``AnswerRevision``, or ``None`` when the AI's answer was never revised.
+
+        Reads ``revisions.all()`` so a ``prefetch_related('revisions')`` (see
+        ``QuestionQuerySet.with_answers``) is used instead of one query per question.
+        """
+        revisions = list(self.revisions.all())
+        return max(revisions, key=lambda revision: revision.created_at) if revisions else None
 
 
 class Interaction(BaseModel):
@@ -148,3 +165,40 @@ class HumanLabel(BaseModel):
 
     def __str__(self):
         return f'{self.verdict}: {self.interaction_id}'
+
+
+class AnswerRevision(BaseModel):
+    """
+    A version of an answer written by a person, shown to the asker instead of the AI's.
+
+    Revisions are never edited: each change adds one, so the history keeps who
+    changed what, when and why. Created only through ``qa.services.revise``.
+    The asker sees the text and the center's name, never the author or the note.
+    """
+
+    class Reason(models.TextChoices):
+        """Why the answer was revised."""
+
+        CORRECTION = 'correction', _('Correction of an error')
+        CLARIFICATION = 'clarification', _('Clarification or completion')
+        SPECIALIST_ANSWER = 'specialist_answer', _('Answer by a specialist')
+
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='revisions', verbose_name=_('question'),
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+',
+        verbose_name=_('author'),
+    )
+    text = models.TextField(_('answer'))
+    reason = models.CharField(_('reason'), max_length=20, choices=Reason.choices)
+    note = models.TextField(_('internal note'), blank=True,
+                            help_text=_('For the center and staff only; never shown to the asker.'))
+
+    class Meta(BaseModel.Meta):
+        verbose_name = _('answer revision')
+        verbose_name_plural = _('answer revisions')
+
+    def __str__(self):
+        return f'{self.get_reason_display()}: {self.question}'
+

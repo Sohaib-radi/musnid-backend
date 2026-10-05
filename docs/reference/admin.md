@@ -137,7 +137,7 @@ answer will come with tracked revisions.
 | Aspect | Definition |
 | --- | --- |
 | Help | a "How to read this page" button above the list and above each question's page, opening a dialog (closed with Close, Esc or a click outside): on the list, the decisions with the same coloured badges as the table, levels A to D (D highlighted: always referred), cards for response time, tokens and error, and search; on a page, each section as an illustrated step. Written for first-time readers such as the competition jury (`qa/templates/admin/qa/question/`) |
-| List columns | question (first 90 characters), asker (email, or Anonymous), language, decision (badge: green answer, blue partial, amber referred, red abstain and out of scope), level, response time, tokens (in, out), error (badge: red Yes, green No), center, created at |
+| List columns | question (first 90 characters), asker (email, or Anonymous), language, decision (badge: green answer, blue partial, amber referred, red abstain and out of scope), answered by (badge: blue AI, green Center once revised), level, response time, tokens (in, out), error (badge: red Yes, green No), center, created at |
 | Sorting | by decision, level, response time, tokens (input) and created at |
 | Filters | decision, level, language, center; date drill-down on created at |
 | Search | question text, asker email; a pasted follow-up number (`uuid`) finds that exact question |
@@ -145,7 +145,9 @@ answer will come with tracked revisions.
 | Kept sentences | each sentence the asker saw, its supporting quote (right-to-left) and its Bayyinat question number |
 | Removed sentences | each sentence the verification dropped, its quote and the reason: quote not found in the sources (`quote`), or quote does not support the sentence (`entailment`) |
 | Question without answer | listed with decision "-"; its page says no answer was saved (the flow failed before saving) |
-| Add, change, delete | not allowed (403) |
+| Revisions | read-only inline on the question page, newest first: date, author, reason, text, internal note |
+| Revise the answer | a button on the question page, shown when `qa.services.can_revise` allows it, opening `<id>/revise/`: the question, a text prefilled with what the asker sees now (the AI answer without `[Q<n>]` markers, or the latest revision), the reason (preselected "Answer by a specialist" for referred and abstained questions) and an internal note. Saving calls `revise`; a refusal is shown on the form; others get 403 ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)). |
+| Add, change, delete | not allowed for questions and interactions (403); answers change only through revisions |
 
 Text from the model is escaped (`format_html`), never rendered as HTML.
 Styles are the `musnid-*` classes in `core/static/core/css/admin.css`, written with logical
