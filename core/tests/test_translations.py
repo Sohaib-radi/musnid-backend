@@ -202,7 +202,7 @@ class ExtractionTests(SimpleTestCase):
     def test_project_catalog_is_up_to_date(self):
         with tempfile.TemporaryDirectory() as tmp:
             copy = Path(tmp)
-            for name in ('config', 'core', 'api', 'knowledge', 'qa', 'agents'):
+            for name in ('config', 'core', 'api', 'knowledge', 'qa', 'agents', 'telegram_bot'):
                 shutil.copytree(settings.BASE_DIR / name, copy / name, ignore=shutil.ignore_patterns('__pycache__', 'static'))
             extracted = self.extract(copy, MAKEMESSAGES_IGNORES)
             for language in LANGUAGES:

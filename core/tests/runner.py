@@ -30,7 +30,7 @@ from django.db import connections
 from django.db.models.signals import post_migrate
 from django.test.runner import DiscoverRunner
 
-from core.tests.parallel import FastHasherParallelTestSuite, use_fast_password_hasher
+from core.tests.parallel import FastHasherParallelTestSuite, disable_telegram, use_fast_password_hasher
 from core.tests.support import TEST_ONLY_MODELS
 
 _DISPATCH_UID = 'core.tests.runner.create_test_only_tables'
@@ -57,9 +57,10 @@ class TestRunner(DiscoverRunner):
     parallel_test_suite = FastHasherParallelTestSuite
 
     def setup_test_environment(self, **kwargs):
-        """Set up Django's test environment, then switch to the fast hasher."""
+        """Set up Django's test environment, then switch to the fast hasher and turn the Telegram bot off."""
         super().setup_test_environment(**kwargs)
         use_fast_password_hasher()
+        disable_telegram()
 
     def setup_databases(self, **kwargs):
         """Build the test databases with test-only tables (see module docstring)."""

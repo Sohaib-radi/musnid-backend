@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import Membership
 from qa.models import AnswerRevision, Question, Referral
+from qa.signals import referral_opened
 
 #: Longest revision accepted; a few pages of text, far above any answer measured so far
 TEXT_MAX = 10000
@@ -78,8 +79,12 @@ def open_referral(question, reason):
 
     Called by ``agents.services.ask`` in the transaction that saves the question.
     ``reason`` is a ``Referral.Reason`` value, chosen by code, never by the asker.
+    Once that transaction commits, ``referral_opened`` is sent (``send_robust``:
+    a failing receiver, such as the Telegram notice, never fails the question).
     """
-    return Referral.objects.create(question=question, center=question.center, reason=reason)
+    referral = Referral.objects.create(question=question, center=question.center, reason=reason)
+    transaction.on_commit(lambda: referral_opened.send_robust(sender=Referral, referral=referral))
+    return referral
 
 
 def assign(referral, user, assignee):

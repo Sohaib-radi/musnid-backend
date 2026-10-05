@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 11:00+0000\n"
+"POT-Creation-Date: 2026-10-05 11:25+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -101,15 +101,15 @@ msgstr "استخدم من 8 إلى 64 حرفًا لاتينيًا أو رقمً�
 msgid "The session_id query parameter is required."
 msgstr "المعامل ⁦session_id⁩ مطلوب في الاستعلام."
 
-#: config/settings.py:142 core/models/choices.py:16
+#: config/settings.py:143 core/models/choices.py:16
 msgid "Arabic"
 msgstr "العربية"
 
-#: config/settings.py:143 core/models/choices.py:17
+#: config/settings.py:144 core/models/choices.py:17
 msgid "English"
 msgstr "الإنجليزية"
 
-#: config/settings.py:144 core/models/choices.py:18
+#: config/settings.py:145 core/models/choices.py:18
 msgid "French"
 msgstr "الفرنسية"
 
@@ -133,52 +133,56 @@ msgstr "الأسئلة"
 msgid "Referrals"
 msgstr "الإحالات"
 
-#: config/unfold.py:121
+#: config/unfold.py:118 telegram_bot/models.py:42
+msgid "Telegram messages"
+msgstr "رسائل Telegram"
+
+#: config/unfold.py:123
 msgid "Accounts"
 msgstr "الحسابات"
 
-#: config/unfold.py:124
+#: config/unfold.py:126
 msgid "Users"
 msgstr "المستخدمون"
 
-#: config/unfold.py:125
+#: config/unfold.py:127
 msgid "Groups"
 msgstr "المجموعات"
 
-#: config/unfold.py:129 knowledge/apps.py:11
+#: config/unfold.py:131 knowledge/apps.py:11
 msgid "Knowledge base"
 msgstr "قاعدة المعرفة"
 
-#: config/unfold.py:132
+#: config/unfold.py:134
 msgid "Source documents"
 msgstr "المصادر"
 
-#: config/unfold.py:134
+#: config/unfold.py:136
 msgid "Source chunks"
 msgstr "مقاطع المصادر"
 
-#: config/unfold.py:139
+#: config/unfold.py:141
 msgid "Configuration"
 msgstr "الإعدادات"
 
-#: config/unfold.py:142
+#: config/unfold.py:144
 msgid "API Keys"
 msgstr "مفاتيح API"
 
-#: config/unfold.py:144 core/models/ai_settings.py:31
+#: config/unfold.py:146 core/models/ai_settings.py:31
 #: core/models/ai_settings.py:32
 msgid "AI settings"
 msgstr "إعدادات الذكاء الاصطناعي"
 
-#: config/unfold.py:149
+#: config/unfold.py:151
 msgid "Security"
 msgstr "الأمان"
 
-#: config/unfold.py:152
+#: config/unfold.py:154
 msgid "Outstanding tokens"
 msgstr "الرموز الصادرة"
 
-#: config/unfold.py:154
+#: config/unfold.py:156
 msgid "Blacklisted tokens"
 msgstr "الرموز الملغاة"
 
@@ -742,11 +746,11 @@ msgstr "المصدر"
 msgid "question number"
 msgstr "رقم السؤال"
 
-#: knowledge/models.py:83
+#: knowledge/models.py:83 telegram_bot/models.py:33
 msgid "kind"
 msgstr "النوع"
 
-#: knowledge/models.py:86 qa/models.py:58
+#: knowledge/models.py:86 qa/models.py:58 telegram_bot/models.py:37
 msgid "text"
 msgstr "النص"
 
@@ -804,7 +808,7 @@ msgid "Revise the answer"
 msgstr "راجِع الجواب"
 
 #: qa/admin.py:206 qa/admin.py:356 qa/admin.py:360 qa/models.py:70
-#: qa/models.py:112 qa/models.py:190 qa/models.py:250
+#: qa/models.py:112 qa/models.py:190 qa/models.py:250 telegram_bot/admin.py:46
 msgid "question"
 msgstr "سؤال"
 
@@ -887,7 +891,8 @@ msgstr "الرموز"
 msgid "%(input)s in, %(output)s out"
 msgstr "%(input)s مُدخَلة، %(output)s مُخرَجة"
 
-#: qa/admin.py:305 qa/admin.py:312 qa/models.py:134
+#: qa/admin.py:305 qa/admin.py:312 qa/models.py:134 telegram_bot/admin.py:50
+#: telegram_bot/models.py:38
 msgid "error"
 msgstr "الخطأ"
 
@@ -899,7 +904,8 @@ msgstr "نعم"
 msgid "No"
 msgstr "لا"
 
-#: qa/admin.py:366 qa/models.py:253
+#: qa/admin.py:366 qa/models.py:253 telegram_bot/admin.py:42
+#: telegram_bot/models.py:36
 msgid "status"
 msgstr "الحالة"
 
@@ -1129,7 +1135,7 @@ msgstr "ملاحظة الإغلاق"
 msgid "Why the center closed it without an answer; never shown to the asker."
 msgstr "سبب إغلاق المركز لها دون جواب؛ لا تُعرض على السائل أبدًا."
 
-#: qa/models.py:267
+#: qa/models.py:267 telegram_bot/admin.py:54 telegram_bot/models.py:31
 msgid "referral"
 msgstr "إحالة"
 
@@ -1145,36 +1151,36 @@ msgstr "الإحالة التي أُجيب عنها تحتاج إلى تاريخ
 msgid "A closed referral needs the date it was closed."
 msgstr "الإحالة المغلقة تحتاج إلى تاريخ إغلاقها."
 
-#: qa/services.py:56
+#: qa/services.py:57
 msgid "You cannot revise answers of this center."
 msgstr "لا يمكنك مراجعة أجوبة هذا المركز."
 
-#: qa/services.py:59
+#: qa/services.py:60
 msgid "Write the answer the asker should see."
 msgstr "اكتب الجواب الذي ينبغي أن يراه السائل."
 
-#: qa/services.py:61
+#: qa/services.py:62
 #, python-format
 msgid "The answer is limited to %(max)d characters."
 msgstr "الحد الأقصى للجواب %(max)d حرف."
 
-#: qa/services.py:64
+#: qa/services.py:65
 msgid "Choose why the answer is revised."
 msgstr "اختر سبب مراجعة الجواب."
 
-#: qa/services.py:101
+#: qa/services.py:106
 msgid "Assign the referral to an active member of its center."
 msgstr "أسنِد الإحالة إلى عضو نشط في مركزها."
 
-#: qa/services.py:125
+#: qa/services.py:130
 msgid "Write why the referral is closed without an answer."
 msgstr "اكتب سبب إغلاق الإحالة دون جواب."
 
-#: qa/services.py:139
+#: qa/services.py:144
 msgid "You cannot handle referrals of this center."
 msgstr "لا يمكنك معالجة إحالات هذا المركز."
 
-#: qa/services.py:146
+#: qa/services.py:151
 msgid "This referral is already answered or closed."
 msgstr "هذه الإحالة أُجيب عنها أو أُغلقت من قبل."
 
@@ -1440,8 +1446,96 @@ msgstr "احفظ واعرضه على السائل"
 msgid ""
 "These referrals will be closed without an answer. Only open or in-progress "
 "referrals are closed; others are skipped."
-msgstr "ستُغلق هذه الإحالات دون جواب. لا تُغلق إلا الإحالات المفتوحة أو قيد المعالجة، ويُتجاوز غيرها."
+msgstr ""
+"ستُغلق هذه الإحالات دون جواب. لا تُغلق إلا الإحالات المفتوحة أو قيد المعالجة، "
+"ويُتجاوز غيرها."
 
 #: qa/templates/admin/qa/referral/close_selected.html:14
 msgid "Reason (for the center and staff, never shown to the asker)"
 msgstr "السبب (للمركز والفريق فقط، لا يُعرض على السائل أبدًا)"
+
+#: telegram_bot/admin.py:61
+msgid "Send selected failed messages again"
+msgstr "أعد إرسال الرسائل الفاشلة المحددة"
+
+#: telegram_bot/admin.py:77
+#, python-format
+msgid "%(count)d message was sent."
+msgid_plural "%(count)d messages were sent."
+msgstr[0] "عدد الرسائل التي أُرسلت: %(count)d."
+msgstr[1] "عدد الرسائل التي أُرسلت: %(count)d."
+msgstr[2] "عدد الرسائل التي أُرسلت: %(count)d."
+msgstr[3] "عدد الرسائل التي أُرسلت: %(count)d."
+msgstr[4] "عدد الرسائل التي أُرسلت: %(count)d."
+msgstr[5] "عدد الرسائل التي أُرسلت: %(count)d."
+
+#: telegram_bot/admin.py:81
+#, python-format
+msgid "%(count)d message could not be sent: %(reasons)s"
+msgid_plural "%(count)d messages could not be sent: %(reasons)s"
+msgstr[0] "عدد الرسائل التي تعذّر إرسالها: %(count)d: %(reasons)s"
+msgstr[1] "عدد الرسائل التي تعذّر إرسالها: %(count)d: %(reasons)s"
+msgstr[2] "عدد الرسائل التي تعذّر إرسالها: %(count)d: %(reasons)s"
+msgstr[3] "عدد الرسائل التي تعذّر إرسالها: %(count)d: %(reasons)s"
+msgstr[4] "عدد الرسائل التي تعذّر إرسالها: %(count)d: %(reasons)s"
+msgstr[5] "عدد الرسائل التي تعذّر إرسالها: %(count)d: %(reasons)s"
+
+#: telegram_bot/apps.py:11
+msgid "Telegram bot"
+msgstr "بوت Telegram"
+
+#: telegram_bot/models.py:22
+msgid "New referral notice"
+msgstr "إشعار بإحالة جديدة"
+
+#: telegram_bot/models.py:27
+msgid "Sent"
+msgstr "أُرسلت"
+
+#: telegram_bot/models.py:28
+msgid "Failed"
+msgstr "فشلت"
+
+#: telegram_bot/models.py:34
+msgid "chat ID"
+msgstr "معرّف المحادثة"
+
+#: telegram_bot/models.py:35
+msgid "message ID"
+msgstr "معرّف الرسالة"
+
+#: telegram_bot/models.py:41
+msgid "Telegram message"
+msgstr "رسالة Telegram"
+
+#: telegram_bot/models.py:48
+msgid "A sent Telegram message needs its message ID."
+msgstr "رسالة Telegram المُرسلة تحتاج إلى معرّف رسالتها."
+
+#: telegram_bot/services.py:48
+msgid "New question referred to your center"
+msgstr "سؤال جديد مُحال إلى مركزكم"
+
+#: telegram_bot/services.py:49
+msgid "Reason"
+msgstr "السبب"
+
+#: telegram_bot/services.py:50
+msgid "Language"
+msgstr "اللغة"
+
+#: telegram_bot/services.py:51
+msgid "Follow-up number"
+msgstr "رقم المتابعة"
+
+#: telegram_bot/services.py:57
+msgid "Open in the admin"
+msgstr "افتحه في لوحة الإدارة"
+
+#: telegram_bot/services.py:96
+msgid "Only failed messages can be sent again."
+msgstr "لا يُعاد إرسال إلا الرسائل الفاشلة."
+
+#: telegram_bot/services.py:99
+msgid "The bot has no token, or the center has no Telegram group."
+msgstr "ليس للبوت رمز، أو ليس للمركز مجموعة Telegram."

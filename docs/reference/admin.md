@@ -37,6 +37,7 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 | Centers | Memberships | `badge` | `admin:core_membership_changelist` | `core.view_membership` |
 | Questions and answers | Questions | `forum` | `admin:qa_question_changelist` | `qa.view_question` |
 | Questions and answers | Referrals | `support_agent` | `admin:qa_referral_changelist` | `qa.view_referral` |
+| Questions and answers | Telegram messages | `send` | `admin:telegram_bot_telegrammessage_changelist` | `telegram_bot.view_telegrammessage` |
 | Accounts | Users | `person` | `admin:core_user_changelist` | `core.view_user` |
 | Accounts | Groups | `group` | `admin:auth_group_changelist` | `auth.view_group` |
 | Knowledge base | Source documents | `menu_book` | `admin:knowledge_sourcedocument_changelist` | `knowledge.view_sourcedocument` |
@@ -165,6 +166,19 @@ Read-only: status and dates change only through `qa.services`.
 | Assign selected referrals to me | calls `assign(referral, user, user)` for each; refusals are listed with their reason |
 | Close selected referrals without an answer | an intermediate page asks for the note (required), then calls `close` for each |
 | Answering | on the question's "Revise the answer" page; saving marks the referral answered |
+| Add, change, delete | not allowed (403) |
+
+## Telegram messages (`telegram_bot/admin.py`)
+
+Every message the bot sent or tried to send ([ADR 0022](../architecture/decisions/0022-telegram-channel.md)). Read-only.
+
+| Aspect | Definition |
+| --- | --- |
+| List columns | created at, kind, status (badge: green sent, red failed), chat ID, question (first 60 characters), error (first 60 characters) |
+| Filters | status, kind; date drill-down on created at |
+| Search | question text, error |
+| Page | created at, kind, status, chat ID, Telegram message ID, a link to the referral, the text sent, the error |
+| Send selected failed messages again | calls `telegram_bot.services.resend` for each: a new attempt is logged, the failed row stays; sent messages and a bot without token or group are refused with the reason |
 | Add, change, delete | not allowed (403) |
 
 Text from the model is escaped (`format_html`), never rendered as HTML.

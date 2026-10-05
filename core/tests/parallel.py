@@ -19,10 +19,16 @@ def use_fast_password_hasher():
     settings.PASSWORD_HASHERS = TEST_PASSWORD_HASHERS
 
 
+def disable_telegram():
+    """Empty ``TELEGRAM_BOT_TOKEN``: a token in .env must never let a test reach Telegram (tests pass fakes)."""
+    settings.TELEGRAM_BOT_TOKEN = ''
+
+
 class FastHasherParallelTestSuite(ParallelTestSuite):
-    """Parallel suite whose spawned workers also use the fast password hasher."""
+    """Parallel suite whose spawned workers also use the fast password hasher and no Telegram token."""
 
     # Django calls this in each spawned worker, before django.setup(), as a
     # plain function (it passes ``process_setup.__func__``), hence no ``self``.
     def process_setup(*args):
         use_fast_password_hasher()
+        disable_telegram()

@@ -58,6 +58,7 @@ The file is the output of `pip freeze`, so it also pins transitive dependencies.
 | `psycopg-binary` | 3.3.6 | Precompiled implementation of psycopg, bundling libpq; avoids a system libpq and a compiler. | LGPL-3.0-only |
 | `pgvector` | 0.5.0 | `VectorField`, distance functions and indexes for Django (`pgvector.django`). | MIT |
 | `gunicorn` | 26.2.0 | WSGI server in the `web` container. | MIT |
+| `httpx` | 0.28.1 | HTTP client of the Telegram Bot API ([ADR 0022](architecture/decisions/0022-telegram-channel.md)); already installed as a CrewAI dependency. | BSD-3-Clause |
 | `python-dotenv` | 1.1.1 | Loads `.env` into the process environment. Must stay on 1.1.x: CrewAI 1.9.3 requires `python-dotenv~=1.1.1`. | BSD-3-Clause |
 | `typing_extensions` | 4.16.0 | Transitive: required by psycopg on Python versions before 3.13 (`typing-extensions>=4.6`). | PSF-2.0 |
 
@@ -97,6 +98,7 @@ which satisfies every wheel listed.
 | Service | Model | Role |
 | --- | --- | --- |
 | OpenAI embeddings | `text-embedding-3-small` (1536 dimensions) | Embeddings of chunks and queries ([ADR 0015](architecture/decisions/0015-knowledge-base-and-retrieval.md)); called over HTTPS with the standard library. |
+| Telegram Bot API | `sendMessage`, `getUpdates` | Notices of referred questions to each center's group ([ADR 0022](architecture/decisions/0022-telegram-channel.md)); called over HTTPS with `httpx`. |
 
 ## Bundled assets
 

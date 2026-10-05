@@ -281,6 +281,9 @@ changed only through `qa.services`.
 `ReferralQuerySet` (based on `CenterQuerySet`): `pending()` (open or in progress),
 `assigned_to(user)`. `Referral.is_pending` is the same test on one row.
 
+`open_referral` sends `qa.signals.referral_opened` (argument `referral`) with
+`send_robust` once the transaction commits; `telegram_bot` listens to it.
+
 ### Services (`qa/services.py`)
 
 | Function | Rule |
@@ -290,4 +293,27 @@ changed only through `qa.services`.
 | `open_referral(question, reason)` | Opens the referral, owned by the question's center. |
 | `assign(referral, user, assignee)` | `user` must pass `can_revise`; `assignee` must be an active member of the center; status `in_progress`. Codes: `referral_not_allowed`, `referral_assignee_invalid`, `referral_not_pending`. |
 | `close(referral, user, note)` | Status `closed` with the note. Codes: `referral_not_allowed`, `referral_note_required`, `referral_not_pending`. |
+
+## `TelegramMessage` (`telegram_bot/models.py`)
+
+One row per attempt to send a Telegram message ([ADR 0022](../architecture/decisions/0022-telegram-channel.md)).
+
+| Field | Meaning |
+| --- | --- |
+| `referral` | The referral the message is about; `CASCADE`. |
+| `kind` | `referral_notice` (the notice of a new referral). |
+| `chat_id` | The Telegram chat it was sent to (`Center.telegram_chat_id` at the time). |
+| `message_id` | Telegram's id of the sent message; null when it failed. Used later to match replies. |
+| `status` | `sent` or `failed`. |
+| `text`, `error` | The text sent (Telegram HTML) and Telegram's error description; never the token. |
+
+| Constraint or index | Rule |
+| --- | --- |
+| `telegram_sent_has_message_id` | `status = sent` requires `message_id`. |
+| `telegram_message_lookup` | Index on `chat_id`, `message_id`, to find the message a reply answers. |
+
+Services (`telegram_bot/services.py`): `notify_referral(referral, client=None)` posts the
+notice and logs it, returning `None` without calling Telegram when the bot has no token or
+the center no group; `resend(message, client=None)` sends a failed notice again (codes
+`telegram_not_failed`, `telegram_unavailable`); `referral_notice(referral)` builds the text.
 

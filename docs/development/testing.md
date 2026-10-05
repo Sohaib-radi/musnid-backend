@@ -64,6 +64,7 @@ All modes were last run in step 2 (serial, `--parallel 4`, `--keepdb` twice); si
 | `make_membership(**fields)` | An active specialist membership; new user and center unless given. |
 | `make_note(**fields)` | A test-only `Note` in a new center unless given. |
 | `make_question(**fields)`, `make_interaction(**fields)` | A question in a new center; its saved answer (decision `answer`). |
+| `telegram_bot.tests.support.FakeClient` | A Telegram client that records messages, or fails like Telegram with `error`. |
 | `make_referral(**fields)` | An open referral (`no_evidence`) of a new referred question unless `question` is given; owned by the question's center. |
 
 Tests create objects through these factories, not `objects.create()`, so a new required
@@ -106,7 +107,8 @@ field is handled in one place.
 | `qa/tests/test_admin.py` | 27 | Questions admin: decision badge, filters, search by text, email and follow-up number, kept and removed sentences, escaping, read-only, help dialogs, revise page and its permissions, Answered by column; referrals admin: list and status badge, status filter, link to the question, read-only, assign to me (and refusals), close with a note, sidebar badge. |
 | `qa/tests/test_models.py` | 5 | Distinct question uuids, session history newest first, questions since midnight UTC; `Referral.objects.pending()` and `assigned_to()`, both date constraints. |
 | `qa/tests/test_services.py` | 20 | `can_revise` (staff permission, members, other and former members, non-operational center, deactivated users), `revise` (saved, latest, refusal codes); `open_referral`, `assign` (take, reassign, refusal codes), `close` (note and date, codes), no change once answered or closed, `revise` marks the referral answered (also when closed). |
-| **Total** | **494** | |
+| `telegram_bot/tests/` (4 files) | 24 | Bot API client (HTML without previews, Telegram refusals keep their description, network failure without the token or a chained cause, unreadable reply, empty token, `repr`); notice in the center's language, escaped, without the asker, cut at 3,000 characters, admin link only with `SITE_URL`; sent and failed attempts logged, nothing sent without token or group, `resend` and its codes; notice only after commit, a failing receiver never reaches the asker; read-only admin and "Send again"; `telegram_chats` lists each chat once, never the token. |
+| **Total** | **518** | |
 
 Last full run: 263 tests, all passing, 43.0 s serial, on 2026-10-04 (step 4). Flow tests use `TransactionTestCase`: CrewAI runs steps in worker threads, which do not
 see data inside a `TestCase` transaction.

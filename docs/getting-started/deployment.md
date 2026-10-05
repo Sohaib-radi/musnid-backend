@@ -282,7 +282,7 @@ Then the plain values, one per command: `set_env POSTGRES_DB musnid`,
 the secrets masked:
 
 ```bash
-grep -E '^[A-Z_]+=' .env | sed -E 's/(SECRET_KEY|PASSWORD|KEYS|API_KEY)=.+/\1=<set>/'
+grep -E '^[A-Z_]+=' .env | sed -E 's/(SECRET_KEY|PASSWORD|KEYS|API_KEY|TOKEN)=.+/\1=<set>/'
 ```
 
 | Variable | Production value |
@@ -296,6 +296,8 @@ grep -E '^[A-Z_]+=' .env | sed -E 's/(SECRET_KEY|PASSWORD|KEYS|API_KEY)=.+/\1=<s
 | `DJANGO_NUM_PROXIES` | `1` (nginx) |
 | `OPENAI_API_KEY` | empty: the key is added encrypted in the admin (step 13) |
 | `ASK_DAILY_LIMIT` | `150` (default) |
+| `TELEGRAM_BOT_TOKEN` | the bot's token, when the Telegram notices are wanted ([ADR 0022](../architecture/decisions/0022-telegram-channel.md)) |
+| `DJANGO_SITE_URL` | `https://api.musnid.online` |
 | `POSTGRES_HOST`, `POSTGRES_PORT` | template values; the `web` container overrides them to `db:5432` |
 
 Full reference: [Configuration](configuration.md).

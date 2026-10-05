@@ -122,6 +122,8 @@ knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embedd
   management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
 qa/                Question, Interaction, AnswerRevision, Referral, HumanLabel; services.py (revise, referrals); admin
 agents/            CrewAI: flow.py (steps, routing, fixed replies), services.py (ask), crews/ (YAML)
+telegram_bot/      Telegram channel (ADR 0022): client.py (Bot API over httpx), services.py (notify_referral,
+                   resend), receivers.py (qa.signals.referral_opened), TelegramMessage log; telegram_chats command
 api/               REST API, no models
   v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)
   v1/views/mixins.py  CenterScopedMixin: non-members get 404
@@ -155,7 +157,8 @@ requirements.txt   exact pins (pip freeze)
   at import, `DJANGO_DEBUG` is on only for the exact string `True`.
 - Required: `DJANGO_SECRET_KEY`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
   Optional: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `POSTGRES_HOST` (`localhost`),
-  `POSTGRES_PORT` (`5435`), `DJANGO_HTTPS` and `DJANGO_HSTS_SECONDS` (production only, ADR 0018). Full reference: `docs/getting-started/configuration.md`.
+  `POSTGRES_PORT` (`5435`), `DJANGO_HTTPS` and `DJANGO_HSTS_SECONDS` (production only, ADR 0018),
+  `TELEGRAM_BOT_TOKEN` (empty: bot off) and `DJANGO_SITE_URL` (ADR 0022). Full reference: `docs/getting-started/configuration.md`.
   A new variable must be added to `.env.example` and that page.
 - Secret values must use a URL-safe alphabet: Compose interpolates `$` in env files.
 - `requirements.txt` holds exact pins only. Install with
@@ -248,6 +251,9 @@ the names `musnid_db` and `musnid_backend_db`. Do not reuse them.
   `AnswerRevision`); never edit an `Interaction`, it is the audit record (ADR 0020).
 - **Referrals:** a `refer` decision opens a `Referral` in `ask()`; change it only through
   `qa.services` (`assign`, `close`, `revise`), never by direct saves (ADR 0021).
+- **Telegram:** `telegram_bot` is a channel: it calls services and listens to `qa.signals`,
+  `qa` never imports it. The bot token never appears in an error, log or output; tests use
+  `telegram_bot.tests.support.FakeClient` (the runner empties the token) (ADR 0022).
 - **Center review:** never edit `Center.status` directly; use
   `core.services.centers.approve`/`reject`. Center-admin endpoints require an operational
   center (approved and active).

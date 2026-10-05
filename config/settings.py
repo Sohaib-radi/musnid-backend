@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'qa',
     'agents',
     'api',
+    'telegram_bot',
 ]
 
 MIDDLEWARE = [
@@ -238,6 +239,15 @@ FIELD_ENCRYPTION_KEYS = env.csv_list('FIELD_ENCRYPTION_KEYS')
 
 # Used only when no active OpenAI key was added in the admin.
 OPENAI_API_KEY = env.optional('OPENAI_API_KEY', '')
+
+
+# Telegram bot (ADR 0022)
+# Empty token: the bot is off and nothing is sent. SITE_URL is this backend's
+# public origin (https://api.musnid.online), used to link admin pages from
+# Telegram messages; empty means no link.
+
+TELEGRAM_BOT_TOKEN = env.optional('TELEGRAM_BOT_TOKEN', '')
+SITE_URL = env.optional('DJANGO_SITE_URL', '').rstrip('/')
 
 
 # CORS (ADR 0012)

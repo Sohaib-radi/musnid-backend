@@ -115,6 +115,8 @@ UNFOLD = {
                     _nav_item(_('Questions'), 'forum', 'admin:qa_question_changelist', 'qa.view_question'),
                     _nav_item(_('Referrals'), 'support_agent', 'admin:qa_referral_changelist', 'qa.view_referral',
                               badge='qa.admin.pending_referrals_badge'),
+                    _nav_item(_('Telegram messages'), 'send', 'admin:telegram_bot_telegrammessage_changelist',
+                              'telegram_bot.view_telegrammessage'),
                 ],
             },
             {
