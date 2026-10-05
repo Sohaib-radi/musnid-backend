@@ -19,6 +19,9 @@ description: Migration history of the project and the conventions for writing mi
 | `qa` | `0001_initial` | 2026-10-04 | `Question` (center-owned, anonymous), `Interaction` (one per question), `HumanLabel`. |
 | `knowledge` | `0002_source_document_pdf_url` | 2026-10-04 | Adds `SourceDocument.pdf_url` and help texts; sets the dawa.center page and PDF of an existing `bayyinat-ar` (no re-ingestion). |
 | `qa` | `0004_answer_revision` | 2026-10-05 | Creates `AnswerRevision` ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)); no data change. |
+| `telegram_bot` | `0003_link_code_center` | 2026-10-05 | Adds `TelegramLinkCode.center` (group connection codes, [ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)); no data change. |
+| `core` | `0006_center_unique_telegram_group` | 2026-10-05 | Adds `unique_center_telegram_group`; fails if two centers already share a group ID. |
+| `telegram_bot` | `0002_link_code` | 2026-10-05 | Creates `TelegramLinkCode` ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)); no data change. |
 | `telegram_bot` | `0001_initial` | 2026-10-05 | Creates `TelegramMessage` ([ADR 0022](../architecture/decisions/0022-telegram-channel.md)); no data change. |
 | `qa` | `0005_referral` | 2026-10-05 | Creates `Referral` ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)); opens a ticket for every question already referred (answered when it has a revision, otherwise open). |
 | `qa` | `0003_question_asker` | 2026-10-05 | Adds the nullable `Question.asker` (`SET_NULL`) and the index `question_asker_recent` (`asker`, `-created_at`); no data change ([ADR 0019](../architecture/decisions/0019-link-questions-to-logged-in-askers.md)). |

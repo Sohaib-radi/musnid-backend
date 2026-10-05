@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{# Creates a one-time t.me link for a user (ADR 0023); the future center dashboard shows the same link as a QR code. #}
+{% block content %}
+<form method="post" class="musnid-form">
+    {% csrf_token %}
+    <section class="musnid-form-card">
+        <h2>{% translate "Link a Telegram account" %}</h2>
+        <p class="musnid-meta">{% blocktranslate with minutes=link_minutes trimmed %}
+            The person opens the link on their phone and presses Start. Their replies to the bot's messages in
+            their center's group then become answers to the askers. The link works once, for {{ minutes }} minutes.
+        {% endblocktranslate %}</p>
+
+        {% if link %}
+            <label for="telegram-link">{% blocktranslate with name=linked_user.full_name trimmed %}Link for {{ name }}{% endblocktranslate %}</label>
+            <input id="telegram-link" type="text" value="{{ link }}" readonly dir="ltr" onclick="this.select()">
+            <p class="musnid-meta"><a href="{{ link }}" target="_blank" rel="noopener">{% translate "Open in Telegram" %}</a></p>
+        {% endif %}
+
+        {% if error %}
+            <p class="musnid-form-error" role="alert">{{ error }}</p>
+        {% endif %}
+
+        {% if can_choose %}
+            <label for="telegram-email">{% translate "Email address of the user" %}</label>
+            <input id="telegram-email" type="email" name="email" value="{{ email }}" dir="ltr" required>
+        {% endif %}
+    </section>
+    <div class="musnid-dialog-actions">
+        <a href="{% url 'admin:telegram_bot_telegrammessage_changelist' %}" class="musnid-btn musnid-btn-outline">{% translate "Cancel" %}</a>
+        <button type="submit" class="musnid-btn musnid-btn-primary">{% if can_choose %}{% translate "Create the link" %}{% else %}{% translate "Create my link" %}{% endif %}</button>
+    </div>
+</form>
+{% endblock %}

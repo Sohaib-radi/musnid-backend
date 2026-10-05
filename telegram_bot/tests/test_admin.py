@@ -4,7 +4,7 @@ from unittest import mock
 
 from django.urls import reverse
 
-from core.tests.support import make_center, make_referral
+from core.tests.support import make_center, make_referral, make_user
 from core.tests.test_admin import AdminTestCase
 from telegram_bot.models import TelegramMessage
 from telegram_bot.tests.support import FakeClient
@@ -44,3 +44,34 @@ class TelegramMessageAdminTests(AdminTestCase):
     def test_send_again_reports_refusals(self):
         response = self.send_again([self.failed])  # tests run without a token
         self.assertIn('The bot has no token, or the center has no Telegram group.', self.messages(response)[0])
+
+
+class LinkPageTests(AdminTestCase):
+    """The "Link a Telegram account" page: superusers choose the user, others link themselves."""
+
+    def page(self, **data):
+        url = reverse('admin:telegram_bot_telegrammessage_link')
+        with mock.patch('telegram_bot.linking.TelegramClient', return_value=FakeClient()):
+            return self.client.post(url, data) if data else self.client.get(url)
+
+    def test_list_offers_the_link_page(self):
+        response = self.client.get(reverse('admin:telegram_bot_telegrammessage_changelist'))
+        self.assertContains(response, reverse('admin:telegram_bot_telegrammessage_link'))
+
+    def test_superuser_creates_a_link_for_a_user(self):
+        make_user(email='specialist@example.com', full_name='Amina')
+        self.assertContains(self.page(), 'name="email"')
+        response = self.page(email='SPECIALIST@example.com')
+        self.assertContains(response, 'https://t.me/musnid_test_bot?start=')
+        self.assertContains(response, 'Amina')
+
+    def test_unknown_email(self):
+        self.assertContains(self.page(email='nobody@example.com'), 'No user has this email address.')
+
+    def test_staff_link_themselves_only(self):
+        staff = make_user(is_staff=True, full_name='Staff member')
+        self.client.force_login(staff)
+        self.assertNotContains(self.page(), 'name="email"')
+        response = self.page(email='ignored@example.com')
+        self.assertContains(response, 'Staff member')
+

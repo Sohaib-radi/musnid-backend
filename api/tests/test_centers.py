@@ -80,11 +80,13 @@ class DashboardAndSettingsTests(CenterAccessMixin, APITestCase):
         self.authenticate(self.admin)
         response = self.client.patch(self.url('center-settings', 'dar'), {
             'description': 'Fatwa center.', 'languages': ['ar', 'fr'], 'name': 'Renamed', 'status': 'rejected',
+            'telegram_chat_id': -100999,
         }, format='json')
         self.assertEqual(response.status_code, 200, response.data)
         self.center.refresh_from_db()
         self.assertEqual((self.center.description, self.center.languages), ('Fatwa center.', ['ar', 'fr']))
         self.assertEqual((self.center.name, self.center.status), ('Dar al-Ifta', Center.Status.APPROVED))
+        self.assertIsNone(self.center.telegram_chat_id)  # connected only through the bot (ADR 0023)
 
     def test_settings_validation_has_codes(self):
         self.authenticate(self.admin)

@@ -43,6 +43,14 @@ class AskingUnavailable(exceptions.APIException):
     default_detail = _('The service cannot take questions right now. Please try again later.')
 
 
+class TelegramUnavailable(exceptions.APIException):
+    """503 when the Telegram bot is off (no token) or Telegram cannot be reached (ADR 0023)."""
+
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    default_code = 'telegram_unavailable'
+    default_detail = _('Telegram cannot be reached right now. Please try again in a moment.')
+
+
 def exception_handler(exc, context):
     """DRF ``EXCEPTION_HANDLER``: see the module docstring for the format."""
     # Converted here rather than by DRF so that the code is added below.

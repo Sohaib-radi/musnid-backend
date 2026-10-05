@@ -47,7 +47,8 @@ class NoticeTests(TestCase):
 
     def test_admin_link_only_with_site_url(self):
         referral = self.referral()
-        self.assertNotIn('href', referral_notice(referral))
+        with override_settings(SITE_URL=''):
+            self.assertNotIn('href', referral_notice(referral))
         with override_settings(SITE_URL='https://api.musnid.online'):
             self.assertIn(f'href="https://api.musnid.online/admin/qa/question/?q={referral.question.uuid}"',
                           referral_notice(referral))

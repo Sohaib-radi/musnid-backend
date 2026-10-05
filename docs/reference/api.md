@@ -45,6 +45,7 @@ Clients branch on `code`, never on the text.
 | `not_found` | 404 | Unknown resource, or a center the caller does not belong to. |
 | `method_not_allowed` | 405 | E.g. `PUT` or `DELETE`. |
 | `throttled` | 429 | Too many auth requests, or too many questions from one IP. |
+| `telegram_unavailable` | 503 | The Telegram bot is off or Telegram cannot be reached. |
 | `daily_capacity` | 429 | The service's daily limit of questions is reached; `detail` is a fixed "try again tomorrow" reply. |
 | `unavailable` | 503 | A question cannot be saved (no default center configured). |
 | `session_required` | 400 | History requested without `session_id`. |
@@ -92,7 +93,10 @@ A center: `slug`, `name`, `country` (`{"code", "name"}` or null), `description`,
 | `GET centers/{slug}/` | any active member, any state | a center | 404 for non-members |
 | `GET centers/{slug}/dashboard/` | center admin, operational center | `{"center", "members": {"total", "center_admins", "specialists"}}` | 403 `not_center_admin`, `center_not_operational`; 404 |
 | `GET centers/{slug}/settings/` | center admin, operational center | `slug`, `name`, `country`, `description`, `contact_email`, `website`, `telegram_chat_id`, `languages` | as above |
-| `PATCH centers/{slug}/settings/` | same | any of `country`, `description`, `contact_email`, `website`, `telegram_chat_id`, `languages`; `slug` and `name` are read-only | as above; 400 field errors |
+| `PATCH centers/{slug}/settings/` | same | any of `country`, `description`, `contact_email`, `website`, `languages`; `slug`, `name` and `telegram_chat_id` are read-only (the group is connected through the bot) | as above; 400 field errors |
+| `POST centers/{slug}/telegram/connect/` | center admin, operational center | 201 `{"url", "expires_at"}`: a one-time `t.me/<bot>?startgroup=` link, valid 10 minutes ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)) | 403 as above; 503 `telegram_unavailable` |
+| `POST centers/{slug}/telegram/disconnect/` | center admin, operational center | 200 `{"connected": false, "me_linked"}`; clears the group; the bot says goodbye and leaves (best effort) | 403 as above |
+| `GET centers/{slug}/telegram/` | any active member, operational center | `{"connected", "me_linked"}`; polled while connecting | 403 `center_not_operational`; 404 |
 | `GET countries/` | public | `[{"code", "name"}]`, names in the request language | |
 
 ## Memberships

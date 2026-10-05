@@ -247,6 +247,8 @@ OPENAI_API_KEY = env.optional('OPENAI_API_KEY', '')
 # Telegram messages; empty means no link.
 
 TELEGRAM_BOT_TOKEN = env.optional('TELEGRAM_BOT_TOKEN', '')
+# Secret Telegram sends with each webhook update (ADR 0023); empty: webhook off (404).
+TELEGRAM_WEBHOOK_SECRET = env.optional('TELEGRAM_WEBHOOK_SECRET', '')
 SITE_URL = env.optional('DJANGO_SITE_URL', '').rstrip('/')
 
 

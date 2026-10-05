@@ -122,8 +122,10 @@ knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embedd
   management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
 qa/                Question, Interaction, AnswerRevision, Referral, HumanLabel; services.py (revise, referrals); admin
 agents/            CrewAI: flow.py (steps, routing, fixed replies), services.py (ask), crews/ (YAML)
-telegram_bot/      Telegram channel (ADR 0022): client.py (Bot API over httpx), services.py (notify_referral,
-                   resend), receivers.py (qa.signals.referral_opened), TelegramMessage log; telegram_chats command
+telegram_bot/      Telegram channel (ADR 0022, 0023): client.py (Bot API over httpx), services.py (notify_referral,
+                   resend), receivers.py (qa.signals.referral_opened), linking.py (one-time t.me links),
+                   updates.py (handle_update: /start, replies → revise), views.py (webhook);
+                   commands telegram_chats, telegram_poll (local), telegram_webhook (production)
 api/               REST API, no models
   v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)
   v1/views/mixins.py  CenterScopedMixin: non-members get 404
@@ -158,7 +160,8 @@ requirements.txt   exact pins (pip freeze)
 - Required: `DJANGO_SECRET_KEY`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
   Optional: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `POSTGRES_HOST` (`localhost`),
   `POSTGRES_PORT` (`5435`), `DJANGO_HTTPS` and `DJANGO_HSTS_SECONDS` (production only, ADR 0018),
-  `TELEGRAM_BOT_TOKEN` (empty: bot off) and `DJANGO_SITE_URL` (ADR 0022). Full reference: `docs/getting-started/configuration.md`.
+  `TELEGRAM_BOT_TOKEN` (empty: bot off), `DJANGO_SITE_URL` (ADR 0022) and
+  `TELEGRAM_WEBHOOK_SECRET` (ADR 0023). Full reference: `docs/getting-started/configuration.md`.
   A new variable must be added to `.env.example` and that page.
 - Secret values must use a URL-safe alphabet: Compose interpolates `$` in env files.
 - `requirements.txt` holds exact pins only. Install with

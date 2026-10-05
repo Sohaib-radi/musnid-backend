@@ -34,14 +34,20 @@ class TelegramClientTests(SimpleTestCase):
 
     def test_telegram_refusal_keeps_its_description(self):
         client = client_replying({'ok': False, 'error_code': 400, 'description': 'Bad Request: chat not found'})
-        with self.assertRaisesMessage(TelegramError, 'sendMessage: 400 Bad Request: chat not found'):
+        with self.assertRaisesMessage(TelegramError, 'sendMessage: 400 Bad Request: chat not found') as caught:
             client.send_message(-100, 'Hi')
+        self.assertFalse(caught.exception.retryable)
+        busy = client_replying({'ok': False, 'error_code': 502, 'description': 'Bad Gateway'})
+        with self.assertRaises(TelegramError) as caught:
+            busy.send_message(-100, 'Hi')
+        self.assertTrue(caught.exception.retryable)
 
     def test_network_failure_never_shows_the_token(self):
         error = httpx.ConnectError(f'cannot reach https://api.telegram.org/bot{TOKEN}/sendMessage')
         with self.assertRaises(TelegramError) as caught:
             client_replying(error=error).send_message(-100, 'Hi')
         self.assertEqual(str(caught.exception), 'sendMessage: ConnectError')
+        self.assertTrue(caught.exception.retryable)
         self.assertIsNone(caught.exception.__cause__)
         self.assertTrue(caught.exception.__suppress_context__)
 
@@ -54,3 +60,15 @@ class TelegramClientTests(SimpleTestCase):
     def test_empty_token_disables_the_bot_and_repr_hides_the_token(self):
         self.assertFalse(TelegramClient().enabled)
         self.assertNotIn(TOKEN, repr(TelegramClient(token=TOKEN)))
+
+    def test_reply_and_long_polling_parameters(self):
+        requests = []
+        client = client_replying({'ok': True, 'result': []}, requests=requests)
+        client.reply(-100, 7, 'Done')
+        client.get_updates(offset=12, wait=25)
+        self.assertEqual(json.loads(requests[0].content)['reply_parameters'],
+                         {'message_id': 7, 'allow_sending_without_reply': True})
+        self.assertEqual(json.loads(requests[1].content),
+                         {'allowed_updates': ['message', 'my_chat_member'], 'timeout': 25, 'offset': 12})
+        self.assertEqual(requests[1].extensions['timeout']['read'], 30)
+

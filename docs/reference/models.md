@@ -105,7 +105,7 @@ Methods: `__str__` returns the email; `get_full_name()` and `get_short_name()` r
 | `description` | `TextField` | Optional. |
 | `contact_email` | `EmailField` | Optional. |
 | `website` | `URLField` | Optional. |
-| `telegram_chat_id` | `BigIntegerField` | Label "Telegram Group ID". Nullable. Group where referred questions are sent, for example `-1001234567890`. |
+| `telegram_chat_id` | `BigIntegerField` | Label "Telegram Group ID". Nullable, unique when set (`unique_center_telegram_group`). Group where referred questions are sent, for example `-1001234567890`; set when a center admin connects the group through the bot, read-only in the API. |
 | `languages` | `ArrayField` of `CharField(2)` with `Language` choices | Languages served. Default empty list. |
 | `is_default` | `BooleanField` | Default false. At most one center, approved only (constraints below). |
 | `is_active` | `BooleanField` | Default true. Unchecked suspends an approved center. |
@@ -118,6 +118,7 @@ Methods: `__str__` returns the email; `get_full_name()` and `get_short_name()` r
 | --- | --- |
 | `only_one_default_center` | `UNIQUE (is_default) WHERE is_default`. Message: "Only one center can be the default center." |
 | `default_center_must_be_approved` | `CHECK (NOT is_default OR status = 'approved')`. Message: "Only an approved center can be the default center." |
+| `unique_center_telegram_group` | `UNIQUE (telegram_chat_id) WHERE telegram_chat_id IS NOT NULL`: a Telegram group serves one center ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)). Message: "This Telegram group is already connected to another center." |
 
 `Center.objects` is a `CenterStatusQuerySet`: `operational()` (approved and active),
 `pending()`, `with_active_member(user)` (centers where `user` has an active membership).
@@ -311,6 +312,28 @@ One row per attempt to send a Telegram message ([ADR 0022](../architecture/decis
 | --- | --- |
 | `telegram_sent_has_message_id` | `status = sent` requires `message_id`. |
 | `telegram_message_lookup` | Index on `chat_id`, `message_id`, to find the message a reply answers. |
+
+## `TelegramLinkCode` (`telegram_bot/models.py`)
+
+A one-time code linking a Telegram account to a user ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)).
+
+| Field | Meaning |
+| --- | --- |
+| `user` | The user the code links; `CASCADE`. |
+| `code_hash` | SHA-256 of the code, unique; the code itself is never stored. |
+| `center` | Set for a group connection code (`startgroup` link); empty for a personal link. |
+| `expires_at`, `used_at` | Ten minutes after creation; set once used. `TelegramLinkCode.objects.usable()` returns codes neither used nor expired. |
+
+`telegram_bot.linking`: `create_group_link(center, user, client=None)` (code
+`telegram_not_center_admin`) and `connect_group(code, chat_id, telegram_id)` (codes
+`telegram_link_invalid`, `telegram_group_taken`) connect a center's group;
+`disconnect_center(center, user, client=None)` (code `telegram_not_center_admin`) clears the
+group and makes the bot leave it; `disconnect_group(chat_id)` and `move_group(old, new)`
+follow removal and supergroup upgrades. `create_link(user, client=None)` returns `(url, expires_at)`;
+`link_account(code, telegram_id)` saves `User.telegram_chat_id` (codes
+`telegram_link_invalid`, `telegram_already_linked`, `telegram_link_inactive_user`).
+`telegram_bot.updates.handle_update(update, client=None)` links on `/start <code>` and saves
+a linked user's reply to a referral notice through `qa.services.revise`.
 
 Services (`telegram_bot/services.py`): `notify_referral(referral, client=None)` posts the
 notice and logs it, returning `None` without calling Telegram when the bot has no token or

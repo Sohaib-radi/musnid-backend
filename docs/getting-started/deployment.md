@@ -282,7 +282,7 @@ Then the plain values, one per command: `set_env POSTGRES_DB musnid`,
 the secrets masked:
 
 ```bash
-grep -E '^[A-Z_]+=' .env | sed -E 's/(SECRET_KEY|PASSWORD|KEYS|API_KEY|TOKEN)=.+/\1=<set>/'
+grep -E '^[A-Z_]+=' .env | sed -E 's/(SECRET_KEY|PASSWORD|KEYS|API_KEY|TOKEN|SECRET)=.+/\1=<set>/'
 ```
 
 | Variable | Production value |
@@ -298,6 +298,7 @@ grep -E '^[A-Z_]+=' .env | sed -E 's/(SECRET_KEY|PASSWORD|KEYS|API_KEY|TOKEN)=.+
 | `ASK_DAILY_LIMIT` | `150` (default) |
 | `TELEGRAM_BOT_TOKEN` | the bot's token, when the Telegram notices are wanted ([ADR 0022](../architecture/decisions/0022-telegram-channel.md)) |
 | `DJANGO_SITE_URL` | `https://api.musnid.online` |
+| `TELEGRAM_WEBHOOK_SECRET` | `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`; then `docker compose exec web python manage.py telegram_webhook --set` ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)) |
 | `POSTGRES_HOST`, `POSTGRES_PORT` | template values; the `web` container overrides them to `db:5432` |
 
 Full reference: [Configuration](configuration.md).

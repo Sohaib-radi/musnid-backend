@@ -1,0 +1,8 @@
+{% load i18n %}
+{# Button above the Telegram messages list: create a one-time link that connects a Telegram account (ADR 0023). #}
+<div class="musnid-help-trigger">
+    <a href="{% url 'admin:telegram_bot_telegrammessage_link' %}" class="musnid-btn musnid-btn-outline">
+        <span class="material-symbols-outlined" aria-hidden="true">link</span>
+        {% translate "Link a Telegram account" %}
+    </a>
+</div>

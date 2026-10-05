@@ -60,7 +60,8 @@ class Center(BaseModel):
         null=True,
         blank=True,
         help_text=_(
-            'Telegram group where referred questions are sent, for example -1001234567890.'
+            'Telegram group where referred questions are sent, for example -1001234567890. '
+            'Set when a center admin connects the group through the bot.'
         ),
     )
     languages = ArrayField(
@@ -115,6 +116,13 @@ class Center(BaseModel):
                 condition=models.Q(is_default=False) | models.Q(status='approved'),
                 name='default_center_must_be_approved',
                 violation_error_message=_('Only an approved center can be the default center.'),
+            ),
+            # One Telegram group per center, and a group serves one center only (ADR 0023)
+            models.UniqueConstraint(
+                fields=['telegram_chat_id'],
+                condition=models.Q(telegram_chat_id__isnull=False),
+                name='unique_center_telegram_group',
+                violation_error_message=_('This Telegram group is already connected to another center.'),
             ),
         ]
 

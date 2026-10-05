@@ -58,7 +58,10 @@ class CenterSerializer(serializers.ModelSerializer):
 
 
 class CenterSettingsSerializer(serializers.ModelSerializer):
-    """What a center admin may change. Name, slug and review fields are not editable."""
+    """
+    What a center admin may change. Name, slug and review fields are not editable,
+    nor the Telegram group: it is connected only through the bot (ADR 0023).
+    """
 
     country = CountryField(required=False, allow_blank=True)
     languages = serializers.ListField(child=serializers.ChoiceField(choices=Language.choices), required=False)
@@ -66,7 +69,7 @@ class CenterSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Center
         fields = ['slug', 'name', 'country', 'description', 'contact_email', 'website', 'telegram_chat_id', 'languages']
-        read_only_fields = ['slug', 'name']
+        read_only_fields = ['slug', 'name', 'telegram_chat_id']
 
 
 class DashboardMembersSerializer(serializers.Serializer):

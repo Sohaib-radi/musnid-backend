@@ -1,11 +1,17 @@
 """
 Read-only admin of the messages the bot sent (ADR 0022), with a "Send again"
 action for failed ones, through ``telegram_bot.services.resend``.
+
+The "Link a Telegram account" page (ADR 0023) creates a one-time link through
+``telegram_bot.linking.create_link``: for the staff member themselves, or for
+any active user when the staff member is a superuser.
 """
 
 from django.contrib import admin, messages
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.urls import reverse
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
@@ -14,6 +20,8 @@ from unfold.admin import ModelAdmin
 from unfold.decorators import action, display
 
 from telegram_bot import services
+from telegram_bot.client import TelegramError
+from telegram_bot.linking import LINK_MINUTES, create_link
 from telegram_bot.models import TelegramMessage
 
 
@@ -27,11 +35,45 @@ class TelegramMessageAdmin(ModelAdmin):
     list_select_related = ['referral__question']
     date_hierarchy = 'created_at'
     actions = ['send_again']
+    list_before_template = 'admin/telegram_bot/telegrammessage/list_before.html'
     fields = ['created_at', 'kind', 'status', 'chat_id', 'message_id', 'referral_link', 'text', 'error']
     readonly_fields = fields
 
     def has_add_permission(self, request):
         return False
+
+    def get_urls(self):
+        return [
+            path('link/', self.admin_site.admin_view(self.link_view), name='telegram_bot_telegrammessage_link'),
+            *super().get_urls(),
+        ]
+
+    def link_view(self, request):
+        """GET: the form. POST: a one-time link for the chosen user (superusers) or for the staff member."""
+        can_choose = request.user.is_superuser
+        context = {
+            **self.admin_site.each_context(request),
+            'title': _('Link a Telegram account'),
+            'opts': self.model._meta,
+            'can_choose': can_choose,
+            'link_minutes': LINK_MINUTES,
+            'email': request.POST.get('email', ''),
+        }
+        if request.method == 'POST':
+            user = request.user
+            if can_choose:
+                user = get_user_model().objects.filter(email__iexact=context['email'].strip()).first()
+            if user is None:
+                context['error'] = _('No user has this email address.')
+            else:
+                try:
+                    context['link'], _expires_at = create_link(user)
+                    context['linked_user'] = user
+                except ValidationError as error:
+                    context['error'] = ' '.join(error.messages)
+                except TelegramError:
+                    context['error'] = _('Telegram could not be reached. Try again in a moment.')
+        return TemplateResponse(request, 'admin/telegram_bot/telegrammessage/link.html', context)
 
     def has_change_permission(self, request, obj=None):
         return False

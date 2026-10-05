@@ -38,7 +38,7 @@ written as Docusaurus content; this repository holds the Markdown only.
 | Deployment | Done | Live at `https://api.musnid.online` on one VPS since 2026-10-05; see [Deployment](getting-started/deployment.md). |
 | Answer revisions | Done | Specialists and staff revise answers in the admin through `qa.services.revise`; the asker sees the latest revision under the center's name, the AI answer stays for audit ([ADR 0020](architecture/decisions/0020-answer-revisions.md)). |
 | Referral tickets | Done | A referred question opens a ticket for its center (open, in progress, answered, closed); assigned and closed in the admin through `qa.services`, marked answered by a revision; the asker sees `referral_status` ([ADR 0021](architecture/decisions/0021-referral-tickets.md)). |
-| Telegram notices | Done | A referred question is posted to its center's Telegram group; every attempt is logged and failed ones can be sent again ([ADR 0022](architecture/decisions/0022-telegram-channel.md)). Translation, webhook and answering from Telegram are the next steps. |
+| Telegram | Done | A referred question is posted to its center's Telegram group; a linked specialist replies to it and the asker sees the answer at once ([ADR 0022](architecture/decisions/0022-telegram-channel.md), [ADR 0023](architecture/decisions/0023-answer-from-telegram.md)). Translation and private messages with a group fallback are next. |
 | Center review | Done | Self-registered centers start pending; staff approve or reject in the admin ([ADR 0013](architecture/decisions/0013-center-registration-with-review.md)). |
 
 ## Production: current use and limits
@@ -72,4 +72,4 @@ alert, and HSTS.
 - [Tenancy](architecture/tenancy.md): how data is scoped to centers.
 - [Admin](reference/admin.md): every admin page and the sidebar.
 - [REST API](reference/api.md) and the [frontend contract](frontend/authentication.md).
-- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0022.
+- [Decision records](architecture/decisions/0001-python-3-12.md): ADR 0001 to 0023.

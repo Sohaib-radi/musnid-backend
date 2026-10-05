@@ -142,3 +142,14 @@ class ReviewStatusTests(TestCase):
             center.make_default()
         self.assertEqual(caught.exception.code, 'center_not_approved')
         self.assertFalse(Center.objects.filter(is_default=True).exists())
+
+
+class TelegramGroupConstraintTests(TestCase):
+    """``unique_center_telegram_group``: a Telegram group serves one center (ADR 0023)."""
+
+    def test_a_group_cannot_serve_two_centers(self):
+        make_center(telegram_chat_id=-100)
+        make_center(telegram_chat_id=None)
+        make_center(telegram_chat_id=None)  # many centers without a group
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            make_center(telegram_chat_id=-100)
