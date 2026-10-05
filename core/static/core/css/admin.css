@@ -163,3 +163,305 @@ html[dir="rtl"] textarea {
     justify-content: flex-end;
     margin-top: 1rem;
 }
+
+/* Questions admin (qa/admin.py). Logical properties, so lists and quote bars
+ * flip in Arabic without html[dir="rtl"] overrides. */
+.musnid-answer {
+    white-space: pre-line;
+}
+
+.musnid-sentences {
+    display: grid;
+    gap: 0.75rem;
+    list-style: decimal;
+    padding-inline-start: 1.25rem;
+}
+
+.musnid-sentences.musnid-compact {
+    gap: 0.25rem;
+}
+
+.musnid-quote {
+    border-inline-start: 2px solid var(--color-base-300);
+    color: var(--color-base-600);
+    margin-top: 0.25rem;
+    padding-inline-start: 0.75rem;
+}
+
+.musnid-meta {
+    color: var(--color-base-600);
+    font-size: 0.75rem;
+}
+
+.musnid-removed-reason {
+    color: var(--color-red-700);
+    font-size: 0.75rem;
+}
+
+.musnid-pre {
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+}
+
+.musnid-help-trigger {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.musnid-help-trigger .musnid-btn {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+}
+
+.musnid-help-trigger .material-symbols-outlined {
+    color: var(--color-primary-600);
+    font-size: 1.125rem;
+}
+
+.musnid-help-dialog {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    max-height: 88vh;
+    max-width: 50rem;
+    overflow-y: auto;
+}
+
+.musnid-help-header {
+    align-items: flex-start;
+    border-bottom: 1px solid var(--color-base-200);
+    display: flex;
+    gap: 0.875rem;
+    padding-bottom: 1rem;
+}
+
+.musnid-help-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.musnid-help-header p {
+    color: var(--color-base-600);
+}
+
+.musnid-help-icon {
+    align-items: center;
+    background-color: var(--color-primary-100);
+    border-radius: 0.75rem;
+    color: var(--color-primary-700);
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    height: 2.75rem;
+    justify-content: center;
+    width: 2.75rem;
+}
+
+.musnid-help-section {
+    margin-top: 1.25rem;
+}
+
+.musnid-help-section h3 {
+    align-items: center;
+    display: flex;
+    font-size: 1rem;
+    font-weight: 600;
+    gap: 0.5rem;
+}
+
+.musnid-help-section h3 .material-symbols-outlined {
+    color: var(--color-primary-600);
+    font-size: 1.25rem;
+}
+
+.musnid-help-sub {
+    color: var(--color-base-600);
+    margin-bottom: 0.5rem;
+}
+
+.musnid-help-rows {
+    display: grid;
+    gap: 0.375rem;
+}
+
+.musnid-help-rows li {
+    align-items: center;
+    background-color: var(--color-base-50);
+    border-radius: 0.5rem;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 11rem 1fr;
+    padding: 0.5rem 0.75rem;
+}
+
+.musnid-help-rows li.musnid-help-attention {
+    background-color: var(--color-orange-50);
+    border-inline-start: 3px solid var(--color-orange-500);
+}
+
+/* Same look as Unfold's list badges, so the guide matches the table. */
+.musnid-badge {
+    border-radius: 0.375rem;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    justify-self: start;
+    line-height: 1.5rem;
+    padding: 0 0.5rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.musnid-badge-success { background-color: var(--color-green-100); color: var(--color-green-700); }
+.musnid-badge-info { background-color: var(--color-blue-100); color: var(--color-blue-700); }
+.musnid-badge-warning { background-color: var(--color-orange-100); color: var(--color-orange-700); }
+.musnid-badge-danger { background-color: var(--color-red-100); color: var(--color-red-700); }
+
+.musnid-level {
+    align-items: center;
+    background-color: var(--color-primary-100);
+    border-radius: 9999px;
+    color: var(--color-primary-700);
+    display: inline-flex;
+    font-weight: 700;
+    height: 1.75rem;
+    justify-content: center;
+    justify-self: start;
+    width: 1.75rem;
+}
+
+.musnid-level.musnid-level-d {
+    background-color: var(--color-orange-100);
+    color: var(--color-orange-700);
+}
+
+.musnid-help-cards {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 0.5rem;
+}
+
+.musnid-help-card {
+    border: 1px solid var(--color-base-200);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+}
+
+.musnid-help-card h4,
+.musnid-help-steps h4 {
+    align-items: center;
+    display: flex;
+    font-weight: 600;
+    gap: 0.375rem;
+}
+
+.musnid-help-card h4 .material-symbols-outlined {
+    color: var(--color-primary-600);
+    font-size: 1.125rem;
+}
+
+.musnid-help-card p {
+    color: var(--color-base-600);
+    margin-top: 0.375rem;
+}
+
+.musnid-help-steps {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.musnid-help-steps li {
+    align-items: flex-start;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.musnid-help-steps p {
+    color: var(--color-base-600);
+}
+
+.musnid-step-icon {
+    align-items: center;
+    background-color: var(--color-primary-100);
+    border-radius: 9999px;
+    color: var(--color-primary-700);
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 1.125rem;
+    height: 2rem;
+    justify-content: center;
+    width: 2rem;
+}
+
+.musnid-step-icon.musnid-step-success { background-color: var(--color-green-100); color: var(--color-green-700); }
+.musnid-step-icon.musnid-step-danger { background-color: var(--color-red-100); color: var(--color-red-700); }
+
+@media (max-width: 640px) {
+    .musnid-help-rows li {
+        grid-template-columns: 1fr;
+    }
+
+    .musnid-help-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dark .musnid-quote,
+.dark .musnid-meta {
+    border-color: var(--color-base-600);
+    color: var(--color-base-300);
+}
+
+.dark .musnid-removed-reason {
+    color: var(--color-red-400);
+}
+
+.dark .musnid-help-dialog {
+    background-color: var(--color-base-900);
+    color: var(--color-base-200);
+}
+
+.dark .musnid-help-trigger .musnid-btn-outline {
+    border-color: var(--color-base-600);
+    color: var(--color-base-200);
+}
+
+.dark .musnid-help-header,
+.dark .musnid-help-card {
+    border-color: var(--color-base-700);
+}
+
+.dark .musnid-help-header p,
+.dark .musnid-help-sub,
+.dark .musnid-help-card p,
+.dark .musnid-help-steps p {
+    color: var(--color-base-400);
+}
+
+.dark .musnid-help-rows li {
+    background-color: var(--color-base-800);
+}
+
+.dark .musnid-help-rows li.musnid-help-attention {
+    background-color: color-mix(in srgb, var(--color-orange-500) 12%, transparent);
+}
+
+.dark .musnid-help-icon,
+.dark .musnid-level,
+.dark .musnid-step-icon {
+    background-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
+    color: var(--color-primary-300);
+}
+
+.dark .musnid-badge-success,
+.dark .musnid-step-icon.musnid-step-success { background-color: color-mix(in srgb, var(--color-green-500) 20%, transparent); color: var(--color-green-400); }
+.dark .musnid-badge-info { background-color: color-mix(in srgb, var(--color-blue-500) 20%, transparent); color: var(--color-blue-400); }
+.dark .musnid-badge-warning,
+.dark .musnid-level.musnid-level-d { background-color: color-mix(in srgb, var(--color-orange-500) 20%, transparent); color: var(--color-orange-400); }
+.dark .musnid-badge-danger,
+.dark .musnid-step-icon.musnid-step-danger { background-color: color-mix(in srgb, var(--color-red-500) 20%, transparent); color: var(--color-red-400); }
+

@@ -1,0 +1,87 @@
+{% load i18n %}
+{# Button above the questions list opening a visual guide to each column, for first-time readers such as the jury. #}
+<div class="musnid-help-trigger">
+    <button type="button" class="musnid-btn musnid-btn-outline"
+            onclick="document.getElementById('list_help-dialog').showModal()">
+        <span class="material-symbols-outlined" aria-hidden="true">help</span>
+        {% translate "How to read this page" %}
+    </button>
+</div>
+
+{# Closes with the Close button, Esc, or a click outside the dialog's box. #}
+<dialog id="list_help-dialog" class="musnid-dialog musnid-help-dialog" aria-labelledby="list_help-title"
+        onclick="const r = this.getBoundingClientRect(); if (event.clientY < r.top || event.clientY > r.bottom || event.clientX < r.left || event.clientX > r.right) this.close()">
+    <header class="musnid-help-header">
+        <span class="musnid-help-icon material-symbols-outlined" aria-hidden="true">forum</span>
+        <div>
+            <h2 id="list_help-title">{% translate "How to read this page" %}</h2>
+            <p>{% blocktranslate trimmed %}
+                Every question asked on the site, with what the AI did with it. Open a question to see its answer
+                sentence by sentence, each with the quote from the book that supports it, and the sentences the
+                checks removed.
+            {% endblocktranslate %}</p>
+        </div>
+    </header>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">gavel</span>{% translate "Decision" %}</h3>
+        <p class="musnid-help-sub">{% translate "What the AI did with the question." %}</p>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-badge musnid-badge-success">{% translate "Answer" %}</span>
+                <span>{% translate "Answered from the sources." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-info">{% translate "Partial answer" %}</span>
+                <span>{% translate "The sources cover only part of the question; the asker is told so." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-warning">{% translate "Referred to a center" %}</span>
+                <span>{% translate "Sent to the center's specialists: a personal ruling, or a question the sources do not cover." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-danger">{% translate "Abstain" %}</span>
+                <span>{% translate "No reliable answer could be given; the asker gets a fixed reply." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-danger">{% translate "Out of scope" %}</span>
+                <span>{% translate "Not about Islam; the asker gets a fixed reply." %}</span></li>
+        </ul>
+    </section>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">stairs</span>{% translate "Level" %}</h3>
+        <p class="musnid-help-sub">{% translate "Set by the AI before it answers." %}</p>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-level">A</span>
+                <span>{% translate "A settled fact about Islam: beliefs, pillars, history." %}</span></li>
+            <li><span class="musnid-level">B</span>
+                <span>{% translate "An explanation or an argument: wisdom, objections, comparisons." %}</span></li>
+            <li><span class="musnid-level">C</span>
+                <span>{% translate "A matter on which recognized scholars differ; the answer says so." %}</span></li>
+            <li class="musnid-help-attention"><span class="musnid-level musnid-level-d">D</span>
+                <span>{% translate "A personal religious ruling (fatwa) about the asker's own situation. Always referred to specialists, never answered by the AI." %}</span></li>
+        </ul>
+    </section>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">monitoring</span>{% translate "Run" %}</h3>
+        <div class="musnid-help-cards">
+            <div class="musnid-help-card">
+                <h4><span class="material-symbols-outlined" aria-hidden="true">timer</span>{% translate "Response time" %}</h4>
+                <p>{% translate "Seconds from the question to the answer: search, writing and verification of every sentence." %}</p>
+            </div>
+            <div class="musnid-help-card">
+                <h4><span class="material-symbols-outlined" aria-hidden="true">data_usage</span>{% translate "Tokens" %}</h4>
+                <p>{% translate "Text sent to the AI model (in) and received from it (out). The cost of an answer depends on these numbers." %}</p>
+            </div>
+            <div class="musnid-help-card">
+                <h4><span class="material-symbols-outlined" aria-hidden="true">error</span>{% translate "Error" %}</h4>
+                <p><span class="musnid-badge musnid-badge-success">{% translate "No" %}</span>
+                    {% translate "The run completed normally." %}</p>
+                <p><span class="musnid-badge musnid-badge-danger">{% translate "Yes" %}</span>
+                    {% translate "A step failed and the asker got a fixed reply; the details are on the question's page." %}</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">search</span>{% translate "Search" %}</h3>
+        <p class="musnid-help-sub">{% translate "By question text, or paste the follow-up number given to the asker." %}</p>
+    </section>
+
+    <div class="musnid-dialog-actions">
+        <button type="button" class="musnid-btn musnid-btn-primary" onclick="this.closest('dialog').close()">{% translate "Close" %}</button>
+    </div>
+</dialog>

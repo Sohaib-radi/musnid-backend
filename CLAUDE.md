@@ -120,7 +120,7 @@ core/              domain app
 knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embeddings, services/search
   extraction/      PDF text repair and Bayyinat parsing (never imports PyMuPDF)
   management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
-qa/                Question, Interaction, HumanLabel (records of every answer)
+qa/                Question, Interaction, HumanLabel (records of every answer); read-only admin
 agents/            CrewAI: flow.py (steps, routing, fixed replies), services.py (ask), crews/ (YAML)
 api/               REST API, no models
   v1/urls.py       explicit paths; views/ and serializers/ per area (auth, centers, memberships)

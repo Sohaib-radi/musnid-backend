@@ -29,7 +29,7 @@ written as Docusaurus content; this repository holds the Markdown only.
 | Tests | Done | 428 tests against a real PostgreSQL test database; see [Testing](development/testing.md). |
 | Static files in Docker | Done | WhiteNoise serves them from gunicorn ([ADR 0018](architecture/decisions/0018-single-vps-deployment.md)). |
 | Internationalisation (Arabic, French) | Done | Project catalog 105 strings and Unfold vendor catalog 131 strings, fully translated and enforced by tests; see [Translations](development/translations.md). |
-| Admin | Done | Unfold theme with the Musnid brand, sidebar, language switcher; users, centers, memberships, groups; see [Admin](reference/admin.md). |
+| Admin | Done | Unfold theme with the Musnid brand, sidebar, language switcher; users, centers, memberships, groups, and every asked question with its AI answer (read-only); see [Admin](reference/admin.md). |
 | REST API | Done | JWT auth, registration of askers and centers, profile, centers, memberships, countries; OpenAPI at `/api/docs/`; see [REST API](reference/api.md) and [Frontend](frontend/authentication.md). |
 | Provider API keys | Done | Encrypted OpenAI keys managed in the admin; see [Provider API keys](reference/api-keys.md). |
 | Knowledge base (RAG) | Done | Bayyinat extracted (263 questions), 1,432 chunks embedded, search and evidence; see [RAG](rag/01-extraction-findings.md). |

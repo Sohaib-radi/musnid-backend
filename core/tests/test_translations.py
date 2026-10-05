@@ -46,7 +46,7 @@ VENDOR_LOCALE = settings.BASE_DIR / 'locale_vendor' / 'unfold'
 FRENCH_SAME_AS_ENGLISH = {
     'API', 'Action', 'Configuration', 'Contact', 'Date', 'Dates', 'Permissions', 'Question', 'Service', 'URL',
     'document', 'Agents', 'session', 'question', 'questions', 'citations', 'interaction', 'interactions',
-    'verdict',
+    'verdict', 'Questions', '%(seconds).1f s',
     'avatar', 'description', 'logo',
 }
 

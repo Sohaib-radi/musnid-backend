@@ -21,6 +21,7 @@ from core.models import (
     BaseModel, Center, CenterLinkedModel, CreatedByMixin, Membership, User,
 )
 from core.services import credentials
+from qa.models import Interaction, Question
 
 _sequence = itertools.count(1)
 
@@ -99,3 +100,19 @@ def make_credential(**fields):
         fields.pop('provider', 'openai'), fields.pop('name', 'Test key'),
         fields.pop('secret', None) or make_openai_key(), created_by=fields.pop('created_by', None),
     )
+
+
+def make_question(**fields):
+    """Create a question owned by a new center unless ``center`` is given."""
+    fields.setdefault('center', fields.get('center') or make_center())
+    fields.setdefault('text', f'Question {next(_sequence)}?')
+    fields.setdefault('lang', 'ar')
+    return Question.objects.create(**fields)
+
+
+def make_interaction(**fields):
+    """Create the saved answer of a new question unless ``question`` is given; decision ``answer``."""
+    fields.setdefault('question', fields.get('question') or make_question())
+    fields.setdefault('decision', Interaction.Decision.ANSWER)
+    fields.setdefault('answer_text', 'An answer [Q1].')
+    return Interaction.objects.create(**fields)

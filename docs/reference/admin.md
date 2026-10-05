@@ -35,8 +35,13 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 | --- | --- | --- | --- | --- |
 | Centers | Centers | `apartment` | `admin:core_center_changelist` | `core.view_center` |
 | Centers | Memberships | `badge` | `admin:core_membership_changelist` | `core.view_membership` |
+| Questions and answers | Questions | `forum` | `admin:qa_question_changelist` | `qa.view_question` |
 | Accounts | Users | `person` | `admin:core_user_changelist` | `core.view_user` |
 | Accounts | Groups | `group` | `admin:auth_group_changelist` | `auth.view_group` |
+| Knowledge base | Source documents | `menu_book` | `admin:knowledge_sourcedocument_changelist` | `knowledge.view_sourcedocument` |
+| Knowledge base | Source chunks | `segment` | `admin:knowledge_sourcechunk_changelist` | `knowledge.view_sourcechunk` |
+| Configuration | API Keys | `vpn_key` | `admin:core_apicredential_changelist` | `core.view_apicredential` |
+| Configuration | AI settings | `smart_toy` | `admin:core_aisettings_changelist` | `core.view_aisettings` |
 | Security | Outstanding tokens | `key` | `admin:token_blacklist_outstandingtoken_changelist` | `token_blacklist.view_outstandingtoken` |
 | Security | Blacklisted tokens | `block` | `admin:token_blacklist_blacklistedtoken_changelist` | `token_blacklist.view_blacklistedtoken` |
 
@@ -121,6 +126,31 @@ Sidebar: **Configuration > API Keys** (icon `vpn_key`, permission `core.view_api
 | Delete | allowed |
 
 Details: [Provider API keys](api-keys.md).
+
+## Questions (`qa/admin.py`)
+
+Every question asked through `POST /api/v1/questions/`, with how the AI answered it
+([ADR 0016](../architecture/decisions/0016-question-answering-flow.md)). Read-only: an
+`Interaction` is the audit record of one answer, so it is never edited here. Editing an
+answer will come with tracked revisions.
+
+| Aspect | Definition |
+| --- | --- |
+| Help | a "How to read this page" button above the list and above each question's page, opening a dialog (closed with Close, Esc or a click outside): on the list, the decisions with the same coloured badges as the table, levels A to D (D highlighted: always referred), cards for response time, tokens and error, and search; on a page, each section as an illustrated step. Written for first-time readers such as the competition jury (`qa/templates/admin/qa/question/`) |
+| List columns | question (first 90 characters), language, decision (badge: green answer, blue partial, amber referred, red abstain and out of scope), level, response time, tokens (in, out), error (badge: red Yes, green No), center, created at |
+| Sorting | by decision, level, response time, tokens (input) and created at |
+| Filters | decision, level, language, center; date drill-down on created at |
+| Search | question text; a pasted follow-up number (`uuid`) finds that exact question |
+| Fieldsets | Question (text, public identifier, language, center, session, created at); Answer (decision, level, answer text, kept sentences, removed sentences); Retrieval (search query, ranked results; collapsed); Run (model and prompt version, response time, input and output tokens, error; collapsed) |
+| Kept sentences | each sentence the asker saw, its supporting quote (right-to-left) and its Bayyinat question number |
+| Removed sentences | each sentence the verification dropped, its quote and the reason: quote not found in the sources (`quote`), or quote does not support the sentence (`entailment`) |
+| Question without answer | listed with decision "-"; its page says no answer was saved (the flow failed before saving) |
+| Add, change, delete | not allowed (403) |
+
+Text from the model is escaped (`format_html`), never rendered as HTML.
+Styles are the `musnid-*` classes in `core/static/core/css/admin.css`, written with logical
+properties (`padding-inline-start`, `border-inline-start`) so lists and quote bars flip in
+Arabic; Unfold's compiled CSS lacks the utility classes they would otherwise need.
 
 ## Knowledge base (`knowledge/admin.py`)
 

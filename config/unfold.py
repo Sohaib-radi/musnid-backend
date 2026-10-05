@@ -109,6 +109,13 @@ UNFOLD = {
                 ],
             },
             {
+                'title': _('Questions and answers'),
+                'separator': True,
+                'items': [
+                    _nav_item(_('Questions'), 'forum', 'admin:qa_question_changelist', 'qa.view_question'),
+                ],
+            },
+            {
                 'title': _('Accounts'),
                 'separator': True,
                 'items': [

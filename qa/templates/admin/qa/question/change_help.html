@@ -1,0 +1,43 @@
+{% load i18n %}
+{# Button above a question's page opening a visual guide to each section, top to bottom. #}
+<div class="musnid-help-trigger">
+    <button type="button" class="musnid-btn musnid-btn-outline"
+            onclick="document.getElementById('change_help-dialog').showModal()">
+        <span class="material-symbols-outlined" aria-hidden="true">help</span>
+        {% translate "How to read this page" %}
+    </button>
+</div>
+
+{# Closes with the Close button, Esc, or a click outside the dialog's box. #}
+<dialog id="change_help-dialog" class="musnid-dialog musnid-help-dialog" aria-labelledby="change_help-title"
+        onclick="const r = this.getBoundingClientRect(); if (event.clientY < r.top || event.clientY > r.bottom || event.clientX < r.left || event.clientX > r.right) this.close()">
+    <header class="musnid-help-header">
+        <span class="musnid-help-icon material-symbols-outlined" aria-hidden="true">article</span>
+        <div>
+            <h2 id="change_help-title">{% translate "How to read this page" %}</h2>
+            <p>{% translate "One question and how it was answered, section by section. Nothing here can be edited." %}</p>
+        </div>
+    </header>
+
+    <ol class="musnid-help-steps">
+        <li><span class="musnid-step-icon material-symbols-outlined" aria-hidden="true">chat</span>
+            <div><h4>{% translate "Answer" %}</h4>
+                <p>{% translate "The decision, the level and the full text the asker received." %}</p></div></li>
+        <li><span class="musnid-step-icon musnid-step-success material-symbols-outlined" aria-hidden="true">verified</span>
+            <div><h4>{% translate "Kept sentences" %}</h4>
+                <p>{% translate "Each sentence of the answer, with the quote from the Bayyinat book that supports it. The quote was checked in code against the source text." %}</p></div></li>
+        <li><span class="musnid-step-icon musnid-step-danger material-symbols-outlined" aria-hidden="true">block</span>
+            <div><h4>{% translate "Removed sentences" %}</h4>
+                <p>{% translate "Sentences the AI wrote but the checks removed before the answer was shown: the quote was not found in the sources, or it did not support the sentence." %}</p></div></li>
+        <li><span class="musnid-step-icon material-symbols-outlined" aria-hidden="true">travel_explore</span>
+            <div><h4>{% translate "Retrieval" %}</h4>
+                <p>{% translate "The search query the AI wrote and the passages found, best match first. Click the title to open it." %}</p></div></li>
+        <li><span class="musnid-step-icon material-symbols-outlined" aria-hidden="true">monitoring</span>
+            <div><h4>{% translate "Run" %}</h4>
+                <p>{% translate "The model used, the response time, the tokens and any error. Click the title to open it." %}</p></div></li>
+    </ol>
+
+    <div class="musnid-dialog-actions">
+        <button type="button" class="musnid-btn musnid-btn-primary" onclick="this.closest('dialog').close()">{% translate "Close" %}</button>
+    </div>
+</dialog>

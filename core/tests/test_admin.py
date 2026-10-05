@@ -12,6 +12,7 @@ from unfold.admin import StackedInline, TabularInline
 
 from core.admin import pending_centers_badge
 from knowledge.models import SourceChunk, SourceDocument
+from qa.models import Question
 from core.models import AISettings, ApiCredential, Center, Membership, User
 from core.tests.support import (
     TEST_ENCRYPTION_KEYS, make_center, make_credential, make_membership, make_openai_key, make_user,
@@ -42,7 +43,7 @@ class UnfoldEverywhereTests(TestCase):
         self.assertEqual(
             set(admin.site._registry),
             {User, Center, Membership, Group, OutstandingToken, BlacklistedToken, ApiCredential,
-             SourceDocument, SourceChunk, AISettings},
+             SourceDocument, SourceChunk, AISettings, Question},
         )
 
 
