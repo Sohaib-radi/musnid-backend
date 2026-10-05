@@ -18,8 +18,9 @@ updating this page in the same commit.
 | PostgreSQL with pgvector | image `pgvector/pgvector:pg17` (pgvector 0.8.7 measured) | Primary database; pgvector stores and searches embeddings. | PostgreSQL License |
 | GNU gettext | 0.26 on the development machine | `makemessages` and `compilemessages`; development only, not in the image. | GPL-3.0-or-later |
 | Docker Compose | v2 | Runs the `db` and `web` services locally and on the VPS. | Apache-2.0 |
+| Docker Engine | 29.8.2 on the VPS (Docker's apt repository) | Runs the Compose services in production. | Apache-2.0 |
 | Ubuntu | 22.04 LTS | Production VPS operating system ([Deployment](getting-started/deployment.md)). | Various (mostly GPL) |
-| nginx | Ubuntu 22.04 package | Production reverse proxy and TLS termination on the host ([ADR 0018](architecture/decisions/0018-single-vps-deployment.md)). | BSD-2-Clause |
+| nginx | 1.18.0 (Ubuntu 22.04 package) | Production reverse proxy and TLS termination on the host ([ADR 0018](architecture/decisions/0018-single-vps-deployment.md)). | BSD-2-Clause |
 | certbot (with `python3-certbot-nginx`) | Ubuntu 22.04 package | Let's Encrypt certificate for `api.musnid.online` and its renewal timer. | Apache-2.0 |
 
 ## Python packages

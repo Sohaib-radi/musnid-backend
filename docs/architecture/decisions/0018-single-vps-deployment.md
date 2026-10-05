@@ -48,6 +48,10 @@ without changes to the developer's `.env`.
   `DJANGO_HSTS_SECONDS` is separate, defaults to 0 and is raised in steps after HTTPS
   works, because browsers cannot be made to forget HSTS early. `includeSubDomains` and
   `preload` are not set: other hosts of the domain are not served from here.
+- **Access**: the server exists only for the competition, so it runs as `root` with an
+  SSH key; password login is turned off, and no separate deploy user was created.
+- **Admin prerequisites**: production starts with an empty database, so the OpenAI key
+  and an approved default center are added in the admin before the first question.
 - **Knowledge base by data copy**: the two `knowledge_*` tables are dumped from the
   development database and restored data-only into the migrated production database.
   Source books are not in git and PyMuPDF stays out of production (AGPL), so re-running
