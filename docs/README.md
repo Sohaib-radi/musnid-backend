@@ -13,8 +13,9 @@ The website that calls this backend is a separate repository:
 contract is in [Frontend integration](#frontend-integration).
 
 > [!IMPORTANT]
-> **Crucial before testing the Telegram bot:** a center must be **approved** and made the
-> **default center** to receive questions. See [Approve a center](guides/approve-a-center.md).
+> **Crucial:** a center registered on the website must be **approved** before its center
+> admin can use the center dashboard, and made the **default center** to receive questions
+> in Telegram. See [Approve a center](guides/approve-a-center.md).
 
 ## Start here (jury and first-time readers)
 

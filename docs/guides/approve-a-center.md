@@ -7,8 +7,10 @@ description: How a platform administrator approves a center registered on the we
 
 # Approve a center
 
-A center that registers on the website starts **pending review**. A platform administrator
-(superuser) approves it in the admin before its center admins can use their dashboard. The
+A center that registers on the website starts **pending review**. Until a platform
+administrator (superuser) approves it in the admin, its center admin sees a "being reviewed"
+page on the website and cannot use the center dashboard: settings, specialists, questions
+and the Telegram connection. The
 same step can make it the **default center**, the one that receives the questions askers
 send to specialists.
 
