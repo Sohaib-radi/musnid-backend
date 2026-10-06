@@ -602,12 +602,57 @@ html[dir="rtl"] textarea {
 .dark .musnid-row-fact { border-color: var(--color-base-700); }
 .dark .musnid-row-icon { background-color: var(--color-primary-900); color: var(--color-primary-200); }
 
-/* A checkbox with its label inside a dialog (the Approve dialog's "make it the default") */
-.musnid-check {
-    align-items: center;
+/* An option card inside a dialog (the Approve dialog's "make it the default"): a large
+   checkbox and its explanation in one bordered, clickable card, so it cannot be missed */
+.musnid-option {
+    align-items: flex-start;
+    background-color: var(--color-primary-50);
+    border: 1px solid var(--color-primary-300);
+    border-radius: 0.5rem;
+    cursor: pointer;
     display: flex;
-    font-weight: 500;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
+    gap: 0.75rem;
+    margin: 1.25rem 0 0.5rem;
+    padding: 0.875rem 1rem;
 }
 
+.musnid-option:hover {
+    border-color: var(--color-primary-500);
+}
+
+.musnid-option input[type="checkbox"] {
+    accent-color: var(--color-primary-600);
+    flex-shrink: 0;
+    height: 1.375rem;
+    margin-top: 0.125rem;
+    width: 1.375rem;
+}
+
+.musnid-option-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.musnid-option-title {
+    align-items: center;
+    color: var(--color-primary-700);
+    display: flex;
+    font-size: 1rem;
+    font-weight: 600;
+    gap: 0.375rem;
+}
+
+.musnid-option-title .material-symbols-outlined {
+    font-size: 1.25rem;
+}
+
+.musnid-option-text {
+    color: var(--color-base-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.dark .musnid-option { background-color: var(--color-primary-950); border-color: var(--color-primary-700); }
+.dark .musnid-option-title { color: var(--color-primary-200); }
+.dark .musnid-option-text { color: var(--color-base-300); }
