@@ -68,6 +68,11 @@ DROP_REASONS = {
 }
 
 
+def badge(color, text):
+    """A coloured badge for detail pages: Unfold's ``label=`` columns only render in lists."""
+    return format_html('<span class="musnid-badge musnid-badge-{}">{}</span>', color, text)
+
+
 def interaction_of(question):
     """The question's interaction, or ``None`` when the answer was never saved."""
     try:
@@ -464,8 +469,8 @@ class ReferralAdmin(ModelAdmin):
     list_select_related = ['question', 'center', 'assigned_to']
     date_hierarchy = 'created_at'
     actions = ['assign_to_me', 'close_selected']
-    fields = ['question_link', 'mode', 'reason', 'status', 'assigned_to', 'center', 'created_at', 'live_until',
-              'answered_at', 'closed_at', 'close_note']
+    fields = ['question_link', 'mode_badge', 'reason', 'status_badge', 'assigned_to', 'center', 'created_at',
+              'live_until', 'answered_at', 'closed_at', 'close_note']
     readonly_fields = fields
 
     def has_add_permission(self, request):
@@ -495,6 +500,14 @@ class ReferralAdmin(ModelAdmin):
     def mode(self, referral):
         """Live (the asker waited one minute) or a ticket answered later."""
         return referral.mode, referral.get_mode_display()
+
+    @display(description=_('status'))
+    def status_badge(self, referral):
+        return badge(REFERRAL_STATUS_COLORS[referral.status], referral.get_status_display())
+
+    @display(description=_('mode'))
+    def mode_badge(self, referral):
+        return badge('warning' if referral.mode == Referral.Mode.LIVE else 'info', referral.get_mode_display())
 
     @action(description=_('Assign selected referrals to me'))
     def assign_to_me(self, request, queryset):
@@ -552,7 +565,8 @@ class HumanLabelAdmin(ModelAdmin):
     list_select_related = ['interaction__question', 'reviewer']
     date_hierarchy = 'created_at'
     list_before_template = 'admin/qa/humanlabel/list_help.html'
-    fields = ['question_link', 'verdict_badge', 'reason', 'corrected_answer', 'reviewer', 'created_at', 'updated_at']
+    fields = ['question_link', 'verdict_detail', 'ai_answer', 'reason', 'corrected_answer', 'reviewer', 'created_at',
+              'updated_at']
     readonly_fields = fields
 
     def has_add_permission(self, request):
@@ -578,6 +592,15 @@ class HumanLabelAdmin(ModelAdmin):
     @display(description=_('verdict'), ordering='verdict', label=VERDICT_COLORS)
     def verdict_badge(self, label):
         return label.verdict, label.get_verdict_display()
+
+    @display(description=_('verdict'))
+    def verdict_detail(self, label):
+        return badge(VERDICT_COLORS[label.verdict], label.get_verdict_display())
+
+    @display(description=_('AI answer'))
+    def ai_answer(self, label):
+        """The AI answer the verdict is about, next to the correction."""
+        return format_html('<div dir="auto" class="musnid-answer">{}</div>', label.interaction.answer_text)
 
     @display(description=_('language'), ordering='interaction__question__lang')
     def language(self, label):

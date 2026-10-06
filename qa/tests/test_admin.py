@@ -221,6 +221,11 @@ class ReferralAdminTests(AdminTestCase):
         self.assertContains(response, 'Can I combine prayers while travelling?')
         self.assertNotContains(response, 'Already answered?')
 
+    def test_detail_page_shows_badges_not_raw_values(self):
+        page = self.client.get(reverse('admin:qa_referral_change', args=[self.referral.pk]))
+        self.assertContains(page, 'musnid-badge-warning">Open</span>', html=False)
+        self.assertNotContains(page, "(&#x27;open&#x27;")
+
     def test_change_page_links_to_the_question(self):
         response = self.client.get(reverse('admin:qa_referral_change', args=[self.referral.pk]))
         self.assertContains(response, reverse('admin:qa_question_change', args=[self.referral.question_id]))
@@ -290,4 +295,10 @@ class VerdictAdminTests(AdminTestCase):
 
     def test_verdicts_are_read_only(self):
         self.assertEqual(self.client.get(reverse('admin:qa_humanlabel_add')).status_code, 403)
+
+    def test_detail_pages_show_badges_not_raw_values(self):
+        self.client.post(self.url, {'verdict': 'approve'})
+        page = self.client.get(reverse('admin:qa_humanlabel_change', args=[HumanLabel.objects.get().pk]))
+        self.assertContains(page, 'musnid-badge-success">Correct</span>', html=False)
+        self.assertNotContains(page, "(&#x27;approve&#x27;")
 
