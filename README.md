@@ -15,6 +15,12 @@ receive and answer them.
 > specialists get them in Telegram.
 > **→ [Step-by-step guide with screenshots: Approve a center](docs/guides/approve-a-center.md)**
 
+<p align="center">
+  <a href="docs/guides/approve-a-center.md"><img src="docs/images/admin/centers-list-approve.png" alt="Centers list in the admin: a pending center with its Approve button" width="49%"></a>
+  <a href="docs/guides/approve-a-center.md"><img src="docs/images/admin/center-approve-dialog.png" alt="Approve dialog with &quot;Also make it the default center&quot; ticked" width="49%"></a>
+  <br><em>1. Click <strong>Approve</strong> on the pending center · 2. Tick <strong>Also make it the default center</strong>, then <strong>Approve</strong></em>
+</p>
+
 ## Related repository
 
 The website (asking, dashboards, Telegram connection) is in
