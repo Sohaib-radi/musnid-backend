@@ -253,7 +253,9 @@ two buttons; each calls `POST questions/{uuid}/specialist/` with
 | `live` ("Ask a specialist now") | Countdown to `referral_live_until`, poll every 5 s; at 0, "the center will answer you here", poll every 60 s |
 | `ticket` ("Save as a ticket") | "Your ticket was saved", poll every 60 s while the page is open |
 
-`referral_status` `answered` → show `answer`, "Answered by `review.center`".
+`referral_status` `answered` → show `answer`, "Answered by `review.center`". When
+`answer_translated_from` is set (the specialist wrote in another language), `answer` is an
+AI translation: show "Translated from <language> by AI" and offer `answer_original`.
 
 ## Questions to answer (specialists and center admins)
 

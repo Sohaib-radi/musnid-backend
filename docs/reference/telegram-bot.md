@@ -98,7 +98,9 @@ machine translation ("Translation (AI)", `agents/translation.py`): one call to t
 model per language, saved on `Question.translations`, so ten French-speaking specialists
 cost one call. Quran verses and hadith stay in Arabic; nothing is added or answered. If
 the translation fails, the notice carries the original only. The specialist's **answer**
-reaches the asker as written (translating answers is a later step).
+is translated too: written in another language than the question's, it reaches the asker
+as an AI translation into the question's language, marked as such, with the original kept
+(`AnswerRevision.translated_text`).
 
 ## 4. Running it
 

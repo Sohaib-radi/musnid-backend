@@ -200,6 +200,7 @@ Question:
 | `can_ask_specialist` | True when the AI did not answer and the question was not sent yet: show "Ask a specialist now" and "Save as a ticket". |
 | `referral_mode` | `live` or `ticket`; null when not sent. |
 | `referral_live_until` | For a live request: end of the 1-minute live window (`REFERRAL_LIVE_SECONDS`); null otherwise. |
+| `answer_translated_from`, `answer_original` | When a specialist answered in another language than the question's: their language (`ar`, `en`, `fr`) and their own text; `answer` is then an AI translation into the question's language (show "Translated from … by AI"). Both null otherwise. |
 | `referral_status` | For `refer`: where the center's ticket stands, `open`, `in_progress`, `answered` or `closed` (closed without an answer) ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)). `null` otherwise. |
 
 Limits on `POST`:

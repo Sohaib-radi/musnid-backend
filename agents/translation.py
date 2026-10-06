@@ -1,5 +1,5 @@
 """
-Translating questions for the specialists (the translation crew's first use).
+Translating questions for the specialists, and specialists' answers for the askers.
 
 A question reaches specialists who may work in another language: the notice shows
 the original and a translation into each specialist's language. One structured
@@ -36,6 +36,27 @@ class Translation(BaseModel):
     """Output of the translation call."""
 
     text: str = Field(description='The translation, nothing else.')
+
+
+def script_language(text, guess):
+    """
+    The asker's language, with the Arabic case decided by script, not by the model.
+
+    Text that is mostly Arabic script is "ar". The classifier's guess is kept for
+    other text, except "ar", which the model sometimes returns for English
+    questions (observed 2026-10-04): it falls back to "en".
+    """
+    letters = [char for char in text if char.isalpha()]
+    arabic = sum('\u0600' <= char <= '\u06ff' for char in letters)
+    if letters and arabic / len(letters) > 0.5:
+        return 'ar'
+    return 'en' if guess == 'ar' else guess
+
+
+def text_language(text, fallback):
+    """The language of a text written by a person: "ar" for mostly Arabic script, else ``fallback`` (en or fr)."""
+    language = script_language(text, fallback)
+    return language if language in LANGUAGE_NAMES else 'en'
 
 
 def translate(text, language):

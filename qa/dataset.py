@@ -64,7 +64,7 @@ def better_answer(interaction):
         return corrections[0].corrected_answer
     revisions = sorted((revision for revision in interaction.question.revisions.all()
                         if revision.reason in IMPROVING), key=lambda revision: revision.created_at, reverse=True)
-    return revisions[0].text if revisions else None
+    return revisions[0].shown_text if revisions else None  # in the question's language
 
 
 def approved(interaction):

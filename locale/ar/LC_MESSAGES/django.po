@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 09:14+0000\n"
+"POT-Creation-Date: 2026-10-06 12:34+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -263,21 +263,21 @@ msgstr "حالة المراجعة"
 msgid "“%(center)s” was approved."
 msgstr "تمت الموافقة على «%(center)s»."
 
-#: core/admin.py:225
+#: core/admin.py:226
 #, python-format
 msgid "“%(center)s” was rejected."
 msgstr "تم رفض «%(center)s»."
 
-#: core/admin.py:243
+#: core/admin.py:244
 msgid "Approve selected centers"
 msgstr "الموافقة على المراكز المحددة"
 
-#: core/admin.py:248 core/admin.py:254
+#: core/admin.py:249 core/admin.py:255
 #: core/templates/admin/core/center/reject_selected.html:20
 msgid "Reject selected centers"
 msgstr "رفض المراكز المحددة"
 
-#: core/admin.py:274
+#: core/admin.py:275
 #, python-format
 msgid "%(count)d center was reviewed."
 msgid_plural "%(count)d centers were reviewed."
@@ -288,7 +288,7 @@ msgstr[3] "عدد المراكز التي رُوجعت: %(count)d."
 msgstr[4] "عدد المراكز التي رُوجعت: %(count)d."
 msgstr[5] "عدد المراكز التي رُوجعت: %(count)d."
 
-#: core/admin.py:278
+#: core/admin.py:279
 #, python-format
 msgid "%(count)d center could not be reviewed: %(reasons)s"
 msgid_plural "%(count)d centers could not be reviewed: %(reasons)s"
@@ -299,24 +299,24 @@ msgstr[3] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
 msgstr[4] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
 msgstr[5] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
 
-#: core/admin.py:283
+#: core/admin.py:284
 msgid "Make selected center the default"
 msgstr "جعل المركز المحدد هو المركز الافتراضي"
 
-#: core/admin.py:288
+#: core/admin.py:289
 msgid "Select exactly one center to make it the default."
 msgstr "حدّد مركزًا واحدًا فقط لجعله المركز الافتراضي."
 
-#: core/admin.py:299
+#: core/admin.py:300
 #, python-format
 msgid "“%(center)s” is now the default center."
 msgstr "أصبح «%(center)s» المركز الافتراضي."
 
-#: core/admin.py:346
+#: core/admin.py:347
 msgid "Offboard selected memberships"
 msgstr "إنهاء العضويات المحددة"
 
-#: core/admin.py:360
+#: core/admin.py:361
 #, python-format
 msgid "%(count)d membership was offboarded."
 msgid_plural "%(count)d memberships were offboarded."
@@ -327,7 +327,7 @@ msgstr[3] "عدد العضويات التي أُنهيت: %(count)d."
 msgstr[4] "عدد العضويات التي أُنهيت: %(count)d."
 msgstr[5] "عدد العضويات التي أُنهيت: %(count)d."
 
-#: core/admin.py:370
+#: core/admin.py:371
 #, python-format
 msgid "%(count)d membership could not be offboarded: %(reasons)s"
 msgid_plural "%(count)d memberships could not be offboarded: %(reasons)s"
@@ -338,16 +338,16 @@ msgstr[3] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 msgstr[4] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 msgstr[5] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 
-#: core/admin.py:396 core/forms.py:131 core/models/credentials.py:43
+#: core/admin.py:397 core/forms.py:131 core/models/credentials.py:43
 #: core/templates/admin/core/apicredential/list_help.html:12
 msgid "API key"
 msgstr "مفتاح API"
 
-#: core/admin.py:433
+#: core/admin.py:434
 msgid "Revoke selected API keys"
 msgstr "إلغاء مفاتيح API المحددة"
 
-#: core/admin.py:442
+#: core/admin.py:443
 #, python-format
 msgid "%(count)d API key was revoked."
 msgid_plural "%(count)d API keys were revoked."
@@ -776,13 +776,13 @@ msgstr ""
 "سيتم رفض هذه المراكز. لا تُراجَع إلا المراكز التي قيد المراجعة، ويُتجاوز غيرها."
 
 #: core/templates/admin/core/center/reject_selected.html:14
-#: core/templates/admin/core/center/review_buttons.html:27
+#: core/templates/admin/core/center/review_buttons.html:34
 msgid "Reason (shown to the applicant)"
 msgstr "السبب (يُعرض على مقدّم الطلب)"
 
 #: core/templates/admin/core/center/reject_selected.html:19
-#: core/templates/admin/core/center/review_buttons.html:16
-#: core/templates/admin/core/center/review_buttons.html:30
+#: core/templates/admin/core/center/review_buttons.html:22
+#: core/templates/admin/core/center/review_buttons.html:37
 #: qa/templates/admin/qa/question/label.html:38
 #: qa/templates/admin/qa/question/revise.html:48
 #: qa/templates/admin/qa/referral/close_selected.html:19
@@ -790,28 +790,28 @@ msgstr "السبب (يُعرض على مقدّم الطلب)"
 msgid "Cancel"
 msgstr "إلغاء"
 
-#: core/templates/admin/core/center/review_buttons.html:5
-#: core/templates/admin/core/center/review_buttons.html:17
+#: core/templates/admin/core/center/review_buttons.html:11
+#: core/templates/admin/core/center/review_buttons.html:24
 msgid "Approve"
 msgstr "موافقة"
 
-#: core/templates/admin/core/center/review_buttons.html:7
-#: core/templates/admin/core/center/review_buttons.html:31
+#: core/templates/admin/core/center/review_buttons.html:13
+#: core/templates/admin/core/center/review_buttons.html:39
 msgid "Reject"
 msgstr "رفض"
 
-#: core/templates/admin/core/center/review_buttons.html:13
+#: core/templates/admin/core/center/review_buttons.html:19
 msgid "Approve this center?"
 msgstr "الموافقة على هذا المركز؟"
 
-#: core/templates/admin/core/center/review_buttons.html:14
+#: core/templates/admin/core/center/review_buttons.html:20
 #, python-format
 msgid ""
 "“%(name)s” will become operational and its center admins will get access to "
 "their dashboard."
 msgstr "سيصبح «%(name)s» مفعَّلًا وسيحصل مسؤولوه على لوحة التحكم."
 
-#: core/templates/admin/core/center/review_buttons.html:26
+#: core/templates/admin/core/center/review_buttons.html:33
 msgid "Reject this center?"
 msgstr "رفض هذا المركز؟"
 
@@ -879,7 +879,7 @@ msgstr "العنوان"
 
 #: knowledge/models.py:27 knowledge/models.py:85
 #: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:13
-#: qa/admin.py:122 qa/admin.py:605 qa/models.py:59
+#: qa/admin.py:122 qa/admin.py:605 qa/models.py:59 qa/models.py:219
 msgid "language"
 msgstr "اللغة"
 
@@ -1117,7 +1117,7 @@ msgstr "نعم"
 msgid "No"
 msgstr "لا"
 
-#: qa/admin.py:142 qa/models.py:301
+#: qa/admin.py:142 qa/models.py:312
 msgid "ticket"
 msgstr "تذكرة"
 
@@ -1157,7 +1157,7 @@ msgstr "راجِع الجواب"
 
 #: qa/admin.py:311 qa/admin.py:485 qa/admin.py:489 qa/admin.py:581
 #: qa/admin.py:585 qa/models.py:73 qa/models.py:115 qa/models.py:210
-#: qa/models.py:277 telegram_bot/admin.py:84
+#: qa/models.py:288 telegram_bot/admin.py:84
 msgid "question"
 msgstr "سؤال"
 
@@ -1210,12 +1210,12 @@ msgstr "الأدلة المعطاة للكاتب"
 msgid "model"
 msgstr "النموذج"
 
-#: qa/admin.py:495 qa/admin.py:504 qa/models.py:280 telegram_bot/admin.py:80
+#: qa/admin.py:495 qa/admin.py:504 qa/models.py:291 telegram_bot/admin.py:80
 #: telegram_bot/models.py:42
 msgid "status"
 msgstr "الحالة"
 
-#: qa/admin.py:499 qa/admin.py:508 qa/models.py:281
+#: qa/admin.py:499 qa/admin.py:508 qa/models.py:292
 msgid "mode"
 msgstr "الطريقة"
 
@@ -1381,7 +1381,7 @@ msgstr "المراجع"
 msgid "corrected answer"
 msgstr "الجواب المصحَّح"
 
-#: qa/models.py:177 qa/models.py:217 qa/models.py:279
+#: qa/models.py:177 qa/models.py:223 qa/models.py:290
 msgid "reason"
 msgstr "السبب"
 
@@ -1405,153 +1405,164 @@ msgstr "جواب من مختص"
 msgid "author"
 msgstr "الكاتب"
 
-#: qa/models.py:218
+#: qa/models.py:221
+msgid "translation for the asker"
+msgstr "الترجمة للسائل"
+
+#: qa/models.py:222
+msgid ""
+"AI translation of the answer into the question's language, when the "
+"specialist wrote in another."
+msgstr ""
+"ترجمة الجواب بالذكاء الاصطناعي إلى لغة السؤال، حين يكتب المختص بلغة أخرى."
+
+#: qa/models.py:224
 msgid "internal note"
 msgstr "ملاحظة داخلية"
 
-#: qa/models.py:219 qa/templates/admin/qa/question/revise.html:43
+#: qa/models.py:225 qa/templates/admin/qa/question/revise.html:43
 msgid "For the center and staff only; never shown to the asker."
 msgstr "للمركز والمشرفين فقط، ولا تُعرض على السائل أبدًا."
 
-#: qa/models.py:222
+#: qa/models.py:228
 msgid "answer revision"
 msgstr "مراجعة جواب"
 
-#: qa/models.py:223
+#: qa/models.py:229
 msgid "answer revisions"
 msgstr "مراجعات الأجوبة"
 
-#: qa/models.py:256
+#: qa/models.py:267
 msgid "Personal ruling (level D)"
 msgstr "فتوى شخصية (المستوى D)"
 
-#: qa/models.py:257
+#: qa/models.py:268
 msgid "Not covered by the sources"
 msgstr "لا تغطيه المصادر"
 
-#: qa/models.py:262 qa/templates/admin/qa/referral/list_help.html:40
+#: qa/models.py:273 qa/templates/admin/qa/referral/list_help.html:40
 msgid "Open"
 msgstr "مفتوحة"
 
-#: qa/models.py:263 qa/templates/admin/qa/referral/list_help.html:42
+#: qa/models.py:274 qa/templates/admin/qa/referral/list_help.html:42
 msgid "In progress"
 msgstr "قيد المعالجة"
 
-#: qa/models.py:264 qa/templates/admin/qa/referral/list_help.html:44
+#: qa/models.py:275 qa/templates/admin/qa/referral/list_help.html:44
 msgid "Answered"
 msgstr "أُجيب عنها"
 
-#: qa/models.py:265 qa/templates/admin/qa/referral/list_help.html:46
+#: qa/models.py:276 qa/templates/admin/qa/referral/list_help.html:46
 msgid "Closed without an answer"
 msgstr "أُغلقت دون جواب"
 
-#: qa/models.py:270 qa/templates/admin/qa/referral/list_help.html:30
+#: qa/models.py:281 qa/templates/admin/qa/referral/list_help.html:30
 msgid "Asked a specialist now"
 msgstr "طُلب مختص فورًا"
 
-#: qa/models.py:271 qa/templates/admin/qa/referral/list_help.html:32
+#: qa/models.py:282 qa/templates/admin/qa/referral/list_help.html:32
 msgid "Saved as a ticket"
 msgstr "حُفظ كتذكرة"
 
-#: qa/models.py:285
+#: qa/models.py:296
 msgid "assigned to"
 msgstr "مُسندة إلى"
 
-#: qa/models.py:290
+#: qa/models.py:301
 msgid "live until"
 msgstr "مباشر حتى"
 
-#: qa/models.py:291
+#: qa/models.py:302
 msgid ""
 "End of the live window in which specialists are expected to answer at once."
 msgstr "نهاية المدة التي يُنتظر فيها أن يجيب المختصون فورًا."
 
-#: qa/models.py:293
+#: qa/models.py:304
 msgid "answered at"
 msgstr "تاريخ الجواب"
 
-#: qa/models.py:294
+#: qa/models.py:305
 msgid "closed at"
 msgstr "تاريخ الإغلاق"
 
-#: qa/models.py:295
+#: qa/models.py:306
 msgid "closing note"
 msgstr "ملاحظة الإغلاق"
 
-#: qa/models.py:296
+#: qa/models.py:307
 msgid "Why the center closed it without an answer; never shown to the asker."
 msgstr "سبب إغلاق المركز لها دون جواب؛ لا تُعرض على السائل أبدًا."
 
-#: qa/models.py:302
+#: qa/models.py:313
 msgid "tickets"
 msgstr "تذاكر"
 
-#: qa/models.py:308
+#: qa/models.py:319
 msgid "An answered referral needs the date of its answer."
 msgstr "الإحالة التي أُجيب عنها تحتاج إلى تاريخ جوابها."
 
-#: qa/models.py:313
+#: qa/models.py:324
 msgid "A closed referral needs the date it was closed."
 msgstr "الإحالة المغلقة تحتاج إلى تاريخ إغلاقها."
 
-#: qa/services.py:60 telegram_bot/updates.py:143
+#: qa/services.py:62 telegram_bot/updates.py:143
 msgid "You cannot revise answers of this center."
 msgstr "لا يمكنك مراجعة أجوبة هذا المركز."
 
-#: qa/services.py:63
+#: qa/services.py:65
 msgid "Write the answer the asker should see."
 msgstr "اكتب الجواب الذي ينبغي أن يراه السائل."
 
-#: qa/services.py:65 qa/services.py:148
+#: qa/services.py:67 qa/services.py:152
 #, python-format
 msgid "The answer is limited to %(max)d characters."
 msgstr "الحد الأقصى للجواب %(max)d حرف."
 
-#: qa/services.py:68
+#: qa/services.py:70
 msgid "Choose why the answer is revised."
 msgstr "اختر سبب مراجعة الجواب."
 
-#: qa/services.py:113
+#: qa/services.py:117
 msgid "Choose to ask a specialist now or to save a ticket."
 msgstr "اختر طلب مختص الآن أو حفظ تذكرة."
 
-#: qa/services.py:118
+#: qa/services.py:122
 msgid "This question was answered; it cannot be sent to a specialist."
 msgstr "أُجيب عن هذا السؤال؛ لا يمكن إرساله إلى مختص."
 
-#: qa/services.py:121
+#: qa/services.py:125
 msgid "This question was already sent to the specialists."
 msgstr "أُرسل هذا السؤال إلى المختصين من قبل."
 
-#: qa/services.py:139
+#: qa/services.py:143
 msgid "You cannot give a verdict on answers of this center."
 msgstr "لا يمكنك الحكم على أجوبة هذا المركز."
 
-#: qa/services.py:141
+#: qa/services.py:145
 msgid "Choose a verdict."
 msgstr "اختر حكمًا."
 
-#: qa/services.py:144
+#: qa/services.py:148
 msgid "Write the corrected answer."
 msgstr "اكتب الجواب المصحَّح."
 
-#: qa/services.py:146
+#: qa/services.py:150
 msgid "Write why the answer is wrong."
 msgstr "اكتب سبب خطأ الجواب."
 
-#: qa/services.py:195
+#: qa/services.py:214
 msgid "Assign the referral to an active member of its center."
 msgstr "أسنِد الإحالة إلى عضو نشط في مركزها."
 
-#: qa/services.py:219
+#: qa/services.py:238
 msgid "Write why the referral is closed without an answer."
 msgstr "اكتب سبب إغلاق الإحالة دون جواب."
 
-#: qa/services.py:233
+#: qa/services.py:252
 msgid "You cannot handle referrals of this center."
 msgstr "لا يمكنك معالجة إحالات هذا المركز."
 
-#: qa/services.py:240
+#: qa/services.py:259
 msgid "This referral is already answered or closed."
 msgstr "هذه الإحالة أُجيب عنها أو أُغلقت من قبل."
 

@@ -74,7 +74,8 @@ class AskTests(QuestionAPITestCase):
         data = response.data
         self.assertEqual(list(data), ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer',
                                       'answered_by', 'review', 'sentences', 'notes', 'verification',
-                                      'follow_up_number', 'can_ask_specialist', 'referral_mode', 'referral_status',
+                                      'follow_up_number', 'answer_translated_from', 'answer_original',
+                                      'can_ask_specialist', 'referral_mode', 'referral_status',
                                       'referral_live_until', 'created_at'])
         self.assertEqual(data['uuid'], str(Question.objects.get().uuid))
         self.assertEqual((data['language'], data['level'], data['decision']), ('ar', 'C', 'partial'))
@@ -396,4 +397,23 @@ class GlossarySourceTests(QuestionAPITestCase):
         source = self.client.get(self.url('question', question.uuid)).json()['sentences'][0]['source']
         self.assertEqual((source['title'], source['url'], source['pdf_url'], source['pages']),
                          ('نماذج قاموس المصطلحات الأساسية: التوحيد', '', '', None))
+
+
+class TranslatedAnswerPayloadTests(QuestionAPITestCase):
+    """The asker reads the translation, told it is one, with the specialist's original available."""
+
+    def test_translated_answer(self):
+        question = self.saved(lang='en', text='Do I have to pay zakat on savings?').question
+        with mock.patch('agents.translation.translate', return_value='Yes, zakat is due.'):
+            revise(question, self.reviser, 'نعم، تجب الزكاة.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        body = self.client.get(self.url('question', question.uuid)).json()
+        self.assertEqual((body['answer'], body['answer_translated_from'], body['answer_original']),
+                         ('Yes, zakat is due.', 'ar', 'نعم، تجب الزكاة.'))
+
+    def test_untranslated_answer_has_no_translation_fields(self):
+        question = self.saved().question  # Arabic question
+        revise(question, self.reviser, 'جواب المركز.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        body = self.client.get(self.url('question', question.uuid)).json()
+        self.assertEqual((body['answer'], body['answer_translated_from'], body['answer_original']),
+                         ('جواب المركز.', None, None))
 

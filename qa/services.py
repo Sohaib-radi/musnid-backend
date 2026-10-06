@@ -48,7 +48,9 @@ def revise(question, author, text, reason, note=''):
     Add a revision of ``question``'s answer, written by ``author``; return it.
 
     The question row is locked so concurrent revisions are saved one after the
-    other, and the newest one is unambiguous. A referral of the question that is
+    other, and the newest one is unambiguous. A text written in another language
+    than the question's is translated for the asker (``translated_text``); the
+    original is kept. A referral of the question that is
     not yet answered is marked answered, whatever the reason: the asker now sees
     a specialist's text. A closed referral answered later becomes answered too.
 
@@ -66,10 +68,12 @@ def revise(question, author, text, reason, note=''):
                               params={'max': TEXT_MAX})
     if reason not in AnswerRevision.Reason.values:
         raise ValidationError(_('Choose why the answer is revised.'), code='revision_reason_invalid')
+    language, translated = answer_language_and_translation(question, author, text)
     with transaction.atomic():
         locked = Question.objects.select_for_update().get(pk=question.pk)
         revision = AnswerRevision.objects.create(question=locked, author=author, text=text, reason=reason,
-                                                 note=(note or '').strip())
+                                                 note=(note or '').strip(), lang=language,
+                                                 translated_text=translated or '')
         now = timezone.now()
         newly_answered = Referral.objects.filter(question=locked).exclude(status=Referral.Status.ANSWERED).update(
             status=Referral.Status.ANSWERED, answered_at=now, updated_at=now)
@@ -154,6 +158,21 @@ def label(interaction, reviewer, verdict, reason='', corrected_answer=''):
         defaults={'verdict': verdict, 'reason': reason, 'corrected_answer': corrected_answer},
     )
     return result
+
+
+def answer_language_and_translation(question, author, text):
+    """
+    The language of a specialist's ``text`` and, when it differs from the question's, its AI
+    translation into the question's language (``None`` when not needed or when it fails).
+
+    Called before the transaction: the translation is a call to the AI provider.
+    """
+    # Imported here: agents imports qa's models, and the translation loads the AI client lazily
+    from agents.translation import text_language, translate
+    language = text_language(text, getattr(author, 'preferred_lang', '') or 'en')
+    if not question.lang or language == question.lang:
+        return language, None
+    return language, translate(text, question.lang)
 
 
 def open_referral(question, reason, mode=Referral.Mode.LIVE):

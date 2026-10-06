@@ -29,7 +29,7 @@ class RevisionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerRevision
-        fields = ['text', 'reason', 'note', 'author', 'created_at']
+        fields = ['text', 'lang', 'translated_text', 'reason', 'note', 'author', 'created_at']
         read_only_fields = fields
 
     def get_author(self, revision) -> str | None:
@@ -92,7 +92,7 @@ class CenterQuestionDetailSerializer(CenterQuestionSerializer):
 
     def get_current_answer(self, question) -> str:
         revision = question.latest_revision()
-        return revision.text if revision else self.get_ai_answer(question)
+        return revision.shown_text if revision else self.get_ai_answer(question)
 
     @extend_schema_field(RevisionSerializer(many=True))
     def get_revisions(self, question):

@@ -214,6 +214,12 @@ class AnswerRevision(BaseModel):
         verbose_name=_('author'),
     )
     text = models.TextField(_('answer'))
+    # The language the specialist wrote in, and the AI translation into the question's
+    # language when it differs (the asker sees the translation; the original is kept)
+    lang = models.CharField(_('language'), max_length=5, blank=True)
+    translated_text = models.TextField(
+        _('translation for the asker'), blank=True,
+        help_text=_("AI translation of the answer into the question's language, when the specialist wrote in another."))
     reason = models.CharField(_('reason'), max_length=20, choices=Reason.choices)
     note = models.TextField(_('internal note'), blank=True,
                             help_text=_('For the center and staff only; never shown to the asker.'))
@@ -224,6 +230,11 @@ class AnswerRevision(BaseModel):
 
     def __str__(self):
         return f'{self.get_reason_display()}: {self.question}'
+
+    @property
+    def shown_text(self):
+        """What the asker sees: the translation when there is one, else the specialist's text."""
+        return self.translated_text or self.text
 
 
 

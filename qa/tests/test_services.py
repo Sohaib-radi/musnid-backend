@@ -206,3 +206,30 @@ class LabelTests(TestCase):
         self.assertRefused('label_correction_required', verdict=HumanLabel.Verdict.CORRECT)
         self.assertRefused('label_reason_required', verdict=HumanLabel.Verdict.REJECT)
 
+
+class AnswerTranslationTests(TestCase):
+    """A specialist's answer in another language than the question's is translated for the asker."""
+
+    def setUp(self):
+        self.question = make_interaction(question=make_question(text='Do I have to pay zakat on savings?',
+                                                                lang='en')).question
+        self.specialist = make_membership(center=self.question.center, user=make_user(preferred_lang='ar')).user
+
+    def test_arabic_answer_to_an_english_question_is_translated(self):
+        from unittest import mock
+        with mock.patch('agents.translation.translate', return_value='Yes, zakat is due.') as translate:
+            revision = revise(self.question, self.specialist, 'نعم، تجب الزكاة.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        translate.assert_called_once_with('نعم، تجب الزكاة.', 'en')
+        self.assertEqual((revision.lang, revision.text, revision.translated_text, revision.shown_text),
+                         ('ar', 'نعم، تجب الزكاة.', 'Yes, zakat is due.', 'Yes, zakat is due.'))
+
+    def test_same_language_is_not_translated_and_a_failure_keeps_the_original(self):
+        from unittest import mock
+        with mock.patch('agents.translation.translate') as translate:
+            revision = revise(self.question, self.specialist, 'Yes, it is due.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        translate.assert_not_called()
+        self.assertEqual((revision.lang, revision.translated_text), ('en', ''))
+        with mock.patch('agents.translation.translate', return_value=None):
+            failed = revise(self.question, self.specialist, 'نعم.', AnswerRevision.Reason.CORRECTION)
+        self.assertEqual(failed.shown_text, 'نعم.')
+

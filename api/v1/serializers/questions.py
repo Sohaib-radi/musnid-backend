@@ -177,6 +177,11 @@ class QuestionSerializer(serializers.ModelSerializer):
         help_text='ai: the AI answer with its sources; center: a specialist revised it (answer is their text, '
                   'without sentences or notes).')
     review = serializers.SerializerMethodField()
+    answer_translated_from = serializers.SerializerMethodField(
+        help_text='When a specialist answered in another language: that language (ar, en, fr), and "answer" is an '
+                  'AI translation; show "Translated from <language> by AI". Null otherwise.')
+    answer_original = serializers.SerializerMethodField(
+        help_text="The specialist's own text when \"answer\" is a translation; null otherwise.")
     can_ask_specialist = serializers.SerializerMethodField(
         help_text='True when the AI did not answer (refer or abstain) and the question was not sent to the '
                   'specialists yet: show "Ask a specialist now" and "Save as a ticket".')
@@ -192,7 +197,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['uuid', 'session_id', 'text', 'language', 'level', 'decision', 'answer', 'answered_by', 'review',
-                  'sentences', 'notes', 'verification', 'follow_up_number', 'can_ask_specialist', 'referral_mode', 'referral_status', 'referral_live_until',
+                  'sentences', 'notes', 'verification', 'follow_up_number', 'answer_translated_from', 'answer_original', 'can_ask_specialist', 'referral_mode', 'referral_status', 'referral_live_until',
                   'created_at']
         read_only_fields = fields
         list_serializer_class = QuestionListSerializer
@@ -212,9 +217,17 @@ class QuestionSerializer(serializers.ModelSerializer):
     def get_answer(self, question) -> str:
         revision = question.latest_revision()
         if revision:
-            return revision.text
+            return revision.shown_text
         interaction = self._interaction(question)
         return interaction.answer_text if interaction else ''
+
+    def get_answer_translated_from(self, question) -> str | None:
+        revision = question.latest_revision()
+        return revision.lang if revision and revision.translated_text else None
+
+    def get_answer_original(self, question) -> str | None:
+        revision = question.latest_revision()
+        return revision.text if revision and revision.translated_text else None
 
     def get_answered_by(self, question) -> str:
         return 'center' if question.latest_revision() else 'ai'

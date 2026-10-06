@@ -26,6 +26,7 @@ from django.db import connection
 from pydantic import BaseModel
 
 from agents.replies import fixed_reply, notes
+from agents.translation import script_language  # noqa: F401 (also used by callers of agents.flow)
 from knowledge.normalize import normalize
 from knowledge.models import SourceChunk
 from knowledge.services.search import embed_query, get_evidence, search
@@ -46,21 +47,6 @@ MIN_QUOTE_CHARS = 15
 # quote under 10 words must still match exactly. Entailment checks support anyway.
 QUOTE_MATCH_PERCENT = 90
 NON_WORD = re.compile(r'[^\w\s]|_')
-
-
-def script_language(text, guess):
-    """
-    The asker's language, with the Arabic case decided by script, not by the model.
-
-    Text that is mostly Arabic script is "ar". The classifier's guess is kept for
-    other text, except "ar", which the model sometimes returns for English
-    questions (observed 2026-10-04): it falls back to "en".
-    """
-    letters = [char for char in text if char.isalpha()]
-    arabic = sum('\u0600' <= char <= '\u06ff' for char in letters)
-    if letters and arabic / len(letters) > 0.5:
-        return 'ar'
-    return 'en' if guess == 'ar' else guess
 
 
 def mask_secrets(text):

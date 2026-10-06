@@ -86,7 +86,7 @@ class AnswerRevisionInline(TabularInline):
 
     model = AnswerRevision
     extra = 0
-    fields = ['created_at', 'author', 'reason', 'text', 'note']
+    fields = ['created_at', 'author', 'reason', 'lang', 'text', 'translated_text', 'note']
     readonly_fields = fields
     ordering = ['-created_at']
     verbose_name_plural = _('Revisions shown to the asker (newest first)')
