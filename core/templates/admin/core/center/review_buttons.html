@@ -18,6 +18,18 @@ them; the server checks the reason. Each reason field is named per center.
             <input type="hidden" name="next" value="{{ next }}">
             <h2>{% translate "Approve this center?" %}</h2>
             <p>{% blocktranslate with name=center.name %}“{{ name }}” will become operational and its center admins will get access to their dashboard.{% endblocktranslate %}</p>
+            <label class="musnid-check">
+                <input type="checkbox" name="make_default_{{ center.pk }}" value="1">
+                <span>{% translate "Also make it the default center" %}</span>
+            </label>
+            <p class="musnid-meta">
+                {% translate "The default center receives the questions askers send to specialists, anonymous askers included." %}
+                {% if current_default %}
+                    {% blocktranslate with old=current_default.name trimmed %}
+                        Currently “{{ old }}”, which stops receiving new ones (its existing questions stay with it).
+                    {% endblocktranslate %}
+                {% endif %}
+            </p>
             <div class="musnid-dialog-actions">
                 <button type="button" class="musnid-btn musnid-btn-outline" onclick="this.closest('dialog').close()">{% translate "Cancel" %}</button>
                 <button type="submit" class="musnid-btn musnid-btn-primary" formaction="{{ approve_url }}" formmethod="post"

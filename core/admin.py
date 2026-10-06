@@ -25,6 +25,7 @@ from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import transaction
 from django.http import HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -197,6 +198,7 @@ class CenterAdmin(ModelAdmin):
             'center': center,
             'approve_url': reverse('admin:core_center_approve', args=[center.pk]),
             'reject_url': reverse('admin:core_center_reject', args=[center.pk]),
+            'current_default': Center.objects.filter(is_default=True).first(),
             'next': request.get_full_path(),
         }, request=request)
 
@@ -231,9 +233,21 @@ class CenterAdmin(ModelAdmin):
         return review_urls + super().get_urls()
 
     def approve_view(self, request, object_id):
-        """POST: approve one pending center (from a row or the change page)."""
-        return self._review_view(request, object_id, lambda center: centers.approve(center, request.user),
-                                 _('“%(center)s” was approved.'))
+        """
+        POST: approve one pending center (from a row or the change page); with the dialog's
+        "Also make it the default center" ticked (field named per center), make it the default too.
+        """
+        if not request.POST.get(f'make_default_{unquote(object_id)}'):
+            return self._review_view(request, object_id, lambda center: centers.approve(center, request.user),
+                                     _('“%(center)s” was approved.'))
+
+        def approve_and_make_default(center):
+            with transaction.atomic():  # both or neither
+                centers.approve(center, request.user)
+                center.refresh_from_db()
+                center.make_default()
+        return self._review_view(request, object_id, approve_and_make_default,
+                                 _('“%(center)s” was approved and is now the default center.'))
 
     def reject_view(self, request, object_id):
         """POST: reject one pending center with the reason typed in its dialog (field named per center)."""

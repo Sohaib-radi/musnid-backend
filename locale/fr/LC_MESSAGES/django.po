@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 16:10+0000\n"
+"POT-Creation-Date: 2026-10-06 16:34+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: French\n"
@@ -241,117 +241,122 @@ msgstr "Jetons émis"
 msgid "Blacklisted tokens"
 msgstr "Jetons révoqués"
 
-#: core/admin.py:109
+#: core/admin.py:110
 msgid "Profile"
 msgstr "Profil"
 
-#: core/admin.py:112 qa/templates/admin/qa/referral/list_help.html:38
+#: core/admin.py:113 qa/templates/admin/qa/referral/list_help.html:38
 #: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:18
 msgid "Status"
 msgstr "Statut"
 
-#: core/admin.py:113
+#: core/admin.py:114
 msgid "Permissions"
 msgstr "Permissions"
 
-#: core/admin.py:117 core/admin.py:152
+#: core/admin.py:118 core/admin.py:153
 msgid "Dates"
 msgstr "Dates"
 
-#: core/admin.py:149
+#: core/admin.py:150
 msgid "Contact"
 msgstr "Contact"
 
-#: core/admin.py:150
+#: core/admin.py:151
 msgid "Service"
 msgstr "Service"
 
-#: core/admin.py:151 core/admin.py:191
+#: core/admin.py:152 core/admin.py:192
 msgid "Review"
 msgstr "Examen"
 
-#: core/admin.py:169 core/templates/admin/core/center/list_help.html:10
+#: core/admin.py:170 core/templates/admin/core/center/list_help.html:10
 msgid "Review status"
 msgstr "Statut d’examen"
 
-#: core/admin.py:220 core/admin.py:329
+#: core/admin.py:222 core/admin.py:343
 #, python-format
 msgid "“%(center)s” is now the default center."
 msgstr "« %(center)s » est désormais le centre par défaut."
 
-#: core/admin.py:236
+#: core/admin.py:242
 #, python-format
 msgid "“%(center)s” was approved."
 msgstr "« %(center)s » a été approuvé."
 
-#: core/admin.py:243
+#: core/admin.py:250
+#, python-format
+msgid "“%(center)s” was approved and is now the default center."
+msgstr "« %(center)s » a été approuvé et est maintenant le centre par défaut."
+
+#: core/admin.py:257
 #, python-format
 msgid "“%(center)s” was rejected."
 msgstr "« %(center)s » a été refusé."
 
-#: core/admin.py:261
+#: core/admin.py:275
 msgid "Approve selected centers"
 msgstr "Approuver les centres sélectionnés"
 
-#: core/admin.py:266 core/admin.py:272
+#: core/admin.py:280 core/admin.py:286
 #: core/templates/admin/core/center/reject_selected.html:20
 msgid "Reject selected centers"
 msgstr "Refuser les centres sélectionnés"
 
-#: core/admin.py:292
+#: core/admin.py:306
 #, python-format
 msgid "%(count)d center was reviewed."
 msgid_plural "%(count)d centers were reviewed."
 msgstr[0] "%(count)d centre a été examiné."
 msgstr[1] "%(count)d centres ont été examinés."
 
-#: core/admin.py:296
+#: core/admin.py:310
 #, python-format
 msgid "%(count)d center could not be reviewed: %(reasons)s"
 msgid_plural "%(count)d centers could not be reviewed: %(reasons)s"
 msgstr[0] "%(count)d centre n’a pas pu être examiné : %(reasons)s"
 msgstr[1] "%(count)d centres n’ont pas pu être examinés : %(reasons)s"
 
-#: core/admin.py:301 core/admin.py:316
+#: core/admin.py:315 core/admin.py:330
 msgid "Make selected center the default"
 msgstr "Définir le centre sélectionné comme centre par défaut"
 
-#: core/admin.py:306
+#: core/admin.py:320
 msgid "Select exactly one center to make it the default."
 msgstr "Sélectionnez exactement un centre pour en faire le centre par défaut."
 
-#: core/admin.py:311 core/models/center.py:118 core/models/center.py:167
+#: core/admin.py:325 core/models/center.py:118 core/models/center.py:167
 msgid "Only an approved center can be the default center."
 msgstr "Seul un centre approuvé peut être le centre par défaut."
 
-#: core/admin.py:376
+#: core/admin.py:390
 msgid "Offboard selected memberships"
 msgstr "Mettre fin aux adhésions sélectionnées"
 
-#: core/admin.py:390
+#: core/admin.py:404
 #, python-format
 msgid "%(count)d membership was offboarded."
 msgid_plural "%(count)d memberships were offboarded."
 msgstr[0] "%(count)d adhésion a pris fin."
 msgstr[1] "%(count)d adhésions ont pris fin."
 
-#: core/admin.py:400
+#: core/admin.py:414
 #, python-format
 msgid "%(count)d membership could not be offboarded: %(reasons)s"
 msgid_plural "%(count)d memberships could not be offboarded: %(reasons)s"
 msgstr[0] "%(count)d adhésion n’a pas pu prendre fin : %(reasons)s"
 msgstr[1] "%(count)d adhésions n’ont pas pu prendre fin : %(reasons)s"
 
-#: core/admin.py:426 core/forms.py:131 core/models/credentials.py:43
+#: core/admin.py:440 core/forms.py:131 core/models/credentials.py:43
 #: core/templates/admin/core/apicredential/list_help.html:12
 msgid "API key"
 msgstr "clé d’API"
 
-#: core/admin.py:463
+#: core/admin.py:477
 msgid "Revoke selected API keys"
 msgstr "Révoquer les clés d’API sélectionnées"
 
-#: core/admin.py:472
+#: core/admin.py:486
 #, python-format
 msgid "%(count)d API key was revoked."
 msgid_plural "%(count)d API keys were revoked."
@@ -767,8 +772,8 @@ msgstr ""
 #: core/templates/admin/core/center/default_button.html:27
 #: core/templates/admin/core/center/make_default_selected.html:21
 #: core/templates/admin/core/center/reject_selected.html:19
-#: core/templates/admin/core/center/review_buttons.html:22
-#: core/templates/admin/core/center/review_buttons.html:37
+#: core/templates/admin/core/center/review_buttons.html:34
+#: core/templates/admin/core/center/review_buttons.html:49
 #: qa/templates/admin/qa/question/label.html:38
 #: qa/templates/admin/qa/question/revise.html:48
 #: qa/templates/admin/qa/referral/close_selected.html:19
@@ -834,17 +839,17 @@ msgstr ""
 "traités ; les autres sont ignorés."
 
 #: core/templates/admin/core/center/reject_selected.html:14
-#: core/templates/admin/core/center/review_buttons.html:34
+#: core/templates/admin/core/center/review_buttons.html:46
 msgid "Reason (shown to the applicant)"
 msgstr "Motif (affiché au demandeur)"
 
 #: core/templates/admin/core/center/review_buttons.html:11
-#: core/templates/admin/core/center/review_buttons.html:24
+#: core/templates/admin/core/center/review_buttons.html:36
 msgid "Approve"
 msgstr "Approuver"
 
 #: core/templates/admin/core/center/review_buttons.html:13
-#: core/templates/admin/core/center/review_buttons.html:39
+#: core/templates/admin/core/center/review_buttons.html:51
 msgid "Reject"
 msgstr "Refuser"
 
@@ -861,7 +866,28 @@ msgstr ""
 "« %(name)s » deviendra opérationnel et ses administrateurs auront accès à "
 "leur tableau de bord."
 
-#: core/templates/admin/core/center/review_buttons.html:33
+#: core/templates/admin/core/center/review_buttons.html:23
+msgid "Also make it the default center"
+msgstr "En faire aussi le centre par défaut"
+
+#: core/templates/admin/core/center/review_buttons.html:26
+msgid ""
+"The default center receives the questions askers send to specialists, "
+"anonymous askers included."
+msgstr ""
+"Le centre par défaut reçoit les questions que les auteurs envoient aux "
+"spécialistes, y compris les auteurs anonymes."
+
+#: core/templates/admin/core/center/review_buttons.html:28
+#, python-format
+msgid ""
+"Currently “%(old)s”, which stops receiving new ones (its existing questions "
+"stay with it)."
+msgstr ""
+"Actuellement « %(old)s », qui cessera d’en recevoir de nouvelles (ses "
+"questions existantes lui restent)."
+
+#: core/templates/admin/core/center/review_buttons.html:45
 msgid "Reject this center?"
 msgstr "Refuser ce centre ?"
 

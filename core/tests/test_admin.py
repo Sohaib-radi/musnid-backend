@@ -336,6 +336,27 @@ class CenterReviewAdminTests(AdminTestCase):
         response = self.client.post(self.review_url(self.pending, 'approve'), {'next': 'https://evil.example/'})
         self.assertRedirects(response, self.url(Center, 'changelist'), fetch_redirect_response=False)
 
+    def test_approve_can_also_make_the_center_the_default(self):
+        current = Center.objects.filter(is_default=True).first() or make_center(is_default=True)
+        page = self.client.get(self.url(Center, 'changelist')).content.decode()
+        self.assertIn(f'name="make_default_{self.pending.pk}"', page)
+        self.assertIn(f'Currently “{current.name}”', page)
+        response = self.client.post(self.review_url(self.pending, 'approve'), {
+            f'make_default_{self.pending.pk}': '1', 'next': self.url(Center, 'changelist')}, follow=True)
+        self.assertEqual(self.messages(response), [f'“{self.pending.name}” was approved and is now the default center.'])
+        self.pending.refresh_from_db()
+        current.refresh_from_db()
+        self.assertEqual((self.pending.status, self.pending.is_default, current.is_default),
+                         (Center.Status.APPROVED, True, False))
+
+    def test_approve_alone_keeps_the_default(self):
+        current = Center.objects.filter(is_default=True).first() or make_center(is_default=True)
+        self.client.post(self.review_url(self.pending, 'approve'), {'next': self.url(Center, 'changelist')})
+        self.pending.refresh_from_db()
+        current.refresh_from_db()
+        self.assertEqual((self.pending.status, self.pending.is_default, current.is_default),
+                         (Center.Status.APPROVED, False, True))
+
     def test_review_dialogs_work_inside_the_changelist_form(self):
         # Browsers drop forms nested in the changelist form: the confirm buttons target their URL
         response = self.client.get(self.url(Center, 'changelist'))

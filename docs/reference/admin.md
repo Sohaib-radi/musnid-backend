@@ -125,6 +125,10 @@ Reviews go through `core.services.centers` ([ADR 0013](../architecture/decisions
 
 ### Default center
 
+- The **Approve** dialog (list row or center page) has an unticked option **Also make it the
+  default center**, explaining that the default center receives the questions askers send
+  to specialists, anonymous askers included, and naming the current default. Ticked, the
+  center is approved and made the default in one transaction.
 - An approved center that is not the default shows **Make default** at the top of its page.
   Its dialog names the current default and what changes: questions sent to specialists go to
   the new center; the old one stops receiving new ones and keeps its existing questions.

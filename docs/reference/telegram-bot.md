@@ -119,8 +119,9 @@ as an AI translation into the question's language, marked as such, with the orig
 | Several centers | A question goes to a center serving the asker's language, or to the center the asker picks. Today: the default center. |
 
 **For the jury.** Questions go to the **default center**. A center created during
-judging receives them once a platform administrator approves it and clicks **Make
-default** on its page in the admin (the previous default stops receiving new ones).
+judging receives them once a platform administrator approves it with **Also make it the
+default center** ticked in the Approve dialog, or later with **Make default** on its page
+(the previous default stops receiving new ones).
 
 ## Rules
 
