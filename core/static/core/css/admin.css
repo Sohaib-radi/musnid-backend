@@ -647,6 +647,11 @@ html[dir="rtl"] textarea {
     font-size: 1.25rem;
 }
 
+/* Red warning triangle: making a center the default redirects every new question */
+.musnid-option-warning {
+    color: var(--color-red-600);
+}
+
 .musnid-option-text {
     color: var(--color-base-600);
     font-size: 0.875rem;
@@ -656,3 +661,4 @@ html[dir="rtl"] textarea {
 .dark .musnid-option { background-color: var(--color-primary-950); border-color: var(--color-primary-700); }
 .dark .musnid-option-title { color: var(--color-primary-200); }
 .dark .musnid-option-text { color: var(--color-base-300); }
+.dark .musnid-option-warning { color: var(--color-red-400); }
