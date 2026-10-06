@@ -193,3 +193,11 @@ class PrivateAnswerTests(TestCase):
         self.assertEqual(handle_update(private('hello'), self.client_), 'help')
         self.assertIn('Tap ✍️ Answer', self.client_.replies[0][2])
 
+    def test_the_first_answer_wins(self):
+        self.assertEqual(self.private_reply(self.notice.message_id), 'answered')
+        self.assertEqual(self.private_reply(self.notice.message_id, text='A second answer.'), 'refused')
+        self.assertIn('already answered by', self.client_.replies[-1][2])
+        self.assertEqual(self.press(), 'refused')
+        self.assertIn('already answered by', self.client_.callbacks[-1][1])
+        self.assertEqual(AnswerRevision.objects.count(), 1)
+

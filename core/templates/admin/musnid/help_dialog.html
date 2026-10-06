@@ -1,0 +1,30 @@
+{% load i18n %}
+{% comment %}
+"How to read this page" for admin lists: a button above the list and a dialog that closes with
+Close, Esc or a click outside. Pages extend it and fill help_icon, help_intro and
+help_sections (the dialog id comes from the model name), so every guide looks the same (written for first-time readers such as the jury).
+{% endcomment %}
+<div class="musnid-help-trigger">
+    <button type="button" class="musnid-btn musnid-btn-outline"
+            onclick="document.getElementById('{{ opts.model_name }}-help-dialog').showModal()">
+        <span class="material-symbols-outlined" aria-hidden="true">help</span>
+        {% translate "How to read this page" %}
+    </button>
+</div>
+
+<dialog id="{{ opts.model_name }}-help-dialog" class="musnid-dialog musnid-help-dialog"
+        onclick="const r = this.getBoundingClientRect(); if (event.clientY < r.top || event.clientY > r.bottom || event.clientX < r.left || event.clientX > r.right) this.close()">
+    <header class="musnid-help-header">
+        <span class="musnid-help-icon material-symbols-outlined" aria-hidden="true">{% block help_icon %}help{% endblock %}</span>
+        <div>
+            <h2>{% translate "How to read this page" %}</h2>
+            <p>{% block help_intro %}{% endblock %}</p>
+        </div>
+    </header>
+
+    {% block help_sections %}{% endblock %}
+
+    <div class="musnid-dialog-actions">
+        <button type="button" class="musnid-btn musnid-btn-primary" onclick="this.closest('dialog').close()">{% translate "Close" %}</button>
+    </div>
+</dialog>

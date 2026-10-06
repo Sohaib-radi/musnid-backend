@@ -58,6 +58,9 @@ class Question(BaseModel, CenterLinkedModel):
     text = models.TextField(_('text'))
     lang = models.CharField(_('language'), max_length=5, blank=True)
     session_id = models.CharField(_('session'), max_length=64, blank=True, db_index=True)
+    translations = models.JSONField(
+        _('translations'), default=dict, blank=True,
+        help_text=_('Machine translations of the question for specialists, by language code.'))
     # SET_NULL: deleting an account keeps its questions (answers, reviews), now anonymous
     asker = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions',
@@ -278,8 +281,8 @@ class Referral(BaseModel, CenterLinkedModel):
     objects = ReferralQuerySet.as_manager()
 
     class Meta(BaseModel.Meta):
-        verbose_name = _('referral')
-        verbose_name_plural = _('referrals')
+        verbose_name = _('ticket')
+        verbose_name_plural = _('tickets')
         indexes = [models.Index(fields=['center', 'status', '-created_at'], name='referral_center_queue')]
         constraints = [
             models.CheckConstraint(

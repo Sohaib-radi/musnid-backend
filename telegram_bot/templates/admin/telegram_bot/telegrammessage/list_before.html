@@ -1,8 +1,30 @@
+{% extends "admin/musnid/help_dialog.html" %}
 {% load i18n %}
-{# Button above the Telegram messages list: create a one-time link that connects a Telegram account (ADR 0023). #}
-<div class="musnid-help-trigger">
-    <a href="{% url 'admin:telegram_bot_telegrammessage_link' %}" class="musnid-btn musnid-btn-outline">
-        <span class="material-symbols-outlined" aria-hidden="true">link</span>
-        {% translate "Link a Telegram account" %}
-    </a>
-</div>
+{% block help_icon %}send{% endblock %}
+{% block help_intro %}{% blocktranslate trimmed %}
+    Every message the Telegram bot sent, or tried to send. When an asker sends a question to the
+    specialists, the bot sends it privately to every linked specialist of the center, in their
+    language, with the original question and its translation.
+{% endblocktranslate %}{% endblock %}
+{% block help_sections %}
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">category</span>{% translate "Kind" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><strong>{% translate "New referral notice" %}</strong><span>{% translate "The question, with an Answer button." %}</span></li>
+            <li><strong>{% translate "Answer prompt" %}</strong><span>{% translate "Sent when a specialist taps Answer: their reply to it becomes the answer." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">flag</span>{% translate "Status" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-badge musnid-badge-success">{% translate "Sent" %}</span>
+                <span>{% translate "Telegram accepted it." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-danger">{% translate "Failed" %}</span>
+                <span>{% translate "Telegram refused it; the error says why (for example, the specialist blocked the bot). Select it and send it again." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">done_all</span>{% translate "First answer wins" %}</h3>
+        <p class="musnid-help-sub">{% translate "As soon as one specialist answers, the bot edits everyone's message: the Answer button disappears and the name of who answered is added." %}</p>
+    </section>
+{% endblock %}

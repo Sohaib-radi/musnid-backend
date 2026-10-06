@@ -151,3 +151,10 @@ Use these terms consistently. Add a row when a new domain term appears.
 | deactivate | عطّل | désactiver |
 | languages served | اللغات المخدومة | langues prises en charge |
 | Telegram | Telegram | Telegram |
+
+## Right-to-left: overridden Unfold template
+
+The fixed actions bar of change lists is offset from the sidebar with a physical `left` in
+Unfold; `templates/unfold/helpers/change_list_actions.html` overrides that one template so
+the offset is on the right in right-to-left pages. The project-level `templates/` folder
+(`TEMPLATES["DIRS"]`) is searched before the apps. Re-check it after upgrading Unfold.

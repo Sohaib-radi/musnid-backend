@@ -31,6 +31,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
+from unfold.sections import TemplateSection
 
 from qa import services
 from qa.models import AnswerRevision, Interaction, Question, Referral
@@ -88,16 +89,67 @@ class AnswerRevisionInline(TabularInline):
         return False
 
 
+class QuestionRowDetails(TemplateSection):
+    """The expanded row of the questions list: every detail the compact columns leave out."""
+
+    template_name = 'admin/qa/question/row_details.html'
+
+    def get_context_data(self, request, question):
+        """Two lines of facts (icon, label, value, badge), what the asker sees, and the full page's address."""
+        interaction = interaction_of(question)
+        revision = question.latest_revision()
+        try:
+            referral = question.referral
+        except ObjectDoesNotExist:
+            referral = None
+        def fact(icon, label, value, badge=None):
+            return {'icon': icon, 'label': label, 'value': value, 'badge': badge}
+
+        # Line 1: the question and the AI run; line 2: tokens, outcome and the ticket
+        run = [
+            fact('translate', _('language'), question.lang or '-'),
+            fact('groups' if revision else 'smart_toy', _('answered by'),
+                 _('Center') if revision else _('AI'), 'success' if revision else 'info'),
+            fact('schedule', _('created at'), question.created_at.strftime('%Y-%m-%d %H:%M')),
+        ]
+        outcome = []
+        if interaction:
+            run += [
+                fact('stairs', _('level'), interaction.get_level_display() if interaction.level else '-',
+                     'warning' if interaction.level == 'D' else None),
+                fact('timer', _('response time'), _('%(seconds).1f s') % {'seconds': interaction.latency_ms / 1000}),
+            ]
+            outcome += [
+                fact('token', _('tokens'), _('%(input)s in, %(output)s out') % {
+                    'input': interaction.tokens_in, 'output': interaction.tokens_out}),
+                fact('error' if interaction.error else 'check_circle', _('error'),
+                     _('Yes') if interaction.error else _('No'), 'danger' if interaction.error else 'success'),
+            ]
+        if referral:
+            outcome += [
+                fact('confirmation_number', _('ticket'), f'{referral.get_status_display()} · {referral.get_mode_display()}',
+                     REFERRAL_STATUS_COLORS.get(referral.status)),
+                fact('tag', _('follow-up number'), question.uuid),
+            ]
+        answer = revision.text if revision else (interaction.answer_text if interaction else '')
+        return {
+            'fact_rows': [row for row in (run, outcome) if row],
+            'answer': Truncator(answer).chars(400),
+            'change_url': reverse('admin:qa_question_change', args=[question.pk]),
+        }
+
+
 @admin.register(Question)
 class QuestionAdmin(ModelAdmin):
     """Questions with their decision; each page shows the full AI answer and its checks."""
 
-    list_display = ['short_text', 'asked_by', 'lang', 'decision', 'answered_by', 'level', 'latency', 'tokens', 'has_error', 'center',
-                    'created_at']
+    # Compact columns; each row expands to the rest (QuestionRowDetails)
+    list_display = ['short_text', 'asked_by', 'decision', 'center']
+    list_sections = [QuestionRowDetails]
     list_filter = ['interaction__decision', 'interaction__level', 'lang', 'center']
     search_fields = ['text', 'asker__email']
     search_help_text = _('Search by question text or asker email, or paste a follow-up number.')
-    list_select_related = ['center', 'interaction', 'asker']
+    list_select_related = ['center', 'interaction', 'asker', 'referral']
     date_hierarchy = 'created_at'
     # Explain the columns and sections to first-time readers, such as the competition jury
     list_before_template = 'admin/qa/question/list_help.html'
@@ -122,9 +174,9 @@ class QuestionAdmin(ModelAdmin):
         return False
 
     def get_queryset(self, request):
-        """Flag revised questions in one query, for the "Answered by" column."""
+        """Flag revised questions, and load the revisions the expanded rows show, in two queries."""
         return super().get_queryset(request).annotate(
-            revised=Exists(AnswerRevision.objects.filter(question=OuterRef('pk'))))
+            revised=Exists(AnswerRevision.objects.filter(question=OuterRef('pk')))).prefetch_related('revisions')
 
     def get_urls(self):
         return [
@@ -334,14 +386,16 @@ class ReferralAdmin(ModelAdmin):
     referral answered.
     """
 
-    list_display = ['short_question', 'reason', 'status', 'assigned_to', 'center', 'created_at', 'answered_at']
-    list_filter = ['status', 'reason', 'center']
+    list_display = ['short_question', 'mode', 'status', 'reason', 'assigned_to', 'center', 'created_at', 'answered_at']
+    list_filter = ['status', 'mode', 'reason', ('assigned_to', admin.RelatedOnlyFieldListFilter), 'center']
+    # Explain statuses, modes, reasons and actions to the administrator and the jury
+    list_before_template = 'admin/qa/referral/list_help.html'
     search_fields = ['question__text', 'assigned_to__email']
     list_select_related = ['question', 'center', 'assigned_to']
     date_hierarchy = 'created_at'
     actions = ['assign_to_me', 'close_selected']
-    fields = ['question_link', 'reason', 'status', 'assigned_to', 'center', 'created_at', 'answered_at', 'closed_at',
-              'close_note']
+    fields = ['question_link', 'mode', 'reason', 'status', 'assigned_to', 'center', 'created_at', 'live_until',
+              'answered_at', 'closed_at', 'close_note']
     readonly_fields = fields
 
     def has_add_permission(self, request):
@@ -366,6 +420,11 @@ class ReferralAdmin(ModelAdmin):
     @display(description=_('status'), ordering='status', label=REFERRAL_STATUS_COLORS)
     def status(self, referral):
         return referral.status, referral.get_status_display()
+
+    @display(description=_('mode'), ordering='mode', label={'live': 'warning', 'ticket': 'info'})
+    def mode(self, referral):
+        """Live (the asker waited one minute) or a ticket answered later."""
+        return referral.mode, referral.get_mode_display()
 
     @action(description=_('Assign selected referrals to me'))
     def assign_to_me(self, request, queryset):

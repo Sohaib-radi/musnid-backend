@@ -1,0 +1,28 @@
+{% extends "admin/musnid/help_dialog.html" %}
+{% load i18n %}
+{% block help_icon %}apartment{% endblock %}
+{% block help_intro %}{% blocktranslate trimmed %}
+    Centers of specialists answer the questions the AI must not answer. A center registers on the
+    website and is reviewed here before it can work.
+{% endblocktranslate %}{% endblock %}
+{% block help_sections %}
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">fact_check</span>{% translate "Review status" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-badge musnid-badge-warning">{% translate "Pending review" %}</span>
+                <span>{% translate "Registered, waiting for a platform administrator: approve or reject it." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-success">{% translate "Approved" %}</span>
+                <span>{% translate "Can work when active: its specialists receive and answer questions." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-danger">{% translate "Rejected" %}</span>
+                <span>{% translate "Refused, with a reason shown to the applicant." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">star</span>{% translate "Default center" %}</h3>
+        <p class="musnid-help-sub">{% translate "Receives the questions sent to specialists. Only one center, approved, can be the default." %}</p>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">translate</span>{% translate "Languages served" %}</h3>
+        <p class="musnid-help-sub">{% translate "The languages its specialists can handle. Each specialist also has their own language, in which the Telegram bot writes to them." %}</p>
+    </section>
+{% endblock %}

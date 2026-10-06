@@ -85,6 +85,11 @@ class TelegramClient:
             params['reply_markup'] = reply_markup
         return self.call('sendMessage', **params)
 
+    def edit_message(self, chat_id, message_id, text):
+        """Replace a sent message's text (Telegram HTML); its buttons are removed."""
+        return self.call('editMessageText', chat_id=chat_id, message_id=message_id, text=text, parse_mode='HTML',
+                         link_preview_options={'is_disabled': True})
+
     def answer_callback(self, callback_id, text=''):
         """Acknowledge a button press (stops the button's spinner), with an optional short notice."""
         return self.call('answerCallbackQuery', callback_query_id=callback_id, text=text)

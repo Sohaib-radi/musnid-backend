@@ -57,6 +57,10 @@ SPECTACULAR_SETTINGS = {
         'LanguageEnum': 'core.models.choices.Language',
         'MembershipRoleEnum': 'core.models.membership.Membership.Role',
         'CenterStatusEnum': 'core.models.center.Center.Status',
+        'ReferralReasonEnum': 'qa.models.Referral.Reason',
+        'RevisionReasonEnum': 'qa.models.AnswerRevision.Reason',
+        'ReferralStatusEnum': 'qa.models.Referral.Status',
+        'ReferralModeEnum': 'qa.models.Referral.Mode',
     },
     # Swagger UI assets are served from drf-spectacular-sidecar, not a CDN.
     'SWAGGER_UI_DIST': 'SIDECAR',

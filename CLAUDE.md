@@ -136,6 +136,7 @@ api/               REST API, no models
   exceptions.py    EXCEPTION_HANDLER: "code" next to "detail", "codes" for field errors
   admin.py         token blacklist admins with Unfold
   tests/base.py    APITestCase: url(), authenticate(), assertError(); clears the throttle cache
+templates/         project-level overrides of third-party templates (Unfold's actions bar, RTL)
 locale/            ar and fr catalogs (.po and .mo, both committed)
 locale_vendor/unfold/  our ar and fr translations of Unfold's strings (Unfold ships none)
 docs/              Docusaurus content (Markdown only)

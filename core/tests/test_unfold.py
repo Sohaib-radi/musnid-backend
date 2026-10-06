@@ -130,7 +130,7 @@ class SidebarTests(TestCase):
         ]
         self.assertEqual(layout, [
             (['Centers', 'Memberships'], 'Centers'),
-            (['Questions', 'Referrals', 'Telegram messages'], 'Questions and answers'),
+            (['Questions', 'Tickets', 'Telegram messages'], 'Questions and answers'),
             (['Users', 'Groups'], 'Accounts'),
             (['Source documents', 'Source chunks'], 'Knowledge base'),
             (['API Keys', 'AI settings'], 'Configuration'),

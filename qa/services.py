@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import Membership
 from qa.models import AnswerRevision, Question, Referral
-from qa.signals import referral_opened
+from qa.signals import referral_answered, referral_opened
 
 #: Longest revision accepted; a few pages of text, far above any answer measured so far
 TEXT_MAX = 10000
@@ -71,8 +71,13 @@ def revise(question, author, text, reason, note=''):
         revision = AnswerRevision.objects.create(question=locked, author=author, text=text, reason=reason,
                                                  note=(note or '').strip())
         now = timezone.now()
-        Referral.objects.filter(question=locked).exclude(status=Referral.Status.ANSWERED).update(
+        newly_answered = Referral.objects.filter(question=locked).exclude(status=Referral.Status.ANSWERED).update(
             status=Referral.Status.ANSWERED, answered_at=now, updated_at=now)
+        if newly_answered:
+            # Channels (Telegram) close the question for the other specialists
+            referral = Referral.objects.get(question=locked)
+            transaction.on_commit(lambda: referral_answered.send_robust(
+                sender=Referral, referral=referral, author=author))
         return revision
 
 

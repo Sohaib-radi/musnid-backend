@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 17:33+0000\n"
+"POT-Creation-Date: 2026-10-06 00:14+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: Arabic\n"
@@ -135,15 +135,15 @@ msgstr "استخدم من 8 إلى 64 حرفًا لاتينيًا أو رقمً�
 msgid "The session_id query parameter is required."
 msgstr "المعامل ⁦session_id⁩ مطلوب في الاستعلام."
 
-#: config/settings.py:144 core/models/choices.py:16
+#: config/settings.py:145 core/models/choices.py:16
 msgid "Arabic"
 msgstr "العربية"
 
-#: config/settings.py:145 core/models/choices.py:17
+#: config/settings.py:146 core/models/choices.py:17
 msgid "English"
 msgstr "الإنجليزية"
 
-#: config/settings.py:146 core/models/choices.py:18
+#: config/settings.py:147 core/models/choices.py:18
 msgid "French"
 msgstr "الفرنسية"
 
@@ -164,8 +164,8 @@ msgid "Questions"
 msgstr "الأسئلة"
 
 #: config/unfold.py:116
-msgid "Referrals"
-msgstr "الإحالات"
+msgid "Tickets"
+msgstr "التذاكر"
 
 #: config/unfold.py:118 telegram_bot/models.py:48
 msgid "Telegram messages"
@@ -209,6 +209,7 @@ msgid "AI settings"
 msgstr "إعدادات الذكاء الاصطناعي"
 
 #: config/unfold.py:151
+#: core/templates/admin/core/apicredential/list_help.html:18
 msgid "Security"
 msgstr "الأمان"
 
@@ -224,7 +225,8 @@ msgstr "الرموز الملغاة"
 msgid "Profile"
 msgstr "الملف الشخصي"
 
-#: core/admin.py:112
+#: core/admin.py:112 qa/templates/admin/qa/referral/list_help.html:38
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:18
 msgid "Status"
 msgstr "الحالة"
 
@@ -232,46 +234,46 @@ msgstr "الحالة"
 msgid "Permissions"
 msgstr "الصلاحيات"
 
-#: core/admin.py:117 core/admin.py:151
+#: core/admin.py:117 core/admin.py:152
 msgid "Dates"
 msgstr "التواريخ"
 
-#: core/admin.py:148
+#: core/admin.py:149
 msgid "Contact"
 msgstr "التواصل"
 
-#: core/admin.py:149
+#: core/admin.py:150
 msgid "Service"
 msgstr "الخدمة"
 
-#: core/admin.py:150 core/admin.py:187
+#: core/admin.py:151 core/admin.py:188
 msgid "Review"
 msgstr "المراجعة"
 
-#: core/admin.py:165
+#: core/admin.py:166 core/templates/admin/core/center/list_help.html:10
 msgid "Review status"
 msgstr "حالة المراجعة"
 
-#: core/admin.py:218
+#: core/admin.py:219
 #, python-format
 msgid "“%(center)s” was approved."
 msgstr "تمت الموافقة على «%(center)s»."
 
-#: core/admin.py:224
+#: core/admin.py:225
 #, python-format
 msgid "“%(center)s” was rejected."
 msgstr "تم رفض «%(center)s»."
 
-#: core/admin.py:242
+#: core/admin.py:243
 msgid "Approve selected centers"
 msgstr "الموافقة على المراكز المحددة"
 
-#: core/admin.py:247 core/admin.py:253
+#: core/admin.py:248 core/admin.py:254
 #: core/templates/admin/core/center/reject_selected.html:20
 msgid "Reject selected centers"
 msgstr "رفض المراكز المحددة"
 
-#: core/admin.py:273
+#: core/admin.py:274
 #, python-format
 msgid "%(count)d center was reviewed."
 msgid_plural "%(count)d centers were reviewed."
@@ -282,7 +284,7 @@ msgstr[3] "عدد المراكز التي رُوجعت: %(count)d."
 msgstr[4] "عدد المراكز التي رُوجعت: %(count)d."
 msgstr[5] "عدد المراكز التي رُوجعت: %(count)d."
 
-#: core/admin.py:277
+#: core/admin.py:278
 #, python-format
 msgid "%(count)d center could not be reviewed: %(reasons)s"
 msgid_plural "%(count)d centers could not be reviewed: %(reasons)s"
@@ -293,24 +295,24 @@ msgstr[3] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
 msgstr[4] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
 msgstr[5] "تعذّرت مراجعة المراكز (%(count)d): %(reasons)s"
 
-#: core/admin.py:282
+#: core/admin.py:283
 msgid "Make selected center the default"
 msgstr "جعل المركز المحدد هو المركز الافتراضي"
 
-#: core/admin.py:287
+#: core/admin.py:288
 msgid "Select exactly one center to make it the default."
 msgstr "حدّد مركزًا واحدًا فقط لجعله المركز الافتراضي."
 
-#: core/admin.py:298
+#: core/admin.py:299
 #, python-format
 msgid "“%(center)s” is now the default center."
 msgstr "أصبح «%(center)s» المركز الافتراضي."
 
-#: core/admin.py:344
+#: core/admin.py:346
 msgid "Offboard selected memberships"
 msgstr "إنهاء العضويات المحددة"
 
-#: core/admin.py:358
+#: core/admin.py:360
 #, python-format
 msgid "%(count)d membership was offboarded."
 msgid_plural "%(count)d memberships were offboarded."
@@ -321,7 +323,7 @@ msgstr[3] "عدد العضويات التي أُنهيت: %(count)d."
 msgstr[4] "عدد العضويات التي أُنهيت: %(count)d."
 msgstr[5] "عدد العضويات التي أُنهيت: %(count)d."
 
-#: core/admin.py:368
+#: core/admin.py:370
 #, python-format
 msgid "%(count)d membership could not be offboarded: %(reasons)s"
 msgid_plural "%(count)d memberships could not be offboarded: %(reasons)s"
@@ -332,15 +334,16 @@ msgstr[3] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 msgstr[4] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 msgstr[5] "تعذّر إنهاء العضويات (%(count)d): %(reasons)s"
 
-#: core/admin.py:393 core/forms.py:131 core/models/credentials.py:43
+#: core/admin.py:396 core/forms.py:131 core/models/credentials.py:43
+#: core/templates/admin/core/apicredential/list_help.html:12
 msgid "API key"
 msgstr "مفتاح API"
 
-#: core/admin.py:430
+#: core/admin.py:433
 msgid "Revoke selected API keys"
 msgstr "إلغاء مفاتيح API المحددة"
 
-#: core/admin.py:439
+#: core/admin.py:442
 #, python-format
 msgid "%(count)d API key was revoked."
 msgid_plural "%(count)d API keys were revoked."
@@ -377,7 +380,7 @@ msgstr "نموذج المدقق"
 msgid "Model for the verifier step only, e.g. gpt-4o. Empty: the chat model."
 msgstr "نموذج لخطوة التدقيق فقط، مثل ⁦gpt-4o⁩. إن تُرك فارغًا: نموذج المحادثة."
 
-#: core/models/base.py:28
+#: core/models/base.py:28 qa/admin.py:113
 msgid "created at"
 msgstr "تاريخ الإنشاء"
 
@@ -393,15 +396,15 @@ msgstr "مركز"
 msgid "created by"
 msgstr "أنشأه"
 
-#: core/models/center.py:47
+#: core/models/center.py:47 core/templates/admin/core/center/list_help.html:12
 msgid "Pending review"
 msgstr "قيد المراجعة"
 
-#: core/models/center.py:48
+#: core/models/center.py:48 core/templates/admin/core/center/list_help.html:14
 msgid "Approved"
 msgstr "مقبول"
 
-#: core/models/center.py:49
+#: core/models/center.py:49 core/templates/admin/core/center/list_help.html:16
 msgid "Rejected"
 msgstr "مرفوض"
 
@@ -459,6 +462,7 @@ msgstr "يستقبل الأسئلة المُحالة عندما لا يُحدَ�
 
 #: core/models/center.py:79 core/models/credentials.py:30
 #: core/models/membership.py:63 core/models/user.py:107
+#: core/templates/admin/core/apicredential/list_help.html:13
 msgid "active"
 msgstr "نشط"
 
@@ -551,10 +555,12 @@ msgstr ""
 "تاريخ إلغاء."
 
 #: core/models/membership.py:50
+#: core/templates/admin/core/membership/list_help.html:13
 msgid "Specialist"
 msgstr "مختص"
 
 #: core/models/membership.py:51
+#: core/templates/admin/core/membership/list_help.html:12
 msgid "Center admin"
 msgstr "مسؤول المركز"
 
@@ -686,6 +692,78 @@ msgstr "حساب هذا المستخدم معطَّل."
 msgid "A center must keep at least one active center admin."
 msgstr "يجب أن يحتفظ المركز بمسؤول مركز نشط واحد على الأقل."
 
+#: core/templates/admin/core/apicredential/list_help.html:4
+msgid ""
+"The keys the platform uses to call the AI provider (OpenAI). They are stored "
+"encrypted and never shown again after they are added."
+msgstr ""
+"المفاتيح التي تستعملها المنصة للاتصال بمزوّد الذكاء الاصطناعي (OpenAI). تُخزَّن "
+"مشفّرة ولا تُعرض أبدًا بعد إضافتها."
+
+#: core/templates/admin/core/apicredential/list_help.html:10
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:10
+msgid "Columns"
+msgstr "الأعمدة"
+
+#: core/templates/admin/core/apicredential/list_help.html:12
+msgid "Masked: only the first and last characters, enough to recognize it."
+msgstr "مخفي: لا يظهر إلا أول الأحرف وآخرها، بما يكفي للتعرّف عليه."
+
+#: core/templates/admin/core/apicredential/list_help.html:14
+msgid "The key in use. Adding a new key revokes the previous one."
+msgstr "المفتاح المستعمل. إضافة مفتاح جديد تُلغي السابق."
+
+#: core/templates/admin/core/apicredential/list_help.html:19
+msgid ""
+"Keys are encrypted with a separate key, never logged or returned by the API. "
+"Revoke a key that may have leaked: the platform stops using it at once."
+msgstr ""
+"تُشفَّر المفاتيح بمفتاح منفصل، ولا تُسجَّل ولا تُرجعها الواجهة البرمجية أبدًا. ألغِ "
+"أي مفتاح قد يكون تسرّب: تتوقف المنصة عن استعماله فورًا."
+
+#: core/templates/admin/core/center/list_help.html:4
+msgid ""
+"Centers of specialists answer the questions the AI must not answer. A center "
+"registers on the website and is reviewed here before it can work."
+msgstr ""
+"تجيب مراكز المختصين عن الأسئلة التي لا يجوز للذكاء الاصطناعي الإجابة عنها. "
+"يسجّل المركز في الموقع ويُراجَع هنا قبل أن يبدأ العمل."
+
+#: core/templates/admin/core/center/list_help.html:13
+msgid "Registered, waiting for a platform administrator: approve or reject it."
+msgstr "سُجّل وينتظر مسؤول المنصة: اقبله أو ارفضه."
+
+#: core/templates/admin/core/center/list_help.html:15
+msgid "Can work when active: its specialists receive and answer questions."
+msgstr "يمكنه العمل إذا كان نشطًا: يتلقى مختصوه الأسئلة ويجيبون عنها."
+
+#: core/templates/admin/core/center/list_help.html:17
+msgid "Refused, with a reason shown to the applicant."
+msgstr "رُفض، مع سبب يُعرض على مقدّم الطلب."
+
+#: core/templates/admin/core/center/list_help.html:21
+msgid "Default center"
+msgstr "المركز الافتراضي"
+
+#: core/templates/admin/core/center/list_help.html:22
+msgid ""
+"Receives the questions sent to specialists. Only one center, approved, can "
+"be the default."
+msgstr ""
+"يتلقى الأسئلة المرسلة إلى المختصين. لا يكون افتراضيًا إلا مركز واحد مقبول."
+
+#: core/templates/admin/core/center/list_help.html:25
+msgid "Languages served"
+msgstr "اللغات المخدومة"
+
+#: core/templates/admin/core/center/list_help.html:26
+msgid ""
+"The languages its specialists can handle. Each specialist also has their own "
+"language, in which the Telegram bot writes to them."
+msgstr ""
+"اللغات التي يتقنها مختصوه. ولكل مختص لغته الخاصة التي يكتب له بها بوت "
+"Telegram."
+
 #: core/templates/admin/core/center/reject_selected.html:7
 msgid ""
 "These centers will be rejected. Only pending centers are reviewed; others "
@@ -708,12 +786,12 @@ msgid "Cancel"
 msgstr "إلغاء"
 
 #: core/templates/admin/core/center/review_buttons.html:5
-#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:150
+#: core/templates/admin/core/center/review_buttons.html:17 qa/models.py:153
 msgid "Approve"
 msgstr "موافقة"
 
 #: core/templates/admin/core/center/review_buttons.html:7
-#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:152
+#: core/templates/admin/core/center/review_buttons.html:31 qa/models.py:155
 msgid "Reject"
 msgstr "رفض"
 
@@ -732,15 +810,71 @@ msgstr "سيصبح «%(name)s» مفعَّلًا وسيحصل مسؤولوه ع�
 msgid "Reject this center?"
 msgstr "رفض هذا المركز؟"
 
-#: knowledge/admin.py:35
+#: core/templates/admin/core/membership/list_help.html:4
+msgid ""
+"Who works in which center. People reach a center only through a membership; "
+"center admins add their specialists from their dashboard on the website."
+msgstr ""
+"من يعمل في أي مركز. لا يصل أحد إلى مركز إلا عبر عضوية؛ ويضيف مسؤولو المراكز "
+"مختصيهم من لوحة التحكم في الموقع."
+
+#: core/templates/admin/core/membership/list_help.html:10
+msgid "Role"
+msgstr "الدور"
+
+#: core/templates/admin/core/membership/list_help.html:12
+msgid ""
+"Manages the center: settings, specialists, Telegram; also answers questions."
+msgstr "يدير المركز: الإعدادات والمختصين وTelegram؛ ويجيب أيضًا عن الأسئلة."
+
+#: core/templates/admin/core/membership/list_help.html:13
+msgid "Answers the center's questions, in Telegram or in the dashboard."
+msgstr "يجيب عن أسئلة المركز في Telegram أو في لوحة التحكم."
+
+#: core/templates/admin/core/membership/list_help.html:17
+msgid "Active and offboarded"
+msgstr "نشطة ومنتهية"
+
+#: core/templates/admin/core/membership/list_help.html:18
+msgid ""
+"A membership is never deleted: offboarding ends it with a date, so the "
+"history of who answered what stays. A center always keeps at least one "
+"center admin."
+msgstr ""
+"لا تُحذف العضوية أبدًا: إنهاؤها يغلقها بتاريخ، فيبقى سجل من أجاب عن ماذا. "
+"ويبقى للمركز دائمًا مسؤول واحد على الأقل."
+
+#: core/templates/admin/musnid/help_dialog.html:11
+#: core/templates/admin/musnid/help_dialog.html:20
+#: qa/templates/admin/qa/question/change_help.html:13
+#: qa/templates/admin/qa/question/change_help.html:23
+#: qa/templates/admin/qa/question/list_help.html:7
+#: qa/templates/admin/qa/question/list_help.html:17
+#: qa/templates/admin/qa/referral/list_help.html:7
+#: qa/templates/admin/qa/referral/list_help.html:17
+msgid "How to read this page"
+msgstr "كيف تقرأ هذه الصفحة"
+
+#: core/templates/admin/musnid/help_dialog.html:28
+#: qa/templates/admin/qa/question/change_help.html:50
+#: qa/templates/admin/qa/question/list_help.html:100
+#: qa/templates/admin/qa/referral/list_help.html:68
+msgid "Close"
+msgstr "إغلاق"
+
+#: knowledge/admin.py:36
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:14
 msgid "chunks"
 msgstr "المقاطع"
 
 #: knowledge/models.py:26 knowledge/models.py:85
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:12
 msgid "title"
 msgstr "العنوان"
 
-#: knowledge/models.py:27 knowledge/models.py:84 qa/models.py:59
+#: knowledge/models.py:27 knowledge/models.py:84
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:13
+#: qa/admin.py:110 qa/models.py:59
 msgid "language"
 msgstr "اللغة"
 
@@ -772,16 +906,20 @@ msgstr "مصدر"
 msgid "source documents"
 msgstr "المصادر"
 
-#: knowledge/models.py:75 qa/admin.py:106
-#: qa/templates/admin/qa/question/revise.html:9
+#: knowledge/models.py:75
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:13
+#: qa/admin.py:158 qa/templates/admin/qa/question/revise.html:9
 msgid "Question"
 msgstr "السؤال"
 
 #: knowledge/models.py:76
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:15
 msgid "Summary"
 msgstr "الملخص"
 
-#: knowledge/models.py:77 qa/admin.py:107 qa/models.py:105
+#: knowledge/models.py:77
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:17
+#: qa/admin.py:159 qa/models.py:108
 #: qa/templates/admin/qa/question/change_help.html:30
 #: qa/templates/admin/qa/question/list_help.html:35
 msgid "Answer"
@@ -823,151 +961,250 @@ msgstr "مقطع مصدر"
 msgid "source chunks"
 msgstr "مقاطع المصادر"
 
-#: qa/admin.py:58
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:4
+msgid ""
+"The pieces of the books that the search looks through. Each one belongs to a "
+"numbered question of the book and carries an embedding, a numeric "
+"fingerprint of its meaning, used to find the passages closest to a question."
+msgstr ""
+"أجزاء الكتب التي يبحث فيها النظام. ينتمي كل جزء إلى سؤال مرقّم من الكتاب "
+"ويحمل تمثيلًا رقميًا لمعناه، يُستعمل لإيجاد أقرب المقاطع إلى السؤال."
+
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:11
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:11
+msgid "Kind"
+msgstr "النوع"
+
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:14
+msgid ""
+"The book's question: used only to find the right place, never quoted in an "
+"answer."
+msgstr ""
+"سؤال الكتاب: يُستعمل فقط لإيجاد الموضع الصحيح، ولا يُقتبس في الجواب أبدًا."
+
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:16
+msgid "The short answer of the book: evidence the AI may quote."
+msgstr "الجواب المختصر في الكتاب: دليل يجوز للذكاء الاصطناعي اقتباسه."
+
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:18
+msgid "The full answer of the book: evidence the AI may quote."
+msgstr "الجواب الكامل في الكتاب: دليل يجوز للذكاء الاصطناعي اقتباسه."
+
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:22
+msgid "Why it matters"
+msgstr "لماذا يهم ذلك"
+
+#: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:23
+msgid ""
+"The AI only receives summary and answer chunks of the closest questions; "
+"code then checks that every quote it returns is really in them."
+msgstr ""
+"لا يتلقى الذكاء الاصطناعي إلا أجزاء الملخص والجواب لأقرب الأسئلة؛ ثم يتحقق "
+"الكود من أن كل اقتباس يعيده موجود فيها فعلًا."
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:4
+msgid ""
+"The books the AI may answer from. Musnid answers only from these vetted "
+"sources, never from the model's own knowledge: every sentence of an answer "
+"must quote one of them."
+msgstr ""
+"الكتب التي يجوز للذكاء الاصطناعي أن يجيب منها. لا يجيب Musnid إلا من هذه "
+"المصادر الموثّقة، لا من معرفة النموذج الخاصة: يجب أن تقتبس كل جملة من الجواب "
+"أحدها."
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:12
+msgid "The book, as published."
+msgstr "الكتاب كما نُشر."
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:13
+msgid "The language of the text that is searched."
+msgstr "لغة النص الذي يُبحث فيه."
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:14
+msgid "How many searchable pieces the book was cut into (see Source chunks)."
+msgstr "عدد الأجزاء القابلة للبحث التي قُسّم إليها الكتاب (انظر مقاطع المصادر)."
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:18
+msgid "Traceability"
+msgstr "قابلية التتبع"
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:19
+msgid ""
+"Open a document to see its public page and its PDF: the links shown to "
+"askers under each sentence lead there, at the right page."
+msgstr ""
+"افتح وثيقة لترى صفحتها العامة وملف PDF: تقود الروابط المعروضة للسائلين تحت "
+"كل جملة إليها، إلى الصفحة الصحيحة."
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:22
+msgid "Read-only"
+msgstr "للقراءة فقط"
+
+#: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:23
+msgid "Books are added by an import command that checks the PDF, not by hand."
+msgstr "تُضاف الكتب بأمر استيراد يتحقق من ملف PDF، لا يدويًا."
+
+#: qa/admin.py:59
 msgid "Quote not found in the sources"
 msgstr "لم يُعثَر على النص المقتبس في المصادر"
 
-#: qa/admin.py:59
+#: qa/admin.py:60
 msgid "Quote does not support the sentence"
 msgstr "النص المقتبس لا يدعم الجملة"
 
-#: qa/admin.py:79
+#: qa/admin.py:80
 msgid "Revisions shown to the asker (newest first)"
 msgstr "المراجعات المعروضة على السائل (الأحدث أولًا)"
 
-#: qa/admin.py:99
-msgid "Search by question text or asker email, or paste a follow-up number."
-msgstr "ابحث بنص السؤال أو البريد الإلكتروني للسائل، أو الصق رقم المتابعة."
-
-#: qa/admin.py:108 qa/templates/admin/qa/question/change_help.html:42
-msgid "Retrieval"
-msgstr "الاسترجاع"
-
-#: qa/admin.py:109 qa/templates/admin/qa/question/change_help.html:45
-#: qa/templates/admin/qa/question/list_help.html:74
-msgid "Run"
-msgstr "التنفيذ"
-
-#: qa/admin.py:165
-msgid "The revised answer is now shown to the asker."
-msgstr "يُعرض الآن الجواب المراجَع على السائل."
-
-#: qa/admin.py:169 qa/templates/admin/qa/question/change_help.html:7
-msgid "Revise the answer"
-msgstr "راجِع الجواب"
-
-#: qa/admin.py:206 qa/admin.py:356 qa/admin.py:360 qa/models.py:70
-#: qa/models.py:112 qa/models.py:190 qa/models.py:257 telegram_bot/admin.py:84
-msgid "question"
-msgstr "سؤال"
-
-#: qa/admin.py:210 qa/models.py:64
-msgid "asker"
-msgstr "السائل"
-
-#: qa/admin.py:213
-msgid "Anonymous"
-msgstr "مجهول الهوية"
-
-#: qa/admin.py:215 qa/models.py:127
-msgid "decision"
-msgstr "القرار"
-
-#: qa/admin.py:222
+#: qa/admin.py:111 qa/admin.py:274
 msgid "answered by"
 msgstr "مصدر الجواب"
 
-#: qa/admin.py:226 qa/templates/admin/qa/question/list_help.html:53
+#: qa/admin.py:112 qa/admin.py:278
+#: qa/templates/admin/qa/question/list_help.html:53
 msgid "Center"
 msgstr "المركز"
 
-#: qa/admin.py:227 qa/templates/admin/qa/question/list_help.html:51
+#: qa/admin.py:112 qa/admin.py:279
+#: qa/templates/admin/qa/question/list_help.html:51
 msgid "AI"
 msgstr "الذكاء الاصطناعي"
 
-#: qa/admin.py:229 qa/models.py:114
+#: qa/admin.py:118 qa/admin.py:281 qa/models.py:117
 msgid "level"
 msgstr "المستوى"
 
-#: qa/admin.py:234 qa/models.py:119 qa/models.py:196
-msgid "answer"
-msgstr "الجواب"
-
-#: qa/admin.py:238
-msgid "No answer was saved for this question."
-msgstr "لم تُحفَظ أي إجابة لهذا السؤال."
-
-#: qa/admin.py:241
-msgid "kept sentences"
-msgstr "الجمل المحتفَظ بها"
-
-#: qa/admin.py:250 qa/admin.py:280
-#, python-format
-msgid "Bayyinat question %(number)s"
-msgstr "بيّنات، السؤال %(number)s"
-
-#: qa/admin.py:254
-msgid "removed sentences"
-msgstr "الجمل المحذوفة"
-
-#: qa/admin.py:267 qa/models.py:115
-msgid "search query"
-msgstr "عبارة البحث"
-
-#: qa/admin.py:272 qa/models.py:116
-msgid "retrieved"
-msgstr "نتائج الاسترجاع"
-
-#: qa/admin.py:285 qa/models.py:129
-msgid "model"
-msgstr "النموذج"
-
-#: qa/admin.py:293
+#: qa/admin.py:120 qa/admin.py:345
 msgid "response time"
 msgstr "زمن الاستجابة"
 
-#: qa/admin.py:296
+#: qa/admin.py:120 qa/admin.py:348
 #, python-format
 msgid "%(seconds).1f s"
 msgstr "%(seconds).1f ث"
 
-#: qa/admin.py:298
+#: qa/admin.py:123 qa/admin.py:350
 msgid "tokens"
 msgstr "الرموز"
 
-#: qa/admin.py:303
+#: qa/admin.py:123 qa/admin.py:355
 #, python-format
 msgid "%(input)s in, %(output)s out"
 msgstr "%(input)s مُدخَلة، %(output)s مُخرَجة"
 
-#: qa/admin.py:305 qa/admin.py:312 qa/models.py:134 telegram_bot/admin.py:88
-#: telegram_bot/models.py:44
+#: qa/admin.py:125 qa/admin.py:357 qa/admin.py:364 qa/models.py:137
+#: telegram_bot/admin.py:88 telegram_bot/models.py:44
 msgid "error"
 msgstr "الخطأ"
 
-#: qa/admin.py:318 qa/templates/admin/qa/question/list_help.html:88
+#: qa/admin.py:126 qa/admin.py:370
+#: qa/templates/admin/qa/question/list_help.html:88
 msgid "Yes"
 msgstr "نعم"
 
-#: qa/admin.py:318 qa/templates/admin/qa/question/list_help.html:86
+#: qa/admin.py:126 qa/admin.py:370
+#: qa/templates/admin/qa/question/list_help.html:86
 msgid "No"
 msgstr "لا"
 
-#: qa/admin.py:366 qa/models.py:260 telegram_bot/admin.py:80
+#: qa/admin.py:130 qa/models.py:284
+msgid "ticket"
+msgstr "تذكرة"
+
+#: qa/admin.py:132
+msgid "follow-up number"
+msgstr "رقم المتابعة"
+
+#: qa/admin.py:151
+msgid "Search by question text or asker email, or paste a follow-up number."
+msgstr "ابحث بنص السؤال أو البريد الإلكتروني للسائل، أو الصق رقم المتابعة."
+
+#: qa/admin.py:160 qa/templates/admin/qa/question/change_help.html:42
+msgid "Retrieval"
+msgstr "الاسترجاع"
+
+#: qa/admin.py:161 qa/templates/admin/qa/question/change_help.html:45
+#: qa/templates/admin/qa/question/list_help.html:74
+msgid "Run"
+msgstr "التنفيذ"
+
+#: qa/admin.py:217
+msgid "The revised answer is now shown to the asker."
+msgstr "يُعرض الآن الجواب المراجَع على السائل."
+
+#: qa/admin.py:221 qa/templates/admin/qa/question/change_help.html:7
+msgid "Revise the answer"
+msgstr "راجِع الجواب"
+
+#: qa/admin.py:258 qa/admin.py:410 qa/admin.py:414 qa/models.py:73
+#: qa/models.py:115 qa/models.py:193 qa/models.py:260 telegram_bot/admin.py:84
+msgid "question"
+msgstr "سؤال"
+
+#: qa/admin.py:262 qa/models.py:67
+msgid "asker"
+msgstr "السائل"
+
+#: qa/admin.py:265
+msgid "Anonymous"
+msgstr "مجهول الهوية"
+
+#: qa/admin.py:267 qa/models.py:130
+msgid "decision"
+msgstr "القرار"
+
+#: qa/admin.py:286 qa/models.py:122 qa/models.py:199
+msgid "answer"
+msgstr "الجواب"
+
+#: qa/admin.py:290
+msgid "No answer was saved for this question."
+msgstr "لم تُحفَظ أي إجابة لهذا السؤال."
+
+#: qa/admin.py:293
+msgid "kept sentences"
+msgstr "الجمل المحتفَظ بها"
+
+#: qa/admin.py:302 qa/admin.py:332
+#, python-format
+msgid "Bayyinat question %(number)s"
+msgstr "بيّنات، السؤال %(number)s"
+
+#: qa/admin.py:306
+msgid "removed sentences"
+msgstr "الجمل المحذوفة"
+
+#: qa/admin.py:319 qa/models.py:118
+msgid "search query"
+msgstr "عبارة البحث"
+
+#: qa/admin.py:324 qa/models.py:119
+msgid "retrieved"
+msgstr "نتائج الاسترجاع"
+
+#: qa/admin.py:337 qa/models.py:132
+msgid "model"
+msgstr "النموذج"
+
+#: qa/admin.py:420 qa/models.py:263 telegram_bot/admin.py:80
 #: telegram_bot/models.py:42
 msgid "status"
 msgstr "الحالة"
 
-#: qa/admin.py:370
+#: qa/admin.py:424 qa/models.py:264
+msgid "mode"
+msgstr "الطريقة"
+
+#: qa/admin.py:429
 msgid "Assign selected referrals to me"
 msgstr "أسنِد الإحالات المحددة إليّ"
 
-#: qa/admin.py:375 qa/admin.py:381
+#: qa/admin.py:434 qa/admin.py:440
 #: qa/templates/admin/qa/referral/close_selected.html:20
 msgid "Close selected referrals without an answer"
 msgstr "أغلق الإحالات المحددة دون جواب"
 
-#: qa/admin.py:401
+#: qa/admin.py:460
 #, python-format
 msgid "%(count)d referral was updated."
 msgid_plural "%(count)d referrals were updated."
@@ -978,7 +1215,7 @@ msgstr[3] "عدد الإحالات التي حُدّثت: %(count)d."
 msgstr[4] "عدد الإحالات التي حُدّثت: %(count)d."
 msgstr[5] "عدد الإحالات التي حُدّثت: %(count)d."
 
-#: qa/admin.py:405
+#: qa/admin.py:464
 #, python-format
 msgid "%(count)d referral could not be updated: %(reasons)s"
 msgid_plural "%(count)d referrals could not be updated: %(reasons)s"
@@ -993,49 +1230,57 @@ msgstr[5] "عدد الإحالات التي تعذّر تحديثها: %(count)d
 msgid "session"
 msgstr "الجلسة"
 
-#: qa/models.py:64
+#: qa/models.py:62
+msgid "translations"
+msgstr "الترجمات"
+
+#: qa/models.py:63
+msgid "Machine translations of the question for specialists, by language code."
+msgstr "ترجمات آلية للسؤال للمختصين، حسب رمز اللغة."
+
+#: qa/models.py:67
 msgid "The account that asked, when logged in. Empty for anonymous askers."
 msgstr ""
 "الحساب الذي طرح السؤال عند تسجيل الدخول. فارغ إذا كان السائل مجهول الهوية."
 
-#: qa/models.py:71
+#: qa/models.py:74
 msgid "questions"
 msgstr "الأسئلة"
 
-#: qa/models.py:100 qa/models.py:109
+#: qa/models.py:103 qa/models.py:112
 #: qa/templates/admin/qa/question/list_help.html:43
 msgid "Out of scope"
 msgstr "خارج النطاق"
 
-#: qa/models.py:106 qa/templates/admin/qa/question/list_help.html:37
+#: qa/models.py:109 qa/templates/admin/qa/question/list_help.html:37
 msgid "Partial answer"
 msgstr "جواب جزئي"
 
-#: qa/models.py:107 qa/templates/admin/qa/question/list_help.html:41
+#: qa/models.py:110 qa/templates/admin/qa/question/list_help.html:41
 msgid "Abstain"
 msgstr "امتناع"
 
-#: qa/models.py:108 qa/templates/admin/qa/question/list_help.html:39
+#: qa/models.py:111 qa/templates/admin/qa/question/list_help.html:39
 msgid "Referred to a center"
 msgstr "أُحيل إلى مركز"
 
-#: qa/models.py:117
+#: qa/models.py:120
 msgid "Ranked results: question number, score, chunk kind."
 msgstr "النتائج مرتبة: رقم السؤال، الدرجة، نوع المقطع."
 
-#: qa/models.py:118
+#: qa/models.py:121
 msgid "evidence question numbers"
 msgstr "أرقام أسئلة الأدلة"
 
-#: qa/models.py:120
+#: qa/models.py:123
 msgid "citations"
 msgstr "الإحالات"
 
-#: qa/models.py:122
+#: qa/models.py:125
 msgid "sentences"
 msgstr "الجمل"
 
-#: qa/models.py:123
+#: qa/models.py:126
 msgid ""
 "Kept sentences: text without citation markers, supporting quote, source "
 "question number."
@@ -1043,185 +1288,177 @@ msgstr ""
 "الجمل المعتمدة: النص دون علامات الإحالة، والاقتباس الداعم، ورقم السؤال "
 "المصدر."
 
-#: qa/models.py:125
+#: qa/models.py:128
 msgid "dropped sentences"
 msgstr "الجمل المحذوفة"
 
-#: qa/models.py:126
+#: qa/models.py:129
 msgid ""
 "Sentences removed by the quote or entailment check: text, quote, reason."
 msgstr "الجمل التي حذفها فحص الاقتباس أو فحص الدلالة: النص، والاقتباس، والسبب."
 
-#: qa/models.py:128
+#: qa/models.py:131
 msgid "verifier verdict"
 msgstr "حكم المدقق"
 
-#: qa/models.py:130
+#: qa/models.py:133
 msgid "prompt version"
 msgstr "إصدار التعليمات"
 
-#: qa/models.py:131
+#: qa/models.py:134
 msgid "latency (ms)"
 msgstr "زمن الاستجابة (ملّي ثانية)"
 
-#: qa/models.py:132
+#: qa/models.py:135
 msgid "input tokens"
 msgstr "رموز الإدخال"
 
-#: qa/models.py:133
+#: qa/models.py:136
 msgid "output tokens"
 msgstr "رموز الإخراج"
 
-#: qa/models.py:137 qa/models.py:155
+#: qa/models.py:140 qa/models.py:158
 msgid "interaction"
 msgstr "تفاعل"
 
-#: qa/models.py:138
+#: qa/models.py:141
 msgid "interactions"
 msgstr "التفاعلات"
 
-#: qa/models.py:151
+#: qa/models.py:154
 msgid "Correct"
 msgstr "تصحيح"
 
-#: qa/models.py:159
+#: qa/models.py:162
 msgid "reviewer"
 msgstr "المراجع"
 
-#: qa/models.py:161
+#: qa/models.py:164
 msgid "verdict"
 msgstr "الحكم"
 
-#: qa/models.py:162
+#: qa/models.py:165
 msgid "corrected answer"
 msgstr "الجواب المصحَّح"
 
-#: qa/models.py:163 qa/models.py:197 qa/models.py:259
+#: qa/models.py:166 qa/models.py:200 qa/models.py:262
 msgid "reason"
 msgstr "السبب"
 
-#: qa/models.py:166
+#: qa/models.py:169
 msgid "human label"
 msgstr "تقييم بشري"
 
-#: qa/models.py:167
+#: qa/models.py:170
 msgid "human labels"
 msgstr "التقييمات البشرية"
 
-#: qa/models.py:185
+#: qa/models.py:188
 msgid "Correction of an error"
 msgstr "تصحيح خطأ"
 
-#: qa/models.py:186
+#: qa/models.py:189
 msgid "Clarification or completion"
 msgstr "توضيح أو إكمال"
 
-#: qa/models.py:187
+#: qa/models.py:190
 msgid "Answer by a specialist"
 msgstr "جواب من مختص"
 
-#: qa/models.py:194
+#: qa/models.py:197
 msgid "author"
 msgstr "الكاتب"
 
-#: qa/models.py:198
+#: qa/models.py:201
 msgid "internal note"
 msgstr "ملاحظة داخلية"
 
-#: qa/models.py:199 qa/templates/admin/qa/question/revise.html:43
+#: qa/models.py:202 qa/templates/admin/qa/question/revise.html:43
 msgid "For the center and staff only; never shown to the asker."
 msgstr "للمركز والمشرفين فقط، ولا تُعرض على السائل أبدًا."
 
-#: qa/models.py:202
+#: qa/models.py:205
 msgid "answer revision"
 msgstr "مراجعة جواب"
 
-#: qa/models.py:203
+#: qa/models.py:206
 msgid "answer revisions"
 msgstr "مراجعات الأجوبة"
 
-#: qa/models.py:236
+#: qa/models.py:239
 msgid "Personal ruling (level D)"
 msgstr "فتوى شخصية (المستوى D)"
 
-#: qa/models.py:237
+#: qa/models.py:240
 msgid "Not covered by the sources"
 msgstr "لا تغطيه المصادر"
 
-#: qa/models.py:242
+#: qa/models.py:245 qa/templates/admin/qa/referral/list_help.html:40
 msgid "Open"
 msgstr "مفتوحة"
 
-#: qa/models.py:243
+#: qa/models.py:246 qa/templates/admin/qa/referral/list_help.html:42
 msgid "In progress"
 msgstr "قيد المعالجة"
 
-#: qa/models.py:244
+#: qa/models.py:247 qa/templates/admin/qa/referral/list_help.html:44
 msgid "Answered"
 msgstr "أُجيب عنها"
 
-#: qa/models.py:245
+#: qa/models.py:248 qa/templates/admin/qa/referral/list_help.html:46
 msgid "Closed without an answer"
 msgstr "أُغلقت دون جواب"
 
-#: qa/models.py:250
+#: qa/models.py:253 qa/templates/admin/qa/referral/list_help.html:30
 msgid "Asked a specialist now"
 msgstr "طُلب مختص فورًا"
 
-#: qa/models.py:251
+#: qa/models.py:254 qa/templates/admin/qa/referral/list_help.html:32
 msgid "Saved as a ticket"
 msgstr "حُفظ كتذكرة"
 
-#: qa/models.py:261
-msgid "mode"
-msgstr "الطريقة"
-
-#: qa/models.py:265
+#: qa/models.py:268
 msgid "assigned to"
 msgstr "مُسندة إلى"
 
-#: qa/models.py:270
+#: qa/models.py:273
 msgid "live until"
 msgstr "مباشر حتى"
 
-#: qa/models.py:271
+#: qa/models.py:274
 msgid ""
 "End of the live window in which specialists are expected to answer at once."
 msgstr "نهاية المدة التي يُنتظر فيها أن يجيب المختصون فورًا."
 
-#: qa/models.py:273
+#: qa/models.py:276
 msgid "answered at"
 msgstr "تاريخ الجواب"
 
-#: qa/models.py:274
+#: qa/models.py:277
 msgid "closed at"
 msgstr "تاريخ الإغلاق"
 
-#: qa/models.py:275
+#: qa/models.py:278
 msgid "closing note"
 msgstr "ملاحظة الإغلاق"
 
-#: qa/models.py:276
+#: qa/models.py:279
 msgid "Why the center closed it without an answer; never shown to the asker."
 msgstr "سبب إغلاق المركز لها دون جواب؛ لا تُعرض على السائل أبدًا."
 
-#: qa/models.py:281 telegram_bot/admin.py:92 telegram_bot/models.py:37
-msgid "referral"
-msgstr "إحالة"
+#: qa/models.py:285
+msgid "tickets"
+msgstr "تذاكر"
 
-#: qa/models.py:282
-msgid "referrals"
-msgstr "إحالات"
-
-#: qa/models.py:288
+#: qa/models.py:291
 msgid "An answered referral needs the date of its answer."
 msgstr "الإحالة التي أُجيب عنها تحتاج إلى تاريخ جوابها."
 
-#: qa/models.py:293
+#: qa/models.py:296
 msgid "A closed referral needs the date it was closed."
 msgstr "الإحالة المغلقة تحتاج إلى تاريخ إغلاقها."
 
-#: qa/services.py:60 telegram_bot/updates.py:139
+#: qa/services.py:60 telegram_bot/updates.py:143
 msgid "You cannot revise answers of this center."
 msgstr "لا يمكنك مراجعة أجوبة هذا المركز."
 
@@ -1238,40 +1475,33 @@ msgstr "الحد الأقصى للجواب %(max)d حرف."
 msgid "Choose why the answer is revised."
 msgstr "اختر سبب مراجعة الجواب."
 
-#: qa/services.py:108
+#: qa/services.py:113
 msgid "Choose to ask a specialist now or to save a ticket."
 msgstr "اختر طلب مختص الآن أو حفظ تذكرة."
 
-#: qa/services.py:113
+#: qa/services.py:118
 msgid "This question was answered; it cannot be sent to a specialist."
 msgstr "أُجيب عن هذا السؤال؛ لا يمكن إرساله إلى مختص."
 
-#: qa/services.py:116
+#: qa/services.py:121
 msgid "This question was already sent to the specialists."
 msgstr "أُرسل هذا السؤال إلى المختصين من قبل."
 
-#: qa/services.py:156
+#: qa/services.py:161
 msgid "Assign the referral to an active member of its center."
 msgstr "أسنِد الإحالة إلى عضو نشط في مركزها."
 
-#: qa/services.py:180
+#: qa/services.py:185
 msgid "Write why the referral is closed without an answer."
 msgstr "اكتب سبب إغلاق الإحالة دون جواب."
 
-#: qa/services.py:194
+#: qa/services.py:199
 msgid "You cannot handle referrals of this center."
 msgstr "لا يمكنك معالجة إحالات هذا المركز."
 
-#: qa/services.py:201
+#: qa/services.py:206
 msgid "This referral is already answered or closed."
 msgstr "هذه الإحالة أُجيب عنها أو أُغلقت من قبل."
-
-#: qa/templates/admin/qa/question/change_help.html:13
-#: qa/templates/admin/qa/question/change_help.html:23
-#: qa/templates/admin/qa/question/list_help.html:7
-#: qa/templates/admin/qa/question/list_help.html:17
-msgid "How to read this page"
-msgstr "كيف تقرأ هذه الصفحة"
 
 #: qa/templates/admin/qa/question/change_help.html:24
 msgid ""
@@ -1334,11 +1564,6 @@ msgid ""
 "to open it."
 msgstr ""
 "النموذج المستخدم وزمن الاستجابة والرموز وأي خطأ. انقر على العنوان لفتحها."
-
-#: qa/templates/admin/qa/question/change_help.html:50
-#: qa/templates/admin/qa/question/list_help.html:100
-msgid "Close"
-msgstr "إغلاق"
 
 #: qa/templates/admin/qa/question/list_help.html:18
 msgid ""
@@ -1524,6 +1749,14 @@ msgstr "ملاحظة داخلية (اختيارية)"
 msgid "Save and show to the asker"
 msgstr "احفظ واعرضه على السائل"
 
+#: qa/templates/admin/qa/question/row_details.html:25
+msgid "What the asker sees"
+msgstr "ما يراه السائل"
+
+#: qa/templates/admin/qa/question/row_details.html:32
+msgid "Open the full page"
+msgstr "افتح الصفحة كاملة"
+
 #: qa/templates/admin/qa/referral/close_selected.html:7
 msgid ""
 "These referrals will be closed without an answer. Only open or in-progress "
@@ -1536,9 +1769,87 @@ msgstr ""
 msgid "Reason (for the center and staff, never shown to the asker)"
 msgstr "السبب (للمركز والفريق فقط، لا يُعرض على السائل أبدًا)"
 
+#: qa/templates/admin/qa/referral/list_help.html:18
+msgid ""
+"A ticket is a question the AI did not answer, which the asker chose to send "
+"to a center's specialists. Specialists answer it in Telegram or in their "
+"dashboard; the asker sees the answer on the website, signed with the "
+"center's name."
+msgstr ""
+"التذكرة سؤال لم يجب عنه الذكاء الاصطناعي، واختار السائل إرساله إلى مختصي أحد "
+"المراكز. يجيب المختصون عنه في Telegram أو في لوحة التحكم، ويرى السائل الجواب "
+"في الموقع موقّعًا باسم المركز."
+
+#: qa/templates/admin/qa/referral/list_help.html:27
+msgid "Mode"
+msgstr "الطريقة"
+
+#: qa/templates/admin/qa/referral/list_help.html:28
+msgid "What the asker chose."
+msgstr "ما اختاره السائل."
+
+#: qa/templates/admin/qa/referral/list_help.html:31
+msgid ""
+"The asker waits on the page: specialists have one minute to answer live."
+msgstr "ينتظر السائل في الصفحة: أمام المختصين دقيقة واحدة للرد مباشرة."
+
+#: qa/templates/admin/qa/referral/list_help.html:33
+msgid "Answered later; the asker finds the answer in their history."
+msgstr "يُجاب عنه لاحقًا؛ ويجد السائل الجواب في سجله."
+
+#: qa/templates/admin/qa/referral/list_help.html:41
+msgid "Waiting for a specialist."
+msgstr "في انتظار مختص."
+
+#: qa/templates/admin/qa/referral/list_help.html:43
+msgid "A specialist took it (Assigned to)."
+msgstr "تولّاها أحد المختصين (مُسندة إلى)."
+
+#: qa/templates/admin/qa/referral/list_help.html:45
+msgid ""
+"The first answer was sent to the asker; the other specialists' Telegram "
+"messages show it."
+msgstr ""
+"أُرسل الجواب الأول إلى السائل، وتُظهر ذلك رسائل Telegram لدى المختصين الآخرين."
+
+#: qa/templates/admin/qa/referral/list_help.html:47
+msgid "Closed with an internal note: a duplicate or an abusive question."
+msgstr "أُغلقت بملاحظة داخلية: سؤال مكرر أو مسيء."
+
+#: qa/templates/admin/qa/referral/list_help.html:52 telegram_bot/services.py:58
+msgid "Reason"
+msgstr "السبب"
+
+#: qa/templates/admin/qa/referral/list_help.html:53
+msgid "Why the AI did not answer; the asker was told the same reason."
+msgstr "سبب عدم إجابة الذكاء الاصطناعي؛ وقد أُخبر السائل بالسبب نفسه."
+
+#: qa/templates/admin/qa/referral/list_help.html:56
+msgid ""
+"Personal ruling (level D): only a qualified specialist can rule on a "
+"person's own situation."
+msgstr "فتوى شخصية (المستوى D): لا يحكم في حالة الشخص إلا مختص مؤهل."
+
+#: qa/templates/admin/qa/referral/list_help.html:58
+msgid ""
+"Not covered by the sources: the AI does not answer from its own knowledge."
+msgstr "لا تغطيه المصادر: لا يجيب الذكاء الاصطناعي من معرفته الخاصة."
+
+#: qa/templates/admin/qa/referral/list_help.html:63
+msgid "Actions"
+msgstr "الإجراءات"
+
+#: qa/templates/admin/qa/referral/list_help.html:64
+msgid ""
+"Assign selected tickets to yourself to step in, or close them without an "
+"answer (a note is required). Open a ticket's question to answer it with "
+"“Revise the answer”."
+msgstr ""
+"أسنِد التذاكر المحددة إلى نفسك للتدخل، أو أغلقها دون جواب (الملاحظة مطلوبة). "
+"افتح سؤال التذكرة للإجابة عنه عبر «مراجعة الجواب»."
+
 #: telegram_bot/admin.py:55
 #: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:8
-#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:6
 msgid "Link a Telegram account"
 msgstr "ربط حساب Telegram"
 
@@ -1549,6 +1860,10 @@ msgstr "لا يوجد مستخدم بهذا البريد الإلكتروني."
 #: telegram_bot/admin.py:71
 msgid "Telegram could not be reached. Try again in a moment."
 msgstr "تعذّر الوصول إلى Telegram. أعد المحاولة بعد قليل."
+
+#: telegram_bot/admin.py:92 telegram_bot/models.py:37
+msgid "referral"
+msgstr "إحالة"
 
 #: telegram_bot/admin.py:99
 msgid "Send selected failed messages again"
@@ -1626,18 +1941,22 @@ msgid "Start or show the welcome message"
 msgstr "ابدأ أو اعرض رسالة الترحيب"
 
 #: telegram_bot/models.py:27
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:13
 msgid "New referral notice"
 msgstr "إشعار بإحالة جديدة"
 
 #: telegram_bot/models.py:28
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:14
 msgid "Answer prompt"
 msgstr "طلب الجواب"
 
 #: telegram_bot/models.py:33
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:20
 msgid "Sent"
 msgstr "أُرسلت"
 
 #: telegram_bot/models.py:34
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:22
 msgid "Failed"
 msgstr "فشلت"
 
@@ -1677,23 +1996,27 @@ msgstr "رمز ربط Telegram"
 msgid "Telegram link codes"
 msgstr "رموز ربط Telegram"
 
-#: telegram_bot/services.py:52
+#: telegram_bot/services.py:57
 msgid "New question referred to your center"
 msgstr "سؤال جديد مُحال إلى مركزكم"
 
-#: telegram_bot/services.py:53
-msgid "Reason"
-msgstr "السبب"
-
-#: telegram_bot/services.py:54
+#: telegram_bot/services.py:59
 msgid "Language"
 msgstr "اللغة"
 
-#: telegram_bot/services.py:55
+#: telegram_bot/services.py:60
 msgid "Follow-up number"
 msgstr "رقم المتابعة"
 
 #: telegram_bot/services.py:62
+msgid "Original question"
+msgstr "السؤال الأصلي"
+
+#: telegram_bot/services.py:67
+msgid "Translation (AI)"
+msgstr "الترجمة (ذكاء اصطناعي)"
+
+#: telegram_bot/services.py:71
 #, python-format
 msgid ""
 "⏱ Answer within %(minutes)d minute to reply live; after that, it stays in "
@@ -1719,23 +2042,32 @@ msgstr[5] ""
 "⏱ أجب خلال %(minutes)d دقيقة للرد مباشرة؛ بعدها يبقى السؤال في قائمة انتظار "
 "المركز."
 
-#: telegram_bot/services.py:66
+#: telegram_bot/services.py:75
 msgid ""
 "🎫 Ticket: answer when you can; the asker will see your answer in their "
 "history."
 msgstr "🎫 تذكرة: أجب حين يتيسر لك؛ وسيرى السائل جوابك في سجله."
 
-#: telegram_bot/services.py:74
+#: telegram_bot/services.py:83
 msgid "✍️ Answer"
 msgstr "✍️ أجب"
 
-#: telegram_bot/services.py:134
+#: telegram_bot/services.py:144
 msgid "Only failed messages can be sent again."
 msgstr "لا يُعاد إرسال إلا الرسائل الفاشلة."
 
-#: telegram_bot/services.py:137
+#: telegram_bot/services.py:147
 msgid "The bot has no token."
 msgstr "ليس للبوت رمز."
+
+#: telegram_bot/services.py:172
+#, python-format
+msgid "✅ Answered by %(name)s"
+msgstr "✅ أجاب عنها %(name)s"
+
+#: telegram_bot/services.py:172
+msgid "✅ Answered"
+msgstr "✅ أُجيب عنها"
 
 #: telegram_bot/templates/admin/telegram_bot/telegrammessage/link.html:9
 #, python-format
@@ -1765,7 +2097,50 @@ msgstr "البريد الإلكتروني للمستخدم"
 msgid "Create the link"
 msgstr "أنشئ الرابط"
 
-#: telegram_bot/updates.py:94
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:4
+msgid ""
+"Every message the Telegram bot sent, or tried to send. When an asker sends a "
+"question to the specialists, the bot sends it privately to every linked "
+"specialist of the center, in their language, with the original question and "
+"its translation."
+msgstr ""
+"كل رسالة أرسلها بوت Telegram أو حاول إرسالها. حين يرسل السائل سؤالًا إلى "
+"المختصين، يرسله البوت على انفراد إلى كل مختص مرتبط في المركز، بلغته، مع "
+"السؤال الأصلي وترجمته."
+
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:13
+msgid "The question, with an Answer button."
+msgstr "السؤال مع زر أجب."
+
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:14
+msgid ""
+"Sent when a specialist taps Answer: their reply to it becomes the answer."
+msgstr "تُرسل حين يضغط المختص أجب: يصبح رده عليها هو الجواب."
+
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:21
+msgid "Telegram accepted it."
+msgstr "قبله Telegram."
+
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:23
+msgid ""
+"Telegram refused it; the error says why (for example, the specialist blocked "
+"the bot). Select it and send it again."
+msgstr ""
+"رفضه Telegram؛ يبيّن الخطأ السبب (مثلًا: حظر المختص البوت). حدّده وأعد إرساله."
+
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:27
+msgid "First answer wins"
+msgstr "الجواب الأول هو المعتمد"
+
+#: telegram_bot/templates/admin/telegram_bot/telegrammessage/list_before.html:28
+msgid ""
+"As soon as one specialist answers, the bot edits everyone's message: the "
+"Answer button disappears and the name of who answered is added."
+msgstr ""
+"ما إن يجيب أحد المختصين حتى يعدّل البوت رسالة الجميع: يختفي زر أجب ويُضاف اسم "
+"من أجاب."
+
+#: telegram_bot/updates.py:95
 #, python-format
 msgid ""
 "👋 Welcome back, %(name)s. Questions for your center arrive here: tap ✍️ "
@@ -1774,7 +2149,7 @@ msgstr ""
 "👋 مرحبًا بعودتك يا %(name)s. تصل أسئلة مركزك إلى هنا: اضغط ✍️ أجب للرد، ويرى "
 "السائل جوابك فورًا."
 
-#: telegram_bot/updates.py:97
+#: telegram_bot/updates.py:98
 msgid ""
 "👋 Welcome to Musnid.\n"
 "\n"
@@ -1792,27 +2167,36 @@ msgstr ""
 "\n"
 "هل أنت مختص؟ اربط Telegram من لوحة التحكم في Musnid لتصلك الأسئلة."
 
-#: telegram_bot/updates.py:115
+#: telegram_bot/updates.py:116
 msgid "Tap ✍️ Answer under a question to reply to it."
 msgstr "اضغط ✍️ أجب تحت السؤال للرد عليه."
 
-#: telegram_bot/updates.py:117
+#: telegram_bot/updates.py:118
 msgid "To answer questions, connect Telegram from your Musnid dashboard."
 msgstr "للإجابة عن الأسئلة، اربط Telegram من لوحة التحكم في Musnid."
 
-#: telegram_bot/updates.py:136 telegram_bot/updates.py:235
+#: telegram_bot/updates.py:140 telegram_bot/updates.py:247
 msgid "Connect Telegram from your Musnid dashboard first."
 msgstr "اربط Telegram أولًا من لوحة التحكم في Musnid."
 
-#: telegram_bot/updates.py:142
+#: telegram_bot/updates.py:146
 msgid "✍️ Write your answer to:"
 msgstr "✍️ اكتب جوابك عن:"
 
-#: telegram_bot/updates.py:143
+#: telegram_bot/updates.py:147
 msgid "Your answer"
 msgstr "جوابك"
 
-#: telegram_bot/updates.py:196
+#: telegram_bot/updates.py:168
+#, python-format
+msgid "This question was already answered by %(name)s."
+msgstr "أجاب %(name)s عن هذا السؤال من قبل."
+
+#: telegram_bot/updates.py:169
+msgid "This question was already answered."
+msgstr "أُجيب عن هذا السؤال من قبل."
+
+#: telegram_bot/updates.py:208
 #, python-format
 msgid ""
 "This group is now connected to %(center)s. Referred questions will arrive "
@@ -1821,7 +2205,7 @@ msgstr ""
 "رُبطت هذه المجموعة بـ %(center)s. ستصل الأسئلة المُحالة إلى هنا، ويجيب "
 "المختصون المرتبطون بالرد عليها."
 
-#: telegram_bot/updates.py:212
+#: telegram_bot/updates.py:224
 #, python-format
 msgid ""
 "✅ Your Telegram account is now linked to %(name)s. Questions for your "
@@ -1830,10 +2214,10 @@ msgstr ""
 "✅ رُبط حسابك في Telegram بـ %(name)s. ستصل أسئلة مركزك إلى هنا: اضغط ✍️ أجب "
 "للرد."
 
-#: telegram_bot/updates.py:238
+#: telegram_bot/updates.py:253
 msgid "Send the answer as text."
 msgstr "أرسل الجواب نصًّا."
 
-#: telegram_bot/updates.py:245
+#: telegram_bot/updates.py:260
 msgid "✅ The answer was sent to the asker."
 msgstr "✅ أُرسل الجواب إلى السائل."

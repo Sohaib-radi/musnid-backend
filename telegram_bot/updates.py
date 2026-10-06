@@ -16,7 +16,8 @@ webhook in production; both behave the same.
   specialist's answer: it is saved through ``qa.services.revise``, so the asker
   sees it at once and the referral becomes answered. Replies in a connected
   group work the same way. Only linked, allowed users can answer; others get a
-  short explanation.
+  short explanation. The first answer wins: the other specialists' notices are
+  marked answered (``services.mark_answered``) and later replies are refused.
 
 Everything else is ignored. The bot's own replies are plain text in the
 language of the person or center they address.
@@ -132,6 +133,9 @@ def _prompt(client, callback):
             _answer_callback(client, callback, '')
             return None  # not an Answer button, or a forged one
         question = referral.question
+        if referral.status == Referral.Status.ANSWERED:
+            _answer_callback(client, callback, _already_answered(question))
+            return 'refused'
         if user is None:
             _answer_callback(client, callback, _('Connect Telegram from your Musnid dashboard first.'))
             return 'refused'
@@ -155,6 +159,14 @@ def _prompt(client, callback):
         )
         _answer_callback(client, callback, '')
     return 'prompted'
+
+
+def _already_answered(question):
+    """"Already answered by <first answerer>", in the active language."""
+    first = question.revisions.select_related('author').order_by('created_at').first()
+    if first and first.author:
+        return _('This question was already answered by %(name)s.') % {'name': first.author.full_name}
+    return _('This question was already answered.')
 
 
 def _uuid_or_none(value):
@@ -233,6 +245,9 @@ def _answer(client, message, text):
     with translation.override(language):
         if author is None:
             _reply(client, message, _('Connect Telegram from your Musnid dashboard first.'))
+            return 'refused'
+        if notice.referral.status == Referral.Status.ANSWERED:  # the first answer wins
+            _reply(client, message, _already_answered(question))
             return 'refused'
         if not text:
             _reply(client, message, _('Send the answer as text.'))

@@ -376,3 +376,12 @@ class SpecialistRequestTests(QuestionAPITestCase):
         response = self.request(self.saved(decision='refer', sentences=[]).question, mode='soon')
         self.assertEqual(response.data['codes']['mode'], ['invalid_choice'])
 
+    def test_logging_in_then_saving_a_ticket_claims_the_anonymous_question(self):
+        question = self.saved(decision='refer', sentences=[]).question
+        user = self.authenticate()
+        self.assertEqual(self.request(question, mode='ticket').status_code, 201)
+        question.refresh_from_db()
+        self.assertEqual(question.asker, user)
+        self.assertEqual([q['uuid'] for q in self.client.get(self.url('my-questions')).data['results']],
+                         [str(question.uuid)])
+

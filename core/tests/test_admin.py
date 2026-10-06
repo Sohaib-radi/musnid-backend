@@ -465,3 +465,18 @@ class SuperuserOnlyAdminTests(TestCase):
                 response = self.login(user)
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, 'This page is for platform administrators.')
+
+
+class ListGuidesTests(AdminTestCase):
+    """Every list a jury opens explains itself with "How to read this page"."""
+
+    def test_each_list_has_its_guide(self):
+        for url_name in ('admin:knowledge_sourcedocument_changelist', 'admin:knowledge_sourcechunk_changelist',
+                         'admin:core_apicredential_changelist', 'admin:core_center_changelist',
+                         'admin:core_membership_changelist', 'admin:telegram_bot_telegrammessage_changelist',
+                         'admin:qa_question_changelist', 'admin:qa_referral_changelist'):
+            with self.subTest(page=url_name):
+                response = self.client.get(reverse(url_name))
+                self.assertContains(response, 'How to read this page')
+                self.assertContains(response, '-help-dialog')
+

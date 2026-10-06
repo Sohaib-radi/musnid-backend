@@ -20,8 +20,12 @@ def use_fast_password_hasher():
 
 
 def disable_telegram():
-    """Empty ``TELEGRAM_BOT_TOKEN``: a token in .env must never let a test reach Telegram (tests pass fakes)."""
+    """
+    Empty ``TELEGRAM_BOT_TOKEN`` and ``OPENAI_API_KEY``: values in .env must never let a
+    test reach Telegram or OpenAI (tests pass fakes; translations are then skipped).
+    """
     settings.TELEGRAM_BOT_TOKEN = ''
+    settings.OPENAI_API_KEY = ''
 
 
 class FastHasherParallelTestSuite(ParallelTestSuite):

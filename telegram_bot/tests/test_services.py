@@ -9,7 +9,7 @@ from core.tests.support import make_center, make_interaction, make_membership, m
 from qa.models import Referral
 from qa.services import open_referral
 from telegram_bot.models import TelegramMessage
-from telegram_bot.services import QUESTION_MAX, notify_referral, referral_notice, resend
+from telegram_bot.services import QUESTION_MAX, mark_answered, notify_referral, referral_notice, resend
 from telegram_bot.tests.support import FakeClient
 
 GROUP = -1001234567890
@@ -118,3 +118,68 @@ class ReceiverTests(TestCase):
                 self.assertLogs('telegram_bot.receivers', 'ERROR'), self.captureOnCommitCallbacks(execute=True):
             open_referral(question, Referral.Reason.NO_EVIDENCE)
         self.assertTrue(Referral.objects.filter(question=question).exists())
+
+
+class MarkAnsweredTests(TestCase):
+    """Once answered, every specialist's notice loses its button and shows who answered."""
+
+    def setUp(self):
+        self.center = make_center(languages=['ar'])
+        self.referral = make_referral(center=self.center)
+        self.amina = make_membership(center=self.center, user=make_user(
+            telegram_chat_id=SPECIALIST, preferred_lang='en', full_name='Amina')).user
+        make_membership(center=self.center, user=make_user(telegram_chat_id=SPECIALIST + 1, preferred_lang='fr'))
+        notify_referral(self.referral, FakeClient())
+
+    def test_every_notice_is_edited_in_its_recipients_language(self):
+        client = FakeClient()
+        self.assertEqual(mark_answered(self.referral, self.amina, client), 2)
+        texts = {chat: text for chat, _id, text in client.edits}
+        self.assertIn('✅ Answered by Amina', texts[SPECIALIST])
+        self.assertIn('✅ Répondue par Amina', texts[SPECIALIST + 1])
+
+    def test_failures_are_logged(self):
+        with self.assertLogs('telegram_bot.services', 'WARNING'):
+            self.assertEqual(mark_answered(self.referral, self.amina, FakeClient(error='editMessageText: 400')), 0)
+
+    def test_the_first_answer_triggers_it_once(self):
+        from qa.models import AnswerRevision
+        from qa.services import revise
+        with mock.patch('telegram_bot.receivers.mark_answered') as marked, \
+                self.captureOnCommitCallbacks(execute=True):
+            revise(self.referral.question, self.amina, 'First.', AnswerRevision.Reason.SPECIALIST_ANSWER)
+        with mock.patch('telegram_bot.receivers.mark_answered') as again, \
+                self.captureOnCommitCallbacks(execute=True):
+            revise(self.referral.question, self.amina, 'Correction.', AnswerRevision.Reason.CORRECTION)
+        marked.assert_called_once()
+        again.assert_not_called()
+
+
+
+class TranslationInNoticeTests(TestCase):
+    """The notice shows the original question and its translation into the recipient's language."""
+
+    def setUp(self):
+        self.center = make_center()
+        question = make_question(center=self.center, text='My father left a house. How do we divide it?', lang='en')
+        self.referral = make_referral(question=make_interaction(question=question, decision='refer').question)
+        make_membership(center=self.center, user=make_user(telegram_chat_id=SPECIALIST, preferred_lang='ar'))
+        make_membership(center=self.center, user=make_user(telegram_chat_id=SPECIALIST + 1, preferred_lang='ar'))
+
+    def test_translated_once_per_language_and_saved(self):
+        client = FakeClient()
+        with mock.patch('agents.translation.translate', return_value='ترك والدي منزلا. كيف نقسمه؟') as translate:
+            notify_referral(self.referral, client)
+        translate.assert_called_once_with('My father left a house. How do we divide it?', 'ar')
+        self.assertIn('السؤال الأصلي', client.sent[0][1])
+        self.assertIn('My father left a house.', client.sent[0][1])
+        self.assertIn('ترك والدي منزلا', client.sent[1][1])
+        self.referral.question.refresh_from_db()
+        self.assertEqual(self.referral.question.translations, {'ar': 'ترك والدي منزلا. كيف نقسمه؟'})
+
+    def test_no_translation_without_a_key_or_in_the_same_language(self):
+        client = FakeClient()
+        notify_referral(self.referral, client)  # tests run without an OpenAI key
+        self.assertNotIn('الترجمة', client.sent[0][1])
+        from agents.translation import translate_question
+        self.assertEqual(translate_question(self.referral.question, 'en'), self.referral.question.text)

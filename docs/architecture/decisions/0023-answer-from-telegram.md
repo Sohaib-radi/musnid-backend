@@ -65,6 +65,17 @@ not be able to publish one.
 - The bot needs no admin rights in the group: in privacy mode Telegram still delivers
   replies to the bot's own messages.
 
+## Amendment (2026-10-06)
+
+- Notices go privately to every linked member of the center (the group is optional), with
+  an "Answer" button (`callback_data` `answer:<uuid>`) that opens a `force_reply` prompt.
+- Notices show the original question and, for a specialist working in another language, a
+  translation by the chat model (`agents.translation`, saved per language on
+  `Question.translations`, skipped without an OpenAI key).
+- The first answer wins: `qa.services.revise` sends `qa.signals.referral_answered` when a
+  referral becomes answered; `telegram_bot.services.mark_answered` edits every notice
+  (button removed, "Answered by <name>"), and later Telegram answers are refused.
+
 ## Consequences
 
 - The demo path works end to end without the frontend: the answer appears in

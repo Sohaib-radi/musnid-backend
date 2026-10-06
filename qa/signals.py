@@ -7,3 +7,6 @@ from django.dispatch import Signal
 
 #: Sent once the transaction that opened a referral commits; argument ``referral``
 referral_opened = Signal()
+
+#: Sent once the first answer to a referral is committed; arguments ``referral``, ``author``
+referral_answered = Signal()

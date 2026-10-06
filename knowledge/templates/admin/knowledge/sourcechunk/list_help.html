@@ -1,0 +1,25 @@
+{% extends "admin/musnid/help_dialog.html" %}
+{% load i18n %}
+{% block help_icon %}segment{% endblock %}
+{% block help_intro %}{% blocktranslate trimmed %}
+    The pieces of the books that the search looks through. Each one belongs to a numbered question of
+    the book and carries an embedding, a numeric fingerprint of its meaning, used to find the passages
+    closest to a question.
+{% endblocktranslate %}{% endblock %}
+{% block help_sections %}
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">category</span>{% translate "Kind" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-badge musnid-badge-info">{% translate "Question" %}</span>
+                <span>{% translate "The book's question: used only to find the right place, never quoted in an answer." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-success">{% translate "Summary" %}</span>
+                <span>{% translate "The short answer of the book: evidence the AI may quote." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-success">{% translate "Answer" %}</span>
+                <span>{% translate "The full answer of the book: evidence the AI may quote." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">verified</span>{% translate "Why it matters" %}</h3>
+        <p class="musnid-help-sub">{% translate "The AI only receives summary and answer chunks of the closest questions; code then checks that every quote it returns is really in them." %}</p>
+    </section>
+{% endblock %}

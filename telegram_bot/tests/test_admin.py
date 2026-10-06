@@ -54,9 +54,11 @@ class LinkPageTests(AdminTestCase):
         with mock.patch('telegram_bot.linking.TelegramClient', return_value=FakeClient()):
             return self.client.post(url, data) if data else self.client.get(url)
 
-    def test_list_offers_the_link_page(self):
+    def test_list_explains_itself_without_the_link_button(self):
         response = self.client.get(reverse('admin:telegram_bot_telegrammessage_changelist'))
-        self.assertContains(response, reverse('admin:telegram_bot_telegrammessage_link'))
+        self.assertContains(response, 'How to read this page')
+        # Specialists connect Telegram from their dashboard; the page stays reachable by its address
+        self.assertNotContains(response, reverse('admin:telegram_bot_telegrammessage_link'))
 
     def test_superuser_creates_a_link_for_a_user(self):
         make_user(email='specialist@example.com', full_name='Amina')

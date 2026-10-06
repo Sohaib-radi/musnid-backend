@@ -101,6 +101,19 @@ A center: `slug`, `name`, `country` (`{"code", "name"}` or null), `description`,
 | `GET centers/{slug}/telegram/` | any active member, operational center | `{"connected", "me_linked"}`; polled while connecting | 403 `center_not_operational`; 404 |
 | `GET countries/` | public | `[{"code", "name"}]`, names in the request language | |
 
+## Center questions
+
+All: any active member (specialist or center admin) of an operational center; only that
+center's questions (403 `center_not_operational`, 404 for non-members and other centers).
+
+| Method and path | Request | Response |
+| --- | --- | --- |
+| `GET centers/{slug}/questions/?status=` | `waiting` (default: open or in progress, oldest first), `answered`, `closed`, `all` (newest first) | paginated: `uuid`, `text`, `language`, `created_at`, `ticket` (`status`, `mode`, `reason`, `live_until`, `answered_at`, `closed_at`, `created_at`), `answered_by` |
+| `GET centers/{slug}/questions/{uuid}/` | | the same, plus `decision`, `level`, `ai_answer`, `current_answer` (what the asker sees), `revisions` (newest first: `text`, `reason`, `note`, `author` name, `created_at`) |
+| `POST centers/{slug}/questions/{uuid}/answer/` | `text`, `reason` (optional: `specialist_answer` first, then `correction`), `note` (internal) | 201 the question; saved through `revise`: the asker sees it at once, the ticket becomes answered, Telegram marks it answered |
+
+The asker is never returned; specialists' names are, inside the center.
+
 ## Memberships
 
 All: center admin of an operational center (403 `not_center_admin`,
@@ -131,7 +144,7 @@ frontend generates (for example a random UUID kept in local storage).
 | `POST questions/` | `text` (3 to 2,000 characters), `session_id` | 201 question; waits for the answer (19.8 to 45.6 s measured) |
 | `GET questions/?session_id=…` | | paginated, newest first |
 | `GET questions/{uuid}/` | | question |
-| `POST questions/{uuid}/specialist/` | `mode` (`live` or `ticket`), `session_id` (anonymous askers) | 201 question; sends a question the AI did not answer (`refer` or `abstain`) to the specialists. Only the asker (404 otherwise); 400 `not_referable`, `referral_exists`; throttled like asking |
+| `POST questions/{uuid}/specialist/` | `mode` (`live` or `ticket`), `session_id` (anonymous askers) | 201 question; sends a question the AI did not answer (`refer` or `abstain`) to the specialists. Only the asker (404 otherwise); a logged-in asker sending their anonymous question (same `session_id`) claims it, so it appears in `me/questions/`; 400 `not_referable`, `referral_exists`; throttled like asking |
 | `GET me/questions/` | login required | the caller's questions from every session, paginated, newest first |
 
 There is no `PUT`, `PATCH` or `DELETE` (405).

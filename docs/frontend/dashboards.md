@@ -255,13 +255,25 @@ two buttons; each calls `POST questions/{uuid}/specialist/` with
 
 `referral_status` `answered` → show `answer`, "Answered by `review.center`".
 
+## Questions to answer (specialists and center admins)
+
+| Screen | Call |
+| --- | --- |
+| Tabs "Waiting" / "Answered" / "Closed" | `GET centers/{slug}/questions/?status=waiting` (oldest first), `answered`, `closed` |
+| Question page | `GET centers/{slug}/questions/{uuid}/`: the question, `ai_answer` (why the AI did not answer), `current_answer`, `ticket`, `revisions` (who, when, why, note) |
+| "Answer" (waiting) / "Revise" (answered) | `POST centers/{slug}/questions/{uuid}/answer/` `{"text", "note"?, "reason"?}` → 201 the updated question |
+
+Show `ticket.mode` (live or ticket) and, for a live one, the time left before
+`ticket.live_until`. Refresh the "Waiting" tab every 30 s. A question answered meanwhile
+from Telegram moves to "Answered"; the asker always sees the latest revision.
+
 ## Not available yet
 
 Do not build against these; they come in the next backend steps.
 
 | Feature | Status |
 | --- | --- |
-| Referred questions of the center (queue, assign, close, answer) | Admin only for now. |
+| Assigning and closing tickets from the dashboard | Admin only for now (answering is available above). |
 | Telegram link (QR code) for each specialist | Admin only for now ("Link a Telegram account"). The admin who connects the group is linked automatically; `telegram_linked` in `GET me/` and `me_linked` show the result. |
 | Statistics (questions per day, answer times) | Not started. |
 | Logo and avatar upload | Fields exist, read-only in the API. |

@@ -52,10 +52,18 @@ vous répondra." A ticket opens: **Open**.
 **Asker, on the website:** sees Amina's answer, signed with the center's name (never
 hers). The ticket is **Answered**.
 
-## 3. What the bot refuses
+## 3. Several specialists, one answer
+
+Every linked specialist of the center receives the same question privately. The **first
+answer wins**: as soon as Amina answers, the bot edits the message for everyone (the
+"✍️ Answer" button disappears, "✅ Answered by Amina" is added). Answering from the admin
+does the same. A later tap or reply gets "This question was already answered by Amina."
+
+## What the bot refuses
 
 | Case | Bot replies |
 | --- | --- |
+| The question was already answered | "This question was already answered by Amina." |
 | A group already connected to another center | "This Telegram group is already connected to another center." |
 | A group member who never linked replies | "Link your Telegram account first: ask your center for your link." |
 | A linked user from another center replies | "You cannot revise answers of this center." |
@@ -84,8 +92,13 @@ Two different settings, often confused:
 the button «✍️ أجب». Switching her site language to French sends
 `PATCH /me/ {"preferred_lang": "fr"}`; the next notice arrives in French.
 
-Only the bot's fixed texts are translated (the `.po` catalogs). The question and the answer
-are shown as written: translating content is the planned translation crew.
+The bot's fixed texts come from the `.po` catalogs. The **question** is shown as written
+("Original question") and, when the specialist works in another language, followed by a
+machine translation ("Translation (AI)", `agents/translation.py`): one call to the chat
+model per language, saved on `Question.translations`, so ten French-speaking specialists
+cost one call. Quran verses and hadith stay in Arabic; nothing is added or answered. If
+the translation fails, the notice carries the original only. The specialist's **answer**
+reaches the asker as written (translating answers is a later step).
 
 ## 4. Running it
 

@@ -41,3 +41,15 @@ class SettingsTests(SimpleTestCase):
         response = self.client.post('/i18n/setlang/', {'language': 'fr', 'next': '/admin/login/'})
         self.assertRedirects(response, '/admin/login/', fetch_redirect_response=False)
         self.assertEqual(response.cookies[settings.LANGUAGE_COOKIE_NAME].value, 'fr')
+
+
+class RightToLeftOverrideTests(SimpleTestCase):
+    """Unfold's actions bar is offset on the sidebar's side in right-to-left pages."""
+
+    def test_the_project_override_is_used_and_direction_aware(self):
+        from django.template.loader import get_template
+        template = get_template('unfold/helpers/change_list_actions.html')
+        self.assertTrue(template.origin.name.endswith('templates/unfold/helpers/change_list_actions.html'))
+        self.assertNotIn('site-packages', template.origin.name)
+        self.assertIn("document.documentElement.dir === 'rtl'", template.template.source)
+

@@ -1,0 +1,25 @@
+{% extends "admin/musnid/help_dialog.html" %}
+{% load i18n %}
+{% block help_icon %}menu_book{% endblock %}
+{% block help_intro %}{% blocktranslate trimmed %}
+    The books the AI may answer from. Musnid answers only from these vetted sources, never from the
+    model's own knowledge: every sentence of an answer must quote one of them.
+{% endblocktranslate %}{% endblock %}
+{% block help_sections %}
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">view_column</span>{% translate "Columns" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><strong>{% translate "title" %}</strong><span>{% translate "The book, as published." %}</span></li>
+            <li><strong>{% translate "language" %}</strong><span>{% translate "The language of the text that is searched." %}</span></li>
+            <li><strong>{% translate "chunks" %}</strong><span>{% translate "How many searchable pieces the book was cut into (see Source chunks)." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">link</span>{% translate "Traceability" %}</h3>
+        <p class="musnid-help-sub">{% translate "Open a document to see its public page and its PDF: the links shown to askers under each sentence lead there, at the right page." %}</p>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">lock</span>{% translate "Read-only" %}</h3>
+        <p class="musnid-help-sub">{% translate "Books are added by an import command that checks the PDF, not by hand." %}</p>
+    </section>
+{% endblock %}

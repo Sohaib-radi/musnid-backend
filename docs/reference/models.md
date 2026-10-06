@@ -241,6 +241,7 @@ Every question and how it was answered ([ADR 0016](../architecture/decisions/001
 | --- | --- | --- |
 | `Question` | `uuid` | Public identifier, unique; also the follow-up number of a referred question. |
 | `Question` | `text`, `lang`, `session_id` | The question, its detected language, and the opaque session id from the frontend. |
+| `Question` | `translations` | Machine translations of the text for specialists, `{"ar": "…"}`, filled when a notice needs one (`agents.translation`). |
 | `Question` | `asker` | The user who asked while logged in; null for anonymous askers. `SET_NULL`: deleting the account keeps the question, anonymous. Never returned by the public API. |
 | `AnswerRevision` | `question`, `author`, `text`, `reason`, `note` | A version of the answer written by a person ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)); `reason` is `correction`, `clarification` or `specialist_answer`; `note` is internal. Never edited; created only by `qa.services.revise`. `Question.latest_revision()` returns the newest. |
 | `Interaction` | `decision`, `level`, `answer_text`, `citations` | What was returned, the classifier's level, the shown text, the valid `[Q<n>]` numbers. |

@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from api.v1.views import auth, centers, memberships, questions, telegram
+from api.v1.views import auth, center_questions, centers, memberships, questions, telegram
 
 app_name = 'v1'
 
@@ -25,6 +25,12 @@ urlpatterns = [
     path('centers/<slug:slug>/', centers.CenterDetailView.as_view(), name='center'),
     path('centers/<slug:slug>/dashboard/', centers.CenterDashboardView.as_view(), name='center-dashboard'),
     path('centers/<slug:slug>/settings/', centers.CenterSettingsView.as_view(), name='center-settings'),
+    path('centers/<slug:slug>/questions/', center_questions.CenterQuestionListView.as_view(),
+         name='center-questions'),
+    path('centers/<slug:slug>/questions/<uuid:uuid>/', center_questions.CenterQuestionDetailView.as_view(),
+         name='center-question'),
+    path('centers/<slug:slug>/questions/<uuid:uuid>/answer/', center_questions.CenterQuestionAnswerView.as_view(),
+         name='center-question-answer'),
     path('centers/<slug:slug>/telegram/', telegram.TelegramStatusView.as_view(), name='center-telegram'),
     path('centers/<slug:slug>/telegram/connect/', telegram.TelegramConnectView.as_view(),
          name='center-telegram-connect'),

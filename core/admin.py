@@ -142,6 +142,7 @@ class CenterAdmin(ModelAdmin):
     readonly_fields = ['status', 'reviewed_at', 'reviewed_by', 'created_at', 'updated_at']
     inlines = [CenterMembershipInline]
     actions = ['approve_selected', 'reject_selected', 'make_default']
+    list_before_template = 'admin/core/center/list_help.html'
 
     fieldsets = [
         (None, {'fields': ['name', 'slug', 'country', 'logo', 'description']}),
@@ -306,6 +307,7 @@ class MembershipAdmin(ModelAdmin):
 
     form = MembershipAdminForm
     list_display = ['user', 'center', 'role', 'is_active', 'created_at', 'left_at']
+    list_before_template = 'admin/core/membership/list_help.html'
     list_filter = ['role', 'is_active', 'center']
     search_fields = ['user__email', 'user__full_name', 'center__name']
     autocomplete_fields = ['user', 'center']
@@ -385,6 +387,7 @@ class ApiCredentialAdmin(ModelAdmin):
 
     add_form = ApiCredentialAddForm
     list_display = ['name', 'provider', 'masked', 'is_active', 'created_at', 'revoked_at']
+    list_before_template = 'admin/core/apicredential/list_help.html'
     list_filter = ['provider', 'is_active']
     search_fields = ['name']
     actions = ['revoke_selected']

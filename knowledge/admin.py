@@ -27,6 +27,7 @@ class SourceDocumentAdmin(ReadOnlyAdmin):
     """Ingested documents with their chunk counts."""
 
     list_display = ['title', 'slug', 'lang', 'chunk_count', 'updated_at']
+    list_before_template = 'admin/knowledge/sourcedocument/list_help.html'
     search_fields = ['title', 'slug']
 
     def get_queryset(self, request):
@@ -42,6 +43,7 @@ class SourceChunkAdmin(ReadOnlyAdmin):
     """Chunks, searchable by text; the embedding vector is not displayed."""
 
     list_display = ['question_number', 'kind', 'title', 'document']
+    list_before_template = 'admin/knowledge/sourcechunk/list_help.html'
     list_filter = ['kind', 'document']
     search_fields = ['title', 'text', '=question_number']
     list_select_related = ['document']

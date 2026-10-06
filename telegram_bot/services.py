@@ -7,6 +7,9 @@ to the center's group when one is connected), and logs each attempt as a
 ``TelegramMessage``. A Telegram failure is logged and
 saved, never raised: the asker's question is already saved and answered.
 ``resend`` tries a failed notice again, as a new logged attempt.
+``mark_answered`` edits every notice of a referral once someone answered it: the
+"Answer" button disappears and "Answered by <name>" is added, so the other
+specialists do not answer twice.
 """
 
 import logging
@@ -19,6 +22,7 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 
+from agents.translation import translate_question
 from core.models import Language
 from telegram_bot.client import TelegramClient, TelegramError
 from telegram_bot.models import TelegramMessage
@@ -37,12 +41,13 @@ def notice_language(center):
     return center.languages[0] if center.languages else settings.LANGUAGE_CODE
 
 
-def referral_notice(referral, language):
+def referral_notice(referral, language, translated=None):
     """
     The notice of ``referral`` in Telegram HTML, in ``language``.
 
-    Carries the reason, the question's language, the follow-up number and the
-    question. Never the asker: specialists do not need to know who asked.
+    Carries the reason, the question's language, the follow-up number, the
+    original question and, when given, its ``translated`` text in ``language``.
+    Never the asker: specialists do not need to know who asked.
     """
     question = referral.question
     text = question.text if len(question.text) <= QUESTION_MAX else question.text[:QUESTION_MAX] + '…'
@@ -54,8 +59,12 @@ def referral_notice(referral, language):
             f'{escape(_("Language"))}: {escape(str(question_language))}',
             f'{escape(_("Follow-up number"))}: <code>{question.uuid}</code>',
             '',
+            f'<b>{escape(_("Original question"))}</b>',
             f'<blockquote>{escape(text)}</blockquote>',
         ]
+        if translated and translated != question.text:
+            shown = translated if len(translated) <= QUESTION_MAX else translated[:QUESTION_MAX] + '…'
+            lines += [f'<b>{escape(_("Translation (AI)"))}</b>', f'<blockquote>{escape(shown)}</blockquote>']
         if referral.mode == referral.Mode.LIVE:
             minutes = max(1, round(settings.REFERRAL_LIVE_SECONDS / 60))
             lines += ['', escape(ngettext(
@@ -93,9 +102,10 @@ def recipients(referral):
 
 
 def send_notice(referral, chat_id, language, client):
-    """Send the notice of ``referral`` with its "Answer" button to ``chat_id``; log and return the attempt."""
+    """Send the notice of ``referral`` (original and translation) with its "Answer" button; log and return it."""
+    translated = translate_question(referral.question, language)
     message = TelegramMessage(referral=referral, kind=TelegramMessage.Kind.REFERRAL_NOTICE, chat_id=chat_id,
-                              text=referral_notice(referral, language))
+                              text=referral_notice(referral, language, translated))
     try:
         sent = client.send_message(chat_id, message.text, reply_markup=answer_keyboard(referral.question, language))
     except TelegramError as error:
@@ -135,6 +145,35 @@ def resend(message, client=None):
     client = client or TelegramClient()
     if not client.enabled:
         raise ValidationError(gettext_lazy('The bot has no token.'), code='telegram_unavailable')
+    return send_notice(message.referral, message.chat_id, recipient_language(message), client)
+
+
+def recipient_language(message):
+    """The language a notice was written in: its recipient's, or the center's for a group."""
     member = get_user_model().objects.filter(telegram_chat_id=message.chat_id).first()
-    language = member.preferred_lang if member else notice_language(message.referral.center)
-    return send_notice(message.referral, message.chat_id, language, client)
+    return member.preferred_lang if member else notice_language(message.referral.center)
+
+
+def mark_answered(referral, author, client=None):
+    """
+    Edit every sent notice of ``referral``: remove the "Answer" button, add "Answered by <name>".
+
+    Returns the number of notices edited; failures (a deleted chat, a message too
+    old to edit) are logged, never raised.
+    """
+    client = client or TelegramClient()
+    if not client.enabled:
+        return 0
+    name = author.full_name if author else ''
+    edited = 0
+    for message in referral.telegram_messages.filter(kind=TelegramMessage.Kind.REFERRAL_NOTICE,
+                                                     status=TelegramMessage.Status.SENT):
+        with translation.override(recipient_language(message)):
+            line = _('✅ Answered by %(name)s') % {'name': name} if name else _('✅ Answered')
+        try:
+            client.edit_message(message.chat_id, message.message_id, f'{message.text}\n\n<b>{escape(line)}</b>')
+            edited += 1
+        except TelegramError as error:
+            logger.warning('Marking notice %s as answered failed: %s', message.pk, error)
+    return edited
+

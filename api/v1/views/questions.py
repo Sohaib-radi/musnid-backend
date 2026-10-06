@@ -81,7 +81,9 @@ class SpecialistRequestView(PublicMixin, generics.GenericAPIView):
 
     Only the asker: the logged-in account that asked, or the same ``session_id``
     for an anonymous question; anyone else gets 404, as if the question did not
-    exist. Throttled like asking.
+    exist. Throttled like asking. A logged-in asker sending a question they asked
+    anonymously (same ``session_id``) claims it: it is linked to their account, so
+    the answer also appears in ``me/questions/`` on every device.
     """
 
     serializer_class = SpecialistRequestSerializer
@@ -93,6 +95,9 @@ class SpecialistRequestView(PublicMixin, generics.GenericAPIView):
         question = Question.objects.filter(uuid=uuid).first()
         if question is None or not self._owns(request, question, body.validated_data.get('session_id', '')):
             raise exceptions.NotFound
+        if request.user.is_authenticated and question.asker_id is None:
+            question.asker = request.user
+            question.save(update_fields=['asker', 'updated_at'])
         request_specialist(question, body.validated_data['mode'])
         question = Question.objects.with_answers().get(pk=question.pk)
         return Response(QuestionSerializer(question, context=self.get_serializer_context()).data,

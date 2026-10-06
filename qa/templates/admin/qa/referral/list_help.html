@@ -1,0 +1,70 @@
+{% load i18n %}
+{# Button above the tickets list opening a guide to each column, for the platform administrator and the jury. #}
+<div class="musnid-help-trigger">
+    <button type="button" class="musnid-btn musnid-btn-outline"
+            onclick="document.getElementById('ticket_help-dialog').showModal()">
+        <span class="material-symbols-outlined" aria-hidden="true">help</span>
+        {% translate "How to read this page" %}
+    </button>
+</div>
+
+{# Closes with the Close button, Esc, or a click outside the dialog's box. #}
+<dialog id="ticket_help-dialog" class="musnid-dialog musnid-help-dialog" aria-labelledby="ticket_help-title"
+        onclick="const r = this.getBoundingClientRect(); if (event.clientY < r.top || event.clientY > r.bottom || event.clientX < r.left || event.clientX > r.right) this.close()">
+    <header class="musnid-help-header">
+        <span class="musnid-help-icon material-symbols-outlined" aria-hidden="true">confirmation_number</span>
+        <div>
+            <h2 id="ticket_help-title">{% translate "How to read this page" %}</h2>
+            <p>{% blocktranslate trimmed %}
+                A ticket is a question the AI did not answer, which the asker chose to send to a center's
+                specialists. Specialists answer it in Telegram or in their dashboard; the asker sees the answer
+                on the website, signed with the center's name.
+            {% endblocktranslate %}</p>
+        </div>
+    </header>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">bolt</span>{% translate "Mode" %}</h3>
+        <p class="musnid-help-sub">{% translate "What the asker chose." %}</p>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-badge musnid-badge-warning">{% translate "Asked a specialist now" %}</span>
+                <span>{% translate "The asker waits on the page: specialists have one minute to answer live." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-info">{% translate "Saved as a ticket" %}</span>
+                <span>{% translate "Answered later; the asker finds the answer in their history." %}</span></li>
+        </ul>
+    </section>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">flag</span>{% translate "Status" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-badge musnid-badge-warning">{% translate "Open" %}</span>
+                <span>{% translate "Waiting for a specialist." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-info">{% translate "In progress" %}</span>
+                <span>{% translate "A specialist took it (Assigned to)." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-success">{% translate "Answered" %}</span>
+                <span>{% translate "The first answer was sent to the asker; the other specialists' Telegram messages show it." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-danger">{% translate "Closed without an answer" %}</span>
+                <span>{% translate "Closed with an internal note: a duplicate or an abusive question." %}</span></li>
+        </ul>
+    </section>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">help_center</span>{% translate "Reason" %}</h3>
+        <p class="musnid-help-sub">{% translate "Why the AI did not answer; the asker was told the same reason." %}</p>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-level musnid-level-d">D</span>
+                <span>{% translate "Personal ruling (level D): only a qualified specialist can rule on a person's own situation." %}</span></li>
+            <li><span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
+                <span>{% translate "Not covered by the sources: the AI does not answer from its own knowledge." %}</span></li>
+        </ul>
+    </section>
+
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">build</span>{% translate "Actions" %}</h3>
+        <p class="musnid-help-sub">{% translate "Assign selected tickets to yourself to step in, or close them without an answer (a note is required). Open a ticket's question to answer it with “Revise the answer”." %}</p>
+    </section>
+
+    <div class="musnid-dialog-actions">
+        <button type="button" class="musnid-btn musnid-btn-primary" onclick="this.closest('dialog').close()">{% translate "Close" %}</button>
+    </div>
+</dialog>

@@ -1,0 +1,21 @@
+{% extends "admin/musnid/help_dialog.html" %}
+{% load i18n %}
+{% block help_icon %}vpn_key{% endblock %}
+{% block help_intro %}{% blocktranslate trimmed %}
+    The keys the platform uses to call the AI provider (OpenAI). They are stored encrypted and never
+    shown again after they are added.
+{% endblocktranslate %}{% endblock %}
+{% block help_sections %}
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">view_column</span>{% translate "Columns" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><strong>{% translate "API key" %}</strong><span>{% translate "Masked: only the first and last characters, enough to recognize it." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-success">{% translate "active" %}</span>
+                <span>{% translate "The key in use. Adding a new key revokes the previous one." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">shield</span>{% translate "Security" %}</h3>
+        <p class="musnid-help-sub">{% translate "Keys are encrypted with a separate key, never logged or returned by the API. Revoke a key that may have leaked: the platform stops using it at once." %}</p>
+    </section>
+{% endblock %}

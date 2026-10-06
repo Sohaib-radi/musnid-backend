@@ -14,6 +14,10 @@ sidebar). URL: `/admin/`.
 
 ## Rules
 
+- Every list a first-time reader (such as the jury) opens has a "How to read this page"
+  button: Questions, Tickets, Telegram messages, Centers, Memberships, API keys, Source
+  documents and Source chunks. Pages extend `core/templates/admin/musnid/help_dialog.html`
+  (button and dialog) and fill its icon, introduction and sections.
 - Only active superusers can open the admin (`core.sites.SuperuserAdminSite`,
   [ADR 0024](../architecture/decisions/0024-admin-for-platform-administrators.md)); the
   login form refuses every other account with a message pointing to the website.
@@ -39,7 +43,7 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 | Centers | Centers | `apartment` | `admin:core_center_changelist` | `core.view_center` |
 | Centers | Memberships | `badge` | `admin:core_membership_changelist` | `core.view_membership` |
 | Questions and answers | Questions | `forum` | `admin:qa_question_changelist` | `qa.view_question` |
-| Questions and answers | Referrals | `support_agent` | `admin:qa_referral_changelist` | `qa.view_referral` |
+| Questions and answers | Tickets | `confirmation_number` | `admin:qa_referral_changelist` | `qa.view_referral` |
 | Questions and answers | Telegram messages | `send` | `admin:telegram_bot_telegrammessage_changelist` | `telegram_bot.view_telegrammessage` |
 | Accounts | Users | `person` | `admin:core_user_changelist` | `core.view_user` |
 | Accounts | Groups | `group` | `admin:auth_group_changelist` | `auth.view_group` |
@@ -52,7 +56,7 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 
 The Centers item shows a badge with the number of pending centers
 (`core.admin.pending_centers_badge`), and the Referrals item the number of referrals
-waiting for an answer (`qa.admin.pending_referrals_badge`); both are empty when zero.
+waiting for an answer (`qa.admin.pending_referrals_badge`, item "Tickets"); both are empty when zero.
 
 The user menu at the bottom of the sidebar has a language switcher
 (`UNFOLD["SHOW_LANGUAGES"]`) for Arabic, English and French. It posts to Django's
@@ -143,8 +147,9 @@ asker sees changes through revisions (below).
 | Aspect | Definition |
 | --- | --- |
 | Help | a "How to read this page" button above the list and above each question's page, opening a dialog (closed with Close, Esc or a click outside): on the list, the decisions with the same coloured badges as the table, levels A to D (D highlighted: always referred), cards for response time, tokens and error, and search; on a page, each section as an illustrated step. Written for first-time readers such as the competition jury (`qa/templates/admin/qa/question/`) |
-| List columns | question (first 90 characters), asker (email, or Anonymous), language, decision (badge: green answer, blue partial, amber referred, red abstain and out of scope), answered by (badge: blue AI, green Center once revised), level, response time, tokens (in, out), error (badge: red Yes, green No), center, created at |
-| Sorting | by decision, level, response time, tokens (input) and created at |
+| List columns | compact: question (first 90 characters), asker (email, or Anonymous), decision (badge: green answer, blue partial, amber referred, red abstain and out of scope), center |
+| Expanded row | each row opens (Unfold `list_sections`, `QuestionRowDetails`) to show language, answered by (AI or Center), date, follow-up number, level, response time, tokens (in, out), error (Yes/No), ticket (status and mode), the first 400 characters of what the asker sees, and a link to the full page |
+| Sorting | by decision and asker |
 | Filters | decision, level, language, center; date drill-down on created at |
 | Search | question text, asker email; a pasted follow-up number (`uuid`) finds that exact question |
 | Fieldsets | Question (text, public identifier, asker, language, center, session, created at); Answer (decision, level, answer text, kept sentences, removed sentences); Retrieval (search query, ranked results; collapsed); Run (model and prompt version, response time, input and output tokens, error; collapsed) |
@@ -155,15 +160,16 @@ asker sees changes through revisions (below).
 | Revise the answer | a button on the question page, shown when `qa.services.can_revise` allows it, opening `<id>/revise/`: the question, a text prefilled with what the asker sees now (the AI answer without `[Q<n>]` markers, or the latest revision), the reason (preselected "Answer by a specialist" for referred and abstained questions) and an internal note. Saving calls `revise`; a refusal is shown on the form; others get 403 ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)). |
 | Add, change, delete | not allowed for questions and interactions (403); answers change only through revisions |
 
-## Referrals (`qa/admin.py`)
+## Tickets (`qa/admin.py`, model `Referral`)
 
 The tickets of referred questions ([ADR 0021](../architecture/decisions/0021-referral-tickets.md)).
 Read-only: status and dates change only through `qa.services`.
 
 | Aspect | Definition |
 | --- | --- |
-| List columns | question (first 90 characters), reason, status (badge: amber open, blue in progress, green answered, red closed), assigned to, center, created at, answered at |
-| Filters | status, reason, center; date drill-down on created at |
+| Help | a "How to read this page" button opening a guide to modes, statuses, reasons and actions (`qa/templates/admin/qa/referral/list_help.html`) |
+| List columns | question (first 90 characters), mode (badge: amber live, blue ticket), status (badge: amber open, blue in progress, green answered, red closed), reason, assigned to, center, created at, answered at |
+| Filters | status, mode, reason, assigned to (only users with tickets), center; date drill-down on created at |
 | Search | question text, assignee email |
 | Page | a link to the question's page (where the answer is revised), reason, status, assignee, center, dates, closing note |
 | Assign selected referrals to me | calls `assign(referral, user, user)` for each; refusals are listed with their reason |
@@ -181,7 +187,7 @@ Every message the bot sent or tried to send ([ADR 0022](../architecture/decision
 | Filters | status, kind; date drill-down on created at |
 | Search | question text, error |
 | Page | created at, kind, status, chat ID, Telegram message ID, a link to the referral, the text sent, the error |
-| Link a Telegram account | a button above the list opening `link/`: a superuser enters a user's email; the page shows a one-time `t.me` link valid 10 minutes ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)) |
+| Link a Telegram account | the page `link/`, reachable by its address (no longer a button: specialists connect Telegram from their dashboard): a superuser enters a user's email; the page shows a one-time `t.me` link valid 10 minutes ([ADR 0023](../architecture/decisions/0023-answer-from-telegram.md)) |
 | Send selected failed messages again | calls `telegram_bot.services.resend` for each: a new attempt is logged, the failed row stays; sent messages and a bot without token or group are refused with the reason |
 | Add, change, delete | not allowed (403) |
 

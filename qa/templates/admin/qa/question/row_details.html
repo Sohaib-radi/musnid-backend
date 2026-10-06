@@ -1,0 +1,34 @@
+{% load i18n %}
+{# Expanded row of the questions list: the run on line 1, the outcome on line 2, the answer, the link. #}
+<div class="musnid-row-details">
+    {% for row in fact_rows %}
+    <div class="musnid-row-facts">
+        {% for fact in row %}
+            <div class="musnid-row-fact">
+                <span class="musnid-row-icon material-symbols-outlined" aria-hidden="true">{{ fact.icon }}</span>
+                <div>
+                    <div class="musnid-row-label">{{ fact.label }}</div>
+                    {% if fact.badge %}
+                        <span class="musnid-badge musnid-badge-{{ fact.badge }}">{{ fact.value }}</span>
+                    {% else %}
+                        <div class="musnid-row-value" dir="auto">{{ fact.value }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    {% if answer %}
+        <div class="musnid-row-answer">
+            <div class="musnid-row-label">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                {% translate "What the asker sees" %}
+            </div>
+            <p dir="auto">{{ answer }}</p>
+        </div>
+    {% endif %}
+    <a href="{{ change_url }}" class="musnid-btn musnid-btn-outline">
+        <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+        {% translate "Open the full page" %}
+    </a>
+</div>

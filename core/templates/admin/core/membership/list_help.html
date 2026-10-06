@@ -1,0 +1,20 @@
+{% extends "admin/musnid/help_dialog.html" %}
+{% load i18n %}
+{% block help_icon %}badge{% endblock %}
+{% block help_intro %}{% blocktranslate trimmed %}
+    Who works in which center. People reach a center only through a membership; center admins add
+    their specialists from their dashboard on the website.
+{% endblocktranslate %}{% endblock %}
+{% block help_sections %}
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">manage_accounts</span>{% translate "Role" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><strong>{% translate "Center admin" %}</strong><span>{% translate "Manages the center: settings, specialists, Telegram; also answers questions." %}</span></li>
+            <li><strong>{% translate "Specialist" %}</strong><span>{% translate "Answers the center's questions, in Telegram or in the dashboard." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">history</span>{% translate "Active and offboarded" %}</h3>
+        <p class="musnid-help-sub">{% translate "A membership is never deleted: offboarding ends it with a date, so the history of who answered what stays. A center always keeps at least one center admin." %}</p>
+    </section>
+{% endblock %}

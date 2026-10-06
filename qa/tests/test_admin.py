@@ -96,10 +96,17 @@ class QuestionAdminTests(AdminTestCase):
         response = self.changelist()
         self.assertContains(response, '26.8 s')
         self.assertContains(response, '33068 in, 2946 out')
-        html = response.content.decode()
-        self.assertEqual(html.count('field-has_error'), 2)
-        self.assertIn('>Yes<', html.replace(' ', '').replace('\n', ''))
-        self.assertIn('>No<', html.replace(' ', '').replace('\n', ''))
+        compact = response.content.decode().replace(' ', '').replace('\n', '')
+        self.assertIn('musnid-badge-danger">Yes</span>', compact)  # the error fact of the expanded rows
+        self.assertIn('musnid-badge-success">No</span>', compact)
+
+    def test_rows_are_compact_and_expand(self):
+        make_interaction(question=make_question(text='Compact?'))
+        html = self.changelist().content.decode()
+        for column in ('field-short_text', 'field-asked_by', 'field-decision', 'field-center'):
+            self.assertIn(column, html)
+        self.assertNotIn('field-latency', html)
+        self.assertIn('Open the full page', html)
 
     def test_change_page_explains_its_sections(self):
         response = self.change_page(make_interaction().question)
@@ -163,7 +170,9 @@ class QuestionAdminTests(AdminTestCase):
         revise(answered, self.superuser, 'By the center.', AnswerRevision.Reason.CORRECTION)
         make_interaction(question=make_question(text='Not revised?'))
         html = self.changelist().content.decode()
-        self.assertEqual(html.count('field-answered_by'), 2)
+        # Shown in each row's expanded details (list_sections), not as a column
+        self.assertEqual(html.count('musnid-row-details'), 2)
+        self.assertIn('By the center.', html)
 
     def change_page_url(self, question):
         return reverse('admin:qa_question_change', args=[question.pk])
@@ -191,6 +200,18 @@ class ReferralAdminTests(AdminTestCase):
         self.assertContains(response, 'Can I combine prayers while travelling?')
         self.assertContains(response, 'Not covered by the sources')
         self.assertContains(response, 'Open')
+
+    def test_list_explains_itself_and_shows_the_mode(self):
+        response = self.changelist()
+        self.assertContains(response, 'How to read this page')
+        self.assertContains(response, 'Asked a specialist now')  # the mode badge and the guide
+        self.assertContains(response, 'confirmation_number')
+
+    def test_filter_by_mode(self):
+        self.referral.mode = Referral.Mode.TICKET
+        self.referral.save(update_fields=['mode', 'updated_at'])
+        self.assertContains(self.changelist(mode__exact='ticket'), 'Can I combine prayers while travelling?')
+        self.assertNotContains(self.changelist(mode__exact='live'), 'Can I combine prayers while travelling?')
 
     def test_filter_by_status(self):
         make_referral(question=make_interaction(question=make_question(text='Already answered?'),
