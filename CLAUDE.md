@@ -26,6 +26,8 @@ These rules apply to every change, without asking.
    that were not measured.
 6. **Every change updates the documentation in `docs/` in the same commit.** Docs are
    professional reference material for experienced engineers.
+   - Every new page is added to the index `docs/README.md` (GitHub's front page of the
+     documentation) in the same commit; relative links must resolve on GitHub.
    - Significant design choices get an ADR in `docs/architecture/decisions/`, named
      `NNNN-kebab-title.md`, with the sections Status, Context, Decision, Consequences.
    - Every new dependency is listed in `docs/technology-stack.md` with its version, role
@@ -141,7 +143,7 @@ api/               REST API, no models
 templates/         project-level overrides of third-party templates (Unfold's actions bar, RTL)
 locale/            ar and fr catalogs (.po and .mo, both committed)
 locale_vendor/unfold/  our ar and fr translations of Unfold's strings (Unfold ships none)
-docs/              Docusaurus content (Markdown only)
+docs/              documentation, Markdown only (Docusaurus format); docs/README.md is its index on GitHub
   getting-started/ local development, Docker, configuration, deployment (VPS)
   architecture/decisions/  ADRs (NNNN-kebab-title.md)
   reference/       models and admin: every field, constraint, admin, action
