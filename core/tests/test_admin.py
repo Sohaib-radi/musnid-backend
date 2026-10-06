@@ -540,3 +540,13 @@ class ListGuidesTests(AdminTestCase):
                 self.assertContains(response, 'How to read this page')
                 self.assertContains(response, '-help-dialog')
 
+
+class HomeRedirectTests(TestCase):
+    """The backend's root opens the admin instead of a "Not Found" page."""
+
+    def test_root_redirects_to_the_admin_then_its_login(self):
+        response = self.client.get('/')
+        self.assertRedirects(response, reverse('admin:index'), fetch_redirect_response=False)
+        self.assertEqual(response.status_code, 302)  # temporary: a home page may come later
+        self.assertIn(reverse('admin:login'), self.client.get(reverse('admin:index'))['Location'])
+

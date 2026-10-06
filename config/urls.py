@@ -5,10 +5,13 @@ See https://docs.djangoproject.com/en/6.0/topics/http/urls/
 """
 
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, reverse_lazy
+from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
+    # The backend has no home page: its root opens the admin (the login page when signed out)
+    path('', RedirectView.as_view(url=reverse_lazy('admin:index'), permanent=False), name='home'),
     # set_language: the admin's language switcher posts here (UNFOLD["SHOW_LANGUAGES"]).
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),

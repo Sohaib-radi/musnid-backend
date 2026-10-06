@@ -14,6 +14,8 @@ sidebar). URL: `/admin/`.
 
 ## Rules
 
+- The backend's root (`https://api.musnid.online/`) redirects to the admin (temporary
+  redirect), which shows the login page when signed out; there is no other home page.
 - Every list a first-time reader (such as the jury) opens has a "How to read this page"
   button: Questions, Tickets, Telegram messages, Centers, Memberships, API keys, Source
   documents and Source chunks. Pages extend `core/templates/admin/musnid/help_dialog.html`
