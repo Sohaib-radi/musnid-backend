@@ -22,6 +22,7 @@ class CrewDefinitionTests(TestCase):
         crew = ClassifyCrew().crew()
         self.assertEqual([t.output_pydantic for t in crew.tasks], [Classification])
         self.assertIn('{question}', crew.tasks[0].description)
+        self.assertIn('neutral topic query', crew.tasks[0].description)
         self.assertFalse(crew.verbose)
 
     def test_answer_crew_is_writer_then_verifier(self, _key):
@@ -33,7 +34,7 @@ class CrewDefinitionTests(TestCase):
         for rule in ('ONLY from the evidence', '[آية]', 'NEVER quote the Quran or hadith', 'scholars differ',
                      'your FIRST', 'Framing first', 'Never open a sensitive answer',
                      'Term and definition questions', 'copy EXACTLY the English', 'Tone: calm, respectful',
-                     'do not mirror it', '[G:التوحيد]'):
+                     'do not mirror it', '[G:التوحيد]', 'guidance for you, not text for the asker'):
             self.assertIn(rule, write)
         verify = crew.tasks[1].description
         for rule in ('MAIN ask', 'answers_main_ask', 'never "partial"'):

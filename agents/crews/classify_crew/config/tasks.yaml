@@ -25,6 +25,8 @@ classify:
     search_query: the question rewritten in clear Modern Standard Arabic, without
     personal details, as a searcher would type it. Keep the meaning and keep Islamic
     terms in their Arabic form (e.g. "jizya" → «الجزية», "tawhid" → «التوحيد»).
+    Rewrite loaded or hostile wording into a neutral topic query (e.g. 'Why does Islam hate
+    freedom?' → «موقف الإسلام من الحرية»).
     Do not answer.
   expected_output: >
     language, level and search_query.
