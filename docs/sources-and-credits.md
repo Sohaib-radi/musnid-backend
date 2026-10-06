@@ -17,6 +17,13 @@ reference document («المرجعية والحزمة العلمية والبي�
 | **«بيِّنات: أسئلة منتقاة حول الإسلام»** (Bayyinat) | A book of selected questions about Islam with vetted answers, proposed by the competition. Public page: [dawa.center/file/7937](https://dawa.center/file/7937) | Extracted into 263 questions and 1,432 searchable chunks; every sentence of an answer quotes it and links to its page ([RAG pipeline](rag/02-pipeline.md)) | The book's text is not redistributed in this repository (`data/` is git-ignored); it is downloaded from its public page |
 | **Official glossary** («نماذج قاموس المصطلحات الأساسية») | Ten core terms and how to explain and translate them, page 7 of the competition's reference document | One chunk per term, given to the writer first when it matches ([Official glossary](rag/07-official-glossary.md)) | Cited to askers as «نماذج قاموس المصطلحات الأساسية: <term>» |
 
+## Repositories
+
+| Repository | Content |
+| --- | --- |
+| [musnid-backend](https://github.com/Sohaib-radi/musnid-backend) | API, admin, RAG, AI agents, Telegram bot (this repository) |
+| [musnid-frontend](https://github.com/Sohaib-radi/musnid-frontend) | The website: asking, history, user and center dashboards |
+
 ## AI services
 
 | Service | Model | Role |

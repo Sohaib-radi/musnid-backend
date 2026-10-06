@@ -5,6 +5,12 @@ questions about Islam from vetted sources using retrieval-augmented generation (
 AI agents. Questions the AI must not answer are routed to centers of specialists, who
 receive and answer them.
 
+## Related repository
+
+The website (asking, dashboards, Telegram connection) is in
+**[musnid-frontend](https://github.com/Sohaib-radi/musnid-frontend)**; this repository is
+its API and admin.
+
 ## Documentation
 
 **→ [Full documentation](docs/README.md)**: start there. It has a reading path for

@@ -8,6 +8,10 @@ specialists**, who answer them from Telegram or their dashboard.
 This folder is the complete technical documentation of the backend. Every page is plain
 Markdown and reads directly on GitHub.
 
+The website that calls this backend is a separate repository:
+**[musnid-frontend](https://github.com/Sohaib-radi/musnid-frontend)**. Its integration
+contract is in [Frontend integration](#frontend-integration).
+
 ## Start here (jury and first-time readers)
 
 | Step | Read | What you learn |

@@ -7,8 +7,9 @@ description: Integration contract for the frontend: registration, login, token r
 
 # Authentication and routing
 
-Contract between the frontend and API v1. Endpoint details:
-[REST API](../reference/api.md).
+Contract between the frontend
+([musnid-frontend](https://github.com/Sohaib-radi/musnid-frontend)) and API v1. Endpoint
+details: [REST API](../reference/api.md).
 
 ## Tokens
 
