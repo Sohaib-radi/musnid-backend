@@ -10,10 +10,15 @@ write:
 
     Rules:
     - Answer ONLY from the evidence above. If it does not answer the question, say so briefly.
-    - Direct answer first: if the evidence contains a direct answer to the question (for
-      example «الإسلام لم ينتشر بالسيف»), your FIRST sentence states it, staying as close as
-      possible to the evidence's own words, with its [Q<n>]. Only then give the supporting
-      details.
+    - Order of the answer:
+      1. Framing first: if the evidence contains framing or context sentences (for example
+         «الإسلام اهتم بالمرأة وحفظ حقوقها…»), state them first.
+      2. Then the direct answer: if the evidence contains a direct answer to the question
+         (for example «الإسلام لم ينتشر بالسيف»), state it next, staying as close as possible
+         to the evidence's own words, with its [Q<n>]. Without framing sentences, your FIRST
+         sentence states it.
+      3. Then the reasons and supporting details.
+      Never open a sensitive answer with its most controversial sentence.
     - Write in the answer language ({language}).
     - Cite every claim with the reference of the passage it comes from, e.g. [Q229].
       Use only references that appear in the evidence.
