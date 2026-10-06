@@ -130,7 +130,7 @@ class SidebarTests(TestCase):
         ]
         self.assertEqual(layout, [
             (['Centers', 'Memberships'], 'Centers'),
-            (['Questions', 'Tickets', 'Telegram messages'], 'Questions and answers'),
+            (['Questions', 'Tickets', 'AI verdicts', 'Telegram messages'], 'Questions and answers'),
             (['Users', 'Groups'], 'Accounts'),
             (['Source documents', 'Source chunks'], 'Knowledge base'),
             (['API Keys', 'AI settings'], 'Configuration'),
@@ -143,7 +143,7 @@ class SidebarTests(TestCase):
             '/admin/token_blacklist/outstandingtoken/', '/admin/token_blacklist/blacklistedtoken/',
             '/admin/core/apicredential/', '/admin/core/aisettings/',
             '/admin/knowledge/sourcedocument/', '/admin/knowledge/sourcechunk/',
-            '/admin/qa/question/', '/admin/qa/referral/', '/admin/telegram_bot/telegrammessage/',
+            '/admin/qa/question/', '/admin/qa/referral/', '/admin/qa/humanlabel/', '/admin/telegram_bot/telegrammessage/',
         }
         seen = set()
         for group in UNFOLD['SIDEBAR']['navigation']:

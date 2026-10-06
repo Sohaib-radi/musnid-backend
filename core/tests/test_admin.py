@@ -12,7 +12,7 @@ from unfold.admin import StackedInline, TabularInline
 
 from core.admin import pending_centers_badge
 from knowledge.models import SourceChunk, SourceDocument
-from qa.models import Question, Referral
+from qa.models import HumanLabel, Question, Referral
 from telegram_bot.models import TelegramMessage
 from core.models import AISettings, ApiCredential, Center, Membership, User
 from core.tests.support import (
@@ -44,7 +44,7 @@ class UnfoldEverywhereTests(TestCase):
         self.assertEqual(
             set(admin.site._registry),
             {User, Center, Membership, Group, OutstandingToken, BlacklistedToken, ApiCredential,
-             SourceDocument, SourceChunk, AISettings, Question, Referral, TelegramMessage},
+             SourceDocument, SourceChunk, AISettings, Question, Referral, TelegramMessage, HumanLabel},
         )
 
 
@@ -474,7 +474,8 @@ class ListGuidesTests(AdminTestCase):
         for url_name in ('admin:knowledge_sourcedocument_changelist', 'admin:knowledge_sourcechunk_changelist',
                          'admin:core_apicredential_changelist', 'admin:core_center_changelist',
                          'admin:core_membership_changelist', 'admin:telegram_bot_telegrammessage_changelist',
-                         'admin:qa_question_changelist', 'admin:qa_referral_changelist'):
+                         'admin:qa_question_changelist', 'admin:qa_referral_changelist',
+                         'admin:qa_humanlabel_changelist'):
             with self.subTest(page=url_name):
                 response = self.client.get(reverse(url_name))
                 self.assertContains(response, 'How to read this page')

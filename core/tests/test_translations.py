@@ -47,7 +47,7 @@ FRENCH_SAME_AS_ENGLISH = {
     'API', 'Action', 'Configuration', 'Contact', 'Date', 'Dates', 'Permissions', 'Question', 'Service', 'URL',
     'document', 'Agents', 'session', 'question', 'questions', 'citations', 'interaction', 'interactions',
     'verdict', 'Questions', '%(seconds).1f s',
-    'avatar', 'description', 'logo', 'mode', 'Mode', 'Actions', 'Tickets', 'ticket', 'tickets',
+    'avatar', 'description', 'logo', 'mode', 'Mode', 'Actions', 'Tickets', 'ticket', 'tickets', 'Verdict',
 }
 
 # Brand names are never translated (in any language), e.g. the OpenAI provider label.

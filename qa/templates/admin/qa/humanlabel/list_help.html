@@ -1,0 +1,25 @@
+{% extends "admin/musnid/help_dialog.html" %}
+{% load i18n %}
+{% block help_icon %}rule{% endblock %}
+{% block help_intro %}{% blocktranslate trimmed %}
+    Reviewers' verdicts on AI answers. They measure the AI's quality and build a dataset to train a
+    future model: each verdict pairs a question, the evidence the AI received, its answer, and the
+    answer it should have given.
+{% endblocktranslate %}{% endblock %}
+{% block help_sections %}
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">gavel</span>{% translate "Verdict" %}</h3>
+        <ul class="musnid-help-rows">
+            <li><span class="musnid-badge musnid-badge-success">{% translate "Correct" %}</span>
+                <span>{% translate "The AI answer is right: a good example to learn from." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-warning">{% translate "To correct" %}</span>
+                <span>{% translate "Close but not right: the reviewer wrote the corrected answer, a pair of a weaker and a better answer." %}</span></li>
+            <li><span class="musnid-badge musnid-badge-danger">{% translate "Wrong" %}</span>
+                <span>{% translate "The AI answer must not be learned from; the reason says why." %}</span></li>
+        </ul>
+    </section>
+    <section class="musnid-help-section">
+        <h3><span class="material-symbols-outlined" aria-hidden="true">add_task</span>{% translate "How to add one" %}</h3>
+        <p class="musnid-help-sub">{% translate "Open a question and click “AI verdict”. One verdict per reviewer and answer: a new one replaces the previous one. The asker's answer is not changed." %}</p>
+    </section>
+{% endblock %}

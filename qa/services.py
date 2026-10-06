@@ -19,7 +19,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.models import Membership
-from qa.models import AnswerRevision, Question, Referral
+from qa.models import AnswerRevision, HumanLabel, Question, Referral
 from qa.signals import referral_answered, referral_opened
 
 #: Longest revision accepted; a few pages of text, far above any answer measured so far
@@ -120,6 +120,40 @@ def request_specialist(question, mode):
         if Referral.objects.filter(question=locked).exists():
             raise ValidationError(_('This question was already sent to the specialists.'), code='referral_exists')
         return open_referral(locked, referral_reason(interaction), mode)
+
+
+def label(interaction, reviewer, verdict, reason='', corrected_answer=''):
+    """
+    Save ``reviewer``'s verdict on the AI answer of ``interaction``; return it.
+
+    Same permission as ``revise``. A new verdict replaces the reviewer's previous one
+    on the same answer. ``correct`` needs the corrected answer (an expert answer for
+    the dataset), ``reject`` needs a reason. The asker's answer is not changed.
+
+    Raises:
+        ValidationError: ``label_not_allowed``, ``label_verdict_invalid``,
+            ``label_correction_required``, ``label_reason_required`` or
+            ``revision_text_too_long``.
+    """
+    if not can_revise(reviewer, interaction.question):
+        raise ValidationError(_('You cannot give a verdict on answers of this center.'), code='label_not_allowed')
+    if verdict not in HumanLabel.Verdict.values:
+        raise ValidationError(_('Choose a verdict.'), code='label_verdict_invalid')
+    reason, corrected_answer = (reason or '').strip(), (corrected_answer or '').strip()
+    if verdict == HumanLabel.Verdict.CORRECT and not corrected_answer:
+        raise ValidationError(_('Write the corrected answer.'), code='label_correction_required')
+    if verdict == HumanLabel.Verdict.REJECT and not reason:
+        raise ValidationError(_('Write why the answer is wrong.'), code='label_reason_required')
+    if len(corrected_answer) > TEXT_MAX:
+        raise ValidationError(_('The answer is limited to %(max)d characters.'), code='revision_text_too_long',
+                              params={'max': TEXT_MAX})
+    if verdict != HumanLabel.Verdict.CORRECT:
+        corrected_answer = ''  # only a correction carries an answer
+    result, _created = HumanLabel.objects.update_or_create(
+        interaction=interaction, reviewer=reviewer,
+        defaults={'verdict': verdict, 'reason': reason, 'corrected_answer': corrected_answer},
+    )
+    return result
 
 
 def open_referral(question, reason, mode=Referral.Mode.LIVE):

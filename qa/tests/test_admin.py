@@ -6,7 +6,7 @@ from django.urls import reverse
 from core.tests.support import make_center, make_interaction, make_membership, make_question, make_referral, make_user
 from core.tests.test_admin import AdminTestCase
 from qa.admin import pending_referrals_badge
-from qa.models import AnswerRevision, Interaction, Question, Referral
+from qa.models import AnswerRevision, HumanLabel, Interaction, Question, Referral
 from qa.services import revise
 
 
@@ -257,3 +257,37 @@ class ReferralAdminTests(AdminTestCase):
         self.assertEqual(pending_referrals_badge(None), '1')
         revise(self.referral.question, self.superuser, 'Answer.', AnswerRevision.Reason.SPECIALIST_ANSWER)
         self.assertEqual(pending_referrals_badge(None), '')
+
+
+class VerdictAdminTests(AdminTestCase):
+    """The "AI verdict" page on a question, and the read-only verdicts list."""
+
+    def setUp(self):
+        super().setUp()
+        self.question = make_interaction(question=make_question(text='Did Islam spread by the sword?'),
+                                         answer_text='No [Q1].').question
+        self.url = reverse('admin:qa_question_label', args=[self.question.pk])
+
+    def test_question_page_offers_the_verdict(self):
+        self.assertContains(self.client.get(reverse('admin:qa_question_change', args=[self.question.pk])), self.url)
+
+    def test_saving_a_verdict_and_seeing_it(self):
+        self.assertContains(self.client.get(self.url), 'No.</textarea>')  # prefilled without markers
+        response = self.client.post(self.url, {'verdict': 'reject', 'reason': 'Invented source.'})
+        self.assertRedirects(response, reverse('admin:qa_question_change', args=[self.question.pk]),
+                             fetch_redirect_response=False)
+        self.assertEqual(HumanLabel.objects.get().verdict, 'reject')
+        page = self.client.get(reverse('admin:qa_question_change', args=[self.question.pk]))
+        self.assertContains(page, 'Invented source.')
+        listing = self.client.get(reverse('admin:qa_humanlabel_changelist'))
+        self.assertContains(listing, 'Did Islam spread by the sword?')
+        self.assertContains(listing, 'Wrong')
+
+    def test_refused_verdict_is_shown_on_the_form(self):
+        response = self.client.post(self.url, {'verdict': 'correct', 'corrected_answer': ' '})
+        self.assertContains(response, 'Write the corrected answer.')
+        self.assertFalse(HumanLabel.objects.exists())
+
+    def test_verdicts_are_read_only(self):
+        self.assertEqual(self.client.get(reverse('admin:qa_humanlabel_add')).status_code, 403)
+

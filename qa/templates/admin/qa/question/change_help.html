@@ -1,10 +1,16 @@
 {% load i18n %}
-{# Above a question's page: "Revise the answer" for users allowed to (revise_url), and a visual guide. #}
+{# Above a question's page: "Revise the answer" and "AI verdict" for users allowed to, and a visual guide. #}
 <div class="musnid-help-trigger">
     {% if revise_url %}
         <a href="{{ revise_url }}" class="musnid-btn musnid-btn-primary">
             <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
             {% translate "Revise the answer" %}
+        </a>
+    {% endif %}
+    {% if label_url %}
+        <a href="{{ label_url }}" class="musnid-btn musnid-btn-outline">
+            <span class="material-symbols-outlined" aria-hidden="true">rule</span>
+            {% translate "AI verdict" %}
         </a>
     {% endif %}
     <button type="button" class="musnid-btn musnid-btn-outline"

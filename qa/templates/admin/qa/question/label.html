@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{# Verdict on the AI answer, for evaluation and the fine-tuning dataset (qa.services.label). The asker's answer is not changed. #}
+{% block content %}
+<form method="post" class="musnid-form">
+    {% csrf_token %}
+
+    <section class="musnid-form-card">
+        <h2>{% translate "Question" %}</h2>
+        <p dir="auto" class="musnid-form-question">{{ question.text }}</p>
+        <h2>{% translate "AI answer" %}</h2>
+        <p dir="auto" class="musnid-form-question">{{ ai_answer }}</p>
+        <p class="musnid-meta">{% translate "Your verdict is used to evaluate the AI and to build a training dataset. It does not change what the asker sees: use “Revise the answer” for that." %}</p>
+    </section>
+
+    {% if error %}
+        <p class="musnid-form-error" role="alert">{{ error }}</p>
+    {% endif %}
+
+    <section class="musnid-form-card">
+        <label for="label-verdict">{% translate "Verdict" %}</label>
+        <select id="label-verdict" name="verdict" required>
+            <option value="">{% translate "Choose a verdict" %}</option>
+            {% for value, text in verdicts %}
+                <option value="{{ value }}"{% if value == values.verdict %} selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="label-reason">{% translate "Reason (required when wrong)" %}</label>
+        <textarea id="label-reason" name="reason" dir="auto" rows="3">{{ values.reason }}</textarea>
+
+        <label for="label-corrected">{% translate "Corrected answer (required when to correct)" %}</label>
+        <p class="musnid-meta">{% translate "Prefilled with the AI answer: edit it into the answer it should have given." %}</p>
+        <textarea id="label-corrected" name="corrected_answer" dir="auto" rows="10" maxlength="{{ text_max }}">{{ values.corrected_answer }}</textarea>
+    </section>
+
+    <div class="musnid-dialog-actions">
+        <a href="{{ change_url }}" class="musnid-btn musnid-btn-outline">{% translate "Cancel" %}</a>
+        <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Save the verdict" %}</button>
+    </div>
+</form>
+{% endblock %}

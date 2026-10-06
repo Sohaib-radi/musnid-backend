@@ -150,14 +150,20 @@ class Interaction(BaseModel):
 
 
 class HumanLabel(BaseModel):
-    """A reviewer's judgement of an interaction, for evaluation and fine-tuning."""
+    """
+    A reviewer's verdict on an AI answer, for evaluation and fine-tuning.
+
+    One per reviewer and interaction: a new verdict replaces the reviewer's previous
+    one. Created only through ``qa.services.label``. A verdict never changes what the
+    asker sees (that is ``revise``).
+    """
 
     class Verdict(models.TextChoices):
         """Reviewer verdict."""
 
-        APPROVE = 'approve', _('Approve')
-        CORRECT = 'correct', _('Correct')
-        REJECT = 'reject', _('Reject')
+        APPROVE = 'approve', _('Correct')
+        CORRECT = 'correct', _('To correct')
+        REJECT = 'reject', _('Wrong')
 
     interaction = models.ForeignKey(
         Interaction, on_delete=models.CASCADE, related_name='labels', verbose_name=_('interaction'),
@@ -171,8 +177,14 @@ class HumanLabel(BaseModel):
     reason = models.TextField(_('reason'), blank=True)
 
     class Meta(BaseModel.Meta):
-        verbose_name = _('human label')
-        verbose_name_plural = _('human labels')
+        verbose_name = _('AI verdict')
+        verbose_name_plural = _('AI verdicts')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['interaction', 'reviewer'], name='one_label_per_reviewer',
+                violation_error_message=_('This reviewer already gave a verdict on this answer.'),
+            ),
+        ]
 
     def __str__(self):
         return f'{self.verdict}: {self.interaction_id}'

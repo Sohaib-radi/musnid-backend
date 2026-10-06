@@ -9,8 +9,8 @@ from core.models import Center, Membership
 from core.tests.support import (
     make_center, make_interaction, make_membership, make_question, make_referral, make_user,
 )
-from qa.models import AnswerRevision, Referral
-from qa.services import TEXT_MAX, assign, can_revise, close, open_referral, revise
+from qa.models import AnswerRevision, HumanLabel, Referral
+from qa.services import TEXT_MAX, assign, can_revise, close, label, open_referral, revise
 
 
 class CanReviseTests(TestCase):
@@ -171,3 +171,38 @@ class ReferralServiceTests(TestCase):
         question = make_interaction().question
         revise(question, make_user(is_staff=True, is_superuser=True), 'Corrected.', AnswerRevision.Reason.CORRECTION)
         self.assertFalse(Referral.objects.filter(question=question).exists())
+
+
+class LabelTests(TestCase):
+    """``label``: a reviewer's verdict on the AI answer, one per reviewer, never shown to the asker."""
+
+    def setUp(self):
+        self.interaction = make_interaction(answer_text='AI answer [Q1].')
+        self.reviewer = make_membership(center=self.interaction.question.center).user
+
+    def assertRefused(self, code, **arguments):
+        values = {'verdict': HumanLabel.Verdict.APPROVE, **arguments}
+        with self.assertRaises(ValidationError) as caught:
+            label(self.interaction, arguments.pop('reviewer', self.reviewer), **{
+                key: value for key, value in values.items() if key != 'reviewer'})
+        self.assertEqual(caught.exception.code, code)
+
+    def test_a_new_verdict_replaces_the_reviewers_previous_one(self):
+        label(self.interaction, self.reviewer, HumanLabel.Verdict.APPROVE)
+        changed = label(self.interaction, self.reviewer, HumanLabel.Verdict.CORRECT,
+                        corrected_answer=' Better answer. ')
+        self.assertEqual(HumanLabel.objects.count(), 1)
+        self.assertEqual((changed.verdict, changed.corrected_answer), ('correct', 'Better answer.'))
+        self.assertFalse(AnswerRevision.objects.exists())  # the asker's answer is untouched
+
+    def test_only_a_correction_keeps_an_answer(self):
+        saved = label(self.interaction, self.reviewer, HumanLabel.Verdict.REJECT, reason='Invented source.',
+                      corrected_answer='ignored')
+        self.assertEqual(saved.corrected_answer, '')
+
+    def test_refusals(self):
+        self.assertRefused('label_not_allowed', reviewer=make_user())
+        self.assertRefused('label_verdict_invalid', verdict='maybe')
+        self.assertRefused('label_correction_required', verdict=HumanLabel.Verdict.CORRECT)
+        self.assertRefused('label_reason_required', verdict=HumanLabel.Verdict.REJECT)
+

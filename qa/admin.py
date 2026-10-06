@@ -34,7 +34,7 @@ from unfold.decorators import action, display
 from unfold.sections import TemplateSection
 
 from qa import services
-from qa.models import AnswerRevision, Interaction, Question, Referral
+from qa.models import AnswerRevision, HumanLabel, Interaction, Question, Referral
 from qa.services import TEXT_MAX
 
 #: Badge colour of each decision, from served (green) to not answered (red)
@@ -52,6 +52,13 @@ REFERRAL_STATUS_COLORS = {
     Referral.Status.IN_PROGRESS: 'info',
     Referral.Status.ANSWERED: 'success',
     Referral.Status.CLOSED: 'danger',
+}
+
+#: Badge colour of each verdict on an AI answer
+VERDICT_COLORS = {
+    HumanLabel.Verdict.APPROVE: 'success',
+    HumanLabel.Verdict.CORRECT: 'warning',
+    HumanLabel.Verdict.REJECT: 'danger',
 }
 
 #: Why the verification removed a sentence (``Interaction.dropped[].reason``)
@@ -156,7 +163,7 @@ class QuestionAdmin(ModelAdmin):
     change_form_before_template = 'admin/qa/question/change_help.html'
     fieldsets = [
         (_('Question'), {'fields': ['text', 'uuid', 'asked_by', 'lang', 'center', 'session_id', 'created_at']}),
-        (_('Answer'), {'fields': ['decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences']}),
+        (_('Answer'), {'fields': ['decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences', 'verdicts']}),
         (_('Retrieval'), {'fields': ['search_query', 'retrieved', 'evidence_given'], 'classes': ['collapse']}),
         (_('Run'), {
             'fields': ['model_used', 'latency', 'tokens', 'error'],
@@ -166,7 +173,7 @@ class QuestionAdmin(ModelAdmin):
     inlines = [AnswerRevisionInline]
     readonly_fields = [
         'text', 'uuid', 'asked_by', 'lang', 'center', 'session_id', 'created_at',
-        'decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences',
+        'decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences', 'verdicts',
         'search_query', 'retrieved', 'evidence_given', 'model_used', 'latency', 'tokens', 'error',
     ]
 
@@ -181,6 +188,7 @@ class QuestionAdmin(ModelAdmin):
     def get_urls(self):
         return [
             path('<path:object_id>/revise/', self.admin_site.admin_view(self.revise_view), name='qa_question_revise'),
+            path('<path:object_id>/label/', self.admin_site.admin_view(self.label_view), name='qa_question_label'),
             *super().get_urls(),
         ]
 
@@ -190,7 +198,47 @@ class QuestionAdmin(ModelAdmin):
         extra_context = extra_context or {}
         if question is not None and services.can_revise(request.user, question):
             extra_context['revise_url'] = reverse('admin:qa_question_revise', args=[question.pk])
+            if interaction_of(question) is not None:
+                extra_context['label_url'] = reverse('admin:qa_question_label', args=[question.pk])
         return super().change_view(request, object_id, form_url, extra_context)
+
+    def label_view(self, request, object_id):
+        """GET: the verdict form, prefilled with the reviewer's verdict or the AI answer. POST: save it."""
+        question = get_object_or_404(Question.objects.select_related('interaction'), pk=unquote(object_id))
+        interaction = interaction_of(question)
+        if interaction is None or not services.can_revise(request.user, question):
+            raise PermissionDenied
+        mine = HumanLabel.objects.filter(interaction=interaction, reviewer=request.user).first()
+        values = {
+            'verdict': mine.verdict if mine else '',
+            'reason': mine.reason if mine else '',
+            'corrected_answer': (mine.corrected_answer if mine and mine.corrected_answer
+                                 else self._plain_answer(question)),
+        }
+        error = None
+        if request.method == 'POST':
+            values = {key: request.POST.get(key, '') for key in values}
+            try:
+                services.label(interaction, request.user, values['verdict'], values['reason'],
+                               values['corrected_answer'])
+            except ValidationError as caught:
+                error = ' '.join(caught.messages)
+            else:
+                self.message_user(request, _('Your verdict on the AI answer was saved.'), messages.SUCCESS)
+                return HttpResponseRedirect(reverse('admin:qa_question_change', args=[question.pk]))
+        return TemplateResponse(request, 'admin/qa/question/label.html', {
+            **self.admin_site.each_context(request),
+            'title': _('AI verdict'),
+            'opts': self.model._meta,
+            'original': question,
+            'question': question,
+            'ai_answer': interaction.answer_text,
+            'values': values,
+            'error': error,
+            'verdicts': HumanLabel.Verdict.choices,
+            'text_max': TEXT_MAX,
+            'change_url': reverse('admin:qa_question_change', args=[question.pk]),
+        })
 
     def revise_view(self, request, object_id):
         """GET: the revision form, prefilled with what the asker sees now. POST: save it through ``revise``."""
@@ -314,6 +362,20 @@ class QuestionAdmin(ModelAdmin):
                 '<div class="musnid-removed-reason">{}</div></li>',
             ((d.get('text', ''), d.get('quote', ''), DROP_REASONS.get(d.get('reason'), d.get('reason', '')))
              for d in interaction.dropped),
+        ))
+
+    @display(description=_('AI verdicts'))
+    def verdicts(self, question):
+        """Each reviewer's verdict on the AI answer, with the reason."""
+        interaction = interaction_of(question)
+        labels = list(interaction.labels.select_related('reviewer')) if interaction else []
+        if not labels:
+            return '-'
+        return format_html('<ul class="musnid-sentences musnid-compact">{}</ul>', format_html_join(
+            '', '<li><span class="musnid-badge musnid-badge-{}">{}</span> {} {}</li>',
+            ((VERDICT_COLORS[label.verdict], label.get_verdict_display(),
+              label.reviewer.full_name if label.reviewer else '-', f'· {label.reason}' if label.reason else '')
+             for label in labels),
         ))
 
     @display(description=_('search query'))
@@ -473,3 +535,51 @@ class ReferralAdmin(ModelAdmin):
                 '%(count)d referrals could not be updated: %(reasons)s',
                 len(refused),
             ) % {'count': len(refused), 'reasons': '; '.join(refused)}, messages.ERROR)
+
+
+@admin.register(HumanLabel)
+class HumanLabelAdmin(ModelAdmin):
+    """
+    Reviewers' verdicts on AI answers, for evaluation and the fine-tuning dataset.
+
+    Read-only: verdicts are given from a question's page ("AI verdict"), through
+    ``qa.services.label``.
+    """
+
+    list_display = ['short_question', 'verdict_badge', 'language', 'reviewer', 'created_at']
+    list_filter = ['verdict', 'interaction__question__lang', 'interaction__decision']
+    search_fields = ['interaction__question__text', 'reason', 'reviewer__email']
+    list_select_related = ['interaction__question', 'reviewer']
+    date_hierarchy = 'created_at'
+    list_before_template = 'admin/qa/humanlabel/list_help.html'
+    fields = ['question_link', 'verdict_badge', 'reason', 'corrected_answer', 'reviewer', 'created_at', 'updated_at']
+    readonly_fields = fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @display(description=_('question'))
+    def short_question(self, label):
+        return Truncator(label.interaction.question.text).chars(90)
+
+    @display(description=_('question'))
+    def question_link(self, label):
+        """The question's page: its AI answer, evidence and checks."""
+        question = label.interaction.question
+        return format_html('<a href="{}" dir="auto">{}</a>', reverse('admin:qa_question_change', args=[question.pk]),
+                           question.text)
+
+    @display(description=_('verdict'), ordering='verdict', label=VERDICT_COLORS)
+    def verdict_badge(self, label):
+        return label.verdict, label.get_verdict_display()
+
+    @display(description=_('language'), ordering='interaction__question__lang')
+    def language(self, label):
+        return label.interaction.question.lang or '-'
+

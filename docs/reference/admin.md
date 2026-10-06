@@ -44,6 +44,7 @@ Defined in `UNFOLD["SIDEBAR"]` (`config/unfold.py`). Search is enabled; the defa
 | Centers | Memberships | `badge` | `admin:core_membership_changelist` | `core.view_membership` |
 | Questions and answers | Questions | `forum` | `admin:qa_question_changelist` | `qa.view_question` |
 | Questions and answers | Tickets | `confirmation_number` | `admin:qa_referral_changelist` | `qa.view_referral` |
+| Questions and answers | AI verdicts | `rule` | `admin:qa_humanlabel_changelist` | `qa.view_humanlabel` |
 | Questions and answers | Telegram messages | `send` | `admin:telegram_bot_telegrammessage_changelist` | `telegram_bot.view_telegrammessage` |
 | Accounts | Users | `person` | `admin:core_user_changelist` | `core.view_user` |
 | Accounts | Groups | `group` | `admin:auth_group_changelist` | `auth.view_group` |
@@ -159,6 +160,19 @@ asker sees changes through revisions (below).
 | Revisions | read-only inline on the question page, newest first: date, author, reason, text, internal note |
 | Revise the answer | a button on the question page, shown when `qa.services.can_revise` allows it, opening `<id>/revise/`: the question, a text prefilled with what the asker sees now (the AI answer without `[Q<n>]` markers, or the latest revision), the reason (preselected "Answer by a specialist" for referred and abstained questions) and an internal note. Saving calls `revise`; a refusal is shown on the form; others get 403 ([ADR 0020](../architecture/decisions/0020-answer-revisions.md)). |
 | Add, change, delete | not allowed for questions and interactions (403); answers change only through revisions |
+
+## AI verdicts (`qa/admin.py`, model `HumanLabel`)
+
+Reviewers' verdicts on AI answers, for evaluation and the fine-tuning dataset. Read-only:
+verdicts are given from a question's page.
+
+| Aspect | Definition |
+| --- | --- |
+| On a question's page | an "AI verdict" button (users allowed to revise) opens `<id>/label/`: the question, the AI answer, a verdict (Correct, To correct, Wrong), a reason (required when wrong) and a corrected answer prefilled with the AI answer (required when to correct); saved through `qa.services.label`. The page lists every verdict under Answer |
+| List columns | question, verdict (badge: green correct, amber to correct, red wrong), language, reviewer, created at |
+| Filters | verdict, language, AI decision; date drill-down |
+| Help | "How to read this page" |
+| Add, change, delete | not allowed (403) |
 
 ## Tickets (`qa/admin.py`, model `Referral`)
 
