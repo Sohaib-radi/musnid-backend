@@ -148,19 +148,41 @@ class CenterAdminTests(AdminTestCase):
     def test_slug_is_prepopulated_from_name(self):
         self.assertEqual(admin.site._registry[Center].prepopulated_fields, {'slug': ['name']})
 
-    def run_make_default(self, centers):
+    def run_make_default(self, centers, **extra):
         return self.client.post(self.url(Center, 'changelist'), {
-            'action': 'make_default', '_selected_action': [center.pk for center in centers],
+            'action': 'make_default', '_selected_action': [center.pk for center in centers], **extra,
         }, follow=True)
 
-    def test_make_default_action(self):
+    def test_make_default_action_confirms_then_moves_the_default(self):
         old, new = make_center(is_default=True), make_center()
-        response = self.run_make_default([new])
+        page = self.run_make_default([new])
+        self.assertContains(page, f'The default center is now “{old.name}”')
+        new.refresh_from_db()
+        self.assertFalse(new.is_default)  # nothing changes before the confirmation
+        response = self.run_make_default([new], apply='1')
         self.assertEqual(self.messages(response), [f'“{new.name}” is now the default center.'])
         old.refresh_from_db()
         new.refresh_from_db()
         self.assertTrue(new.is_default)
         self.assertFalse(old.is_default)
+
+    def test_make_default_dialog_on_an_approved_centers_page(self):
+        old, new = make_center(is_default=True), make_center()
+        page = self.client.get(self.url(Center, 'change', new.pk))
+        url = reverse('admin:core_center_make_default', args=[new.pk])
+        self.assertContains(page, f'formaction="{url}"')
+        self.assertContains(page, f'The default center is now “{old.name}”')
+        old_url = reverse('admin:core_center_make_default', args=[old.pk])
+        self.assertNotContains(self.client.get(self.url(Center, 'change', old.pk)), old_url)  # already default
+        self.client.post(url, {'next': self.url(Center, 'changelist')})
+        new.refresh_from_db()
+        self.assertTrue(new.is_default)
+        self.assertEqual(self.client.get(url).status_code, 405)
+
+    def test_default_checkbox_is_read_only_on_an_existing_center(self):
+        center = make_center()
+        self.assertIn('is_default', admin.site._registry[Center].get_readonly_fields(None, center))
+        self.assertNotIn('is_default', admin.site._registry[Center].get_readonly_fields(None, None))
 
     def test_make_default_requires_exactly_one_center(self):
         first, second = make_center(), make_center()

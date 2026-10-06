@@ -118,6 +118,10 @@ as an AI translation into the question's language, marked as such, with the orig
 | "Ask a specialist" | A button on the website for any question, not only those the AI refers. |
 | Several centers | A question goes to a center serving the asker's language, or to the center the asker picks. Today: the default center. |
 
+**For the jury.** Questions go to the **default center**. A center created during
+judging receives them once a platform administrator approves it and clicks **Make
+default** on its page in the admin (the previous default stops receiving new ones).
+
 ## Rules
 
 - The group never sees who asked.

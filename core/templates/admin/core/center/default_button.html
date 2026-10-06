@@ -1,0 +1,33 @@
+{% load i18n %}
+{% comment %}
+"Make default" on an approved center's page: a confirmation dialog naming the current default,
+then POST to make-default/ (Center.make_default moves the default in one transaction). The
+confirm button carries its own target, as the review dialogs do, so it works inside any form.
+{% endcomment %}
+<div class="musnid-review">
+    <button type="button" class="musnid-btn musnid-btn-primary"
+            onclick="document.getElementById('default-{{ center.pk }}').showModal()">{% translate "Make default" %}</button>
+
+    <dialog id="default-{{ center.pk }}" class="musnid-dialog">
+        <form method="post" action="{{ make_default_url }}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <h2>{% translate "Make this center the default?" %}</h2>
+            {% if current %}
+                <p>{% blocktranslate with new=center.name old=current.name trimmed %}
+                    The default center is now “{{ old }}”. From now on, questions sent to specialists go to
+                    “{{ new }}”, and “{{ old }}” stops receiving new ones. Its existing questions stay with it.
+                {% endblocktranslate %}</p>
+            {% else %}
+                <p>{% blocktranslate with new=center.name trimmed %}
+                    There is no default center. From now on, questions sent to specialists go to “{{ new }}”.
+                {% endblocktranslate %}</p>
+            {% endif %}
+            <div class="musnid-dialog-actions">
+                <button type="button" class="musnid-btn musnid-btn-outline" onclick="this.closest('dialog').close()">{% translate "Cancel" %}</button>
+                <button type="submit" class="musnid-btn musnid-btn-primary" formaction="{{ make_default_url }}" formmethod="post"
+                        formnovalidate>{% translate "Make default" %}</button>
+            </div>
+        </form>
+    </dialog>
+</div>

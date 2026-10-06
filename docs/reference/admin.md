@@ -122,6 +122,17 @@ Reviews go through `core.services.centers` ([ADR 0013](../architecture/decisions
   **Reject selected centers** first shows a page asking for the reason. Centers that are
   not pending are skipped and reported. Messages use `ngettext`.
 
+
+### Default center
+
+- An approved center that is not the default shows **Make default** at the top of its page.
+  Its dialog names the current default and what changes: questions sent to specialists go to
+  the new center; the old one stops receiving new ones and keeps its existing questions.
+  Confirming posts to `<id>/make-default/` (`Center.make_default()`, one transaction).
+- The action "Make selected center the default" asks the same on an intermediate page; a
+  center that is not approved is refused before it.
+- The "Default center" checkbox is read-only on an existing center (editable when adding one).
+
 ## API keys (`ApiCredentialAdmin`)
 
 Sidebar: **Configuration > API Keys** (icon `vpn_key`, permission `core.view_apicredential`).

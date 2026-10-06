@@ -160,7 +160,10 @@ class CenterAdmin(ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         # The reason is part of the review: written by reject(), never edited afterwards.
-        return [*super().get_readonly_fields(request, obj), 'rejection_reason']
+        # The default moves with "Make default" (a confirmation naming the current one), not by
+        # ticking a box that would clash with the current default.
+        readonly = [*super().get_readonly_fields(request, obj), 'rejection_reason']
+        return [*readonly, 'is_default'] if obj else readonly
 
     @display(
         description=_('Review status'),
@@ -202,7 +205,19 @@ class CenterAdmin(ModelAdmin):
         extra_context = extra_context or {}
         if center and center.status == Center.Status.PENDING and self.has_change_permission(request, center):
             extra_context['review_buttons'] = self.review_buttons(request, center)
+        if (center and center.status == Center.Status.APPROVED and not center.is_default
+                and self.has_change_permission(request, center)):
+            extra_context['default_button'] = render_to_string('admin/core/center/default_button.html', {
+                'center': center, 'current': Center.objects.filter(is_default=True).first(),
+                'make_default_url': reverse('admin:core_center_make_default', args=[center.pk]),
+                'next': request.get_full_path(),
+            }, request=request)
         return super().change_view(request, object_id, form_url, extra_context)
+
+    def make_default_view(self, request, object_id):
+        """POST: make one approved center the default (the confirmation dialog of its page)."""
+        return self._review_view(request, object_id, lambda center: center.make_default(),
+                                 _('“%(center)s” is now the default center.'))
 
     def get_urls(self):
         review_urls = [
@@ -210,6 +225,8 @@ class CenterAdmin(ModelAdmin):
                  name='core_center_approve'),
             path('<path:object_id>/reject/', self.admin_site.admin_view(self.reject_view),
                  name='core_center_reject'),
+            path('<path:object_id>/make-default/', self.admin_site.admin_view(self.make_default_view),
+                 name='core_center_make_default'),
         ]
         return review_urls + super().get_urls()
 
@@ -283,13 +300,25 @@ class CenterAdmin(ModelAdmin):
 
     @action(description=_('Make selected center the default'))
     def make_default(self, request, queryset):
-        """Make the one selected center the default, through ``Center.make_default()``."""
+        """Confirm on an intermediate page naming the current default, then move it with ``make_default()``."""
         if queryset.count() != 1:
             self.message_user(
                 request, _('Select exactly one center to make it the default.'), messages.ERROR,
             )
-            return
+            return None
         center = queryset.get()
+        if center.status != Center.Status.APPROVED:  # refused before asking to confirm
+            self.message_user(request, _('Only an approved center can be the default center.'), messages.ERROR)
+            return None
+        if 'apply' not in request.POST:
+            return TemplateResponse(request, 'admin/core/center/make_default_selected.html', {
+                **self.admin_site.each_context(request),
+                'title': _('Make selected center the default'),
+                'opts': self.model._meta,
+                'center': center,
+                'current': Center.objects.filter(is_default=True).exclude(pk=center.pk).first(),
+                'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
+            })
         try:
             center.make_default()
         except ValidationError as error:

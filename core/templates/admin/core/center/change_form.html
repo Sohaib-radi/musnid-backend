@@ -1,6 +1,7 @@
 {% extends "admin/change_form.html" %}
-{# Adds the review buttons at the top of a pending center's page (CenterAdmin.change_view). #}
+{# Adds the review buttons (pending center) or "Make default" (approved center) at the top of its page. #}
 {% block object-tools-items %}
     {% if review_buttons %}{{ review_buttons }}{% endif %}
+    {% if default_button %}{{ default_button }}{% endif %}
     {{ block.super }}
 {% endblock %}

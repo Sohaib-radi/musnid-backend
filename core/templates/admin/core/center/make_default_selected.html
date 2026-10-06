@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{# Intermediate page of the "Make selected center the default" action: confirms the move. #}
+{% block content %}
+<form method="post" class="musnid-reject-selected">
+    {% csrf_token %}
+    {% if current %}
+        <p>{% blocktranslate with new=center.name old=current.name trimmed %}
+            The default center is now “{{ old }}”. From now on, questions sent to specialists go to
+            “{{ new }}”, and “{{ old }}” stops receiving new ones. Its existing questions stay with it.
+        {% endblocktranslate %}</p>
+    {% else %}
+        <p>{% blocktranslate with new=center.name trimmed %}
+            There is no default center. From now on, questions sent to specialists go to “{{ new }}”.
+        {% endblocktranslate %}</p>
+    {% endif %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ center.pk }}">
+    <input type="hidden" name="action" value="make_default">
+    <input type="hidden" name="apply" value="1">
+    <div class="musnid-dialog-actions">
+        <a href="" class="musnid-btn musnid-btn-outline">{% translate "Cancel" %}</a>
+        <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Make default" %}</button>
+    </div>
+</form>
+{% endblock %}
