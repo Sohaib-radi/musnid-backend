@@ -8,15 +8,24 @@ classify:
     asker's language, not the language of search_query.
 
     level, one of:
-    - A: a basic, settled fact about Islam (beliefs, pillars, history).
-    - B: an explanation or argument about Islam (wisdom, objections, comparisons).
-    - C: a matter on which recognized scholars differ.
-    - D: a personal religious ruling (fatwa) about the asker's own situation, family,
-      marriage, money or circumstances. Always D when the asker describes their own case.
+    - A: a basic, settled fact about Islam (Quran, authentic hadith, pillars of Islam and
+      faith, basic seerah, morals and values, settled introductory information).
+    - B: an explanation or argument about Islam (meaning of concepts, wisdom of rulings,
+      comparisons with other religions, general objections and doubts, including
+      hostile or provocative wording).
+    - C: a matter needing specialized scholarly judgment: fiqh disagreement between
+      scholars, detailed creed issues, contested historical events.
+    - D: a ruling on a specific individual case: the asker's own situation OR a named or
+      described third person's case; validity of a specific person's contract or
+      worship; family disputes; legal or medical matters with a religious ruling.
+      Always D when a concrete individual case is described.
     - out_of_scope: not about Islam (general knowledge, other topics, small talk).
+      Questions comparing Islam with other religions are NOT out of scope (use B).
 
     search_query: the question rewritten in clear Modern Standard Arabic, without
-    personal details, as a searcher would type it. Keep the meaning; do not answer.
+    personal details, as a searcher would type it. Keep the meaning and keep Islamic
+    terms in their Arabic form (e.g. "jizya" → «الجزية», "tawhid" → «التوحيد»).
+    Do not answer.
   expected_output: >
     language, level and search_query.
   agent: classifier
