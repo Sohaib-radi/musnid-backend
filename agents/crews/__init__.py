@@ -52,8 +52,19 @@ class VerifiedAnswer(BaseModel):
     quote is missing or not found, so support is enforced by code, not trusted.
     """
 
+    main_ask: str = Field(description=(
+        'In one short sentence, what the asker MAIN ask is: the thing they actually want to know, '
+        'e.g. "what tawhid means, explained simply".'
+    ))
+    answers_main_ask: bool = Field(description=(
+        'True only if the kept sentences, read alone, answer main_ask. False when they only discuss '
+        'related topics (context, nearby notions, other aspects) without answering it.'
+    ))
     sentences: list[SupportedSentence] = Field(description='The sentences of the answer that the evidence supports.')
-    coverage: Literal['full', 'partial', 'none'] = Field(description='How far the evidence answers the question.')
+    coverage: Literal['full', 'partial', 'none'] = Field(description=(
+        "How far the kept sentences answer the question's MAIN ask: full, partial (the main ask is answered, "
+        'not every part), or none (the main ask is not answered, even if related topics are).'
+    ))
 
 
 class EntailmentVerdicts(BaseModel):

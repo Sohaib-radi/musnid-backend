@@ -30,8 +30,12 @@ class CrewDefinitionTests(TestCase):
         self.assertEqual([a.role.strip() for a in crew.agents], ['Evidence-bound writer', 'Strict verifier'])
         self.assertEqual(crew.tasks[-1].output_pydantic, VerifiedAnswer)
         write = crew.tasks[0].description
-        for rule in ('ONLY from the evidence', '[آية]', 'NEVER quote the Quran or hadith', 'scholars differ'):
+        for rule in ('ONLY from the evidence', '[آية]', 'NEVER quote the Quran or hadith', 'scholars differ',
+                     'your FIRST sentence states it'):
             self.assertIn(rule, write)
+        verify = crew.tasks[1].description
+        for rule in ('MAIN ask', 'answers_main_ask', 'never "partial"'):
+            self.assertIn(rule, verify)
 
     def test_verifier_uses_its_own_model_when_set(self, _key):
         from agents.crews.answer_crew.answer_crew import AnswerCrew

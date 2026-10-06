@@ -10,6 +10,10 @@ write:
 
     Rules:
     - Answer ONLY from the evidence above. If it does not answer the question, say so briefly.
+    - Direct answer first: if the evidence contains a direct answer to the question (for
+      example «الإسلام لم ينتشر بالسيف»), your FIRST sentence states it, staying as close as
+      possible to the evidence's own words, with its [Q<n>]. Only then give the supporting
+      details.
     - Write in the answer language ({language}).
     - Cite every claim with the reference of the passage it comes from, e.g. [Q229].
       Use only references that appear in the evidence.
@@ -46,8 +50,14 @@ verify:
       as written. Drop every other sentence. Do not add anything.
     - If the level is C, keep the sentence saying that scholars differ.
     - Keep the draft's language.
-    Then judge coverage: full (the evidence answers the question), partial (it answers part
-    of it) or none (it does not answer it).
+    Then write the question's MAIN ask in one short sentence (what the asker actually wants
+    to know), and say whether the kept sentences, read alone, answer it (answers_main_ask).
+    Judge coverage against that main ask:
+    - full: the kept sentences answer the main ask completely.
+    - partial: the kept sentences answer the main ask, but not every part of the question.
+    - none: the kept sentences do not answer the main ask, even if they discuss related
+      topics (definitions of nearby terms, context, history, other aspects). Related
+      material without the answer to the main ask is "none", never "partial".
   expected_output: >
     The supported sentences, each with its quote, and the coverage.
   agent: verifier

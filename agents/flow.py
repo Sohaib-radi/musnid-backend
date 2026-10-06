@@ -8,7 +8,8 @@ The question-answering flow (CrewAI Flow; ADR 0016).
                               └─ evidence of the top 3 questions → answer crew → decide
 
 ``decide`` is deterministic: invalid [Q<n>] citations are removed; no valid
-citation or coverage "none" → referral; "partial" → answer + fixed note;
+citation, coverage "none", or kept sentences that do not answer the question's
+main ask (the verifier's ``answers_main_ask``) → referral; "partial" → answer + fixed note;
 level C → answer + fixed notice. Fixed replies are translated, never generated.
 Any failure ends in the fixed abstain, with the error saved and keys masked.
 """
@@ -174,7 +175,10 @@ class AskFlow(Flow[QAState]):
                 {'text': CITATION.sub('', sentence.text).strip(), 'quote': sentence.quote, 'number': number}
                 for sentence, number in kept
             ]
-            self.decide(' '.join(sentence.text.strip() for sentence, _number in kept), verified.coverage)
+            # Coverage is the verifier's, but the main-ask rule is enforced here: related material
+            # that does not answer what the asker wants is "none" (refer), never "partial"
+            coverage = verified.coverage if verified.answers_main_ask else 'none'
+            self.decide(' '.join(sentence.text.strip() for sentence, _number in kept), coverage)
         except Exception as error:
             self._fail('answer crew', error)
             self._fixed('abstain')

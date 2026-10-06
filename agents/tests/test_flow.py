@@ -177,6 +177,12 @@ class AnswerTests(FlowTestCase):
         interaction = self.run_ask(classified(), answered(coverage='none'))
         self.assertEqual(interaction.decision, 'refer')
 
+    def test_related_material_without_the_main_ask_is_referred(self):
+        # The verifier says "partial", but the kept sentences do not answer what was asked
+        interaction = self.run_ask(classified(), answered(coverage='partial', answers_main_ask=False))
+        self.assertEqual((interaction.decision, interaction.verifier_verdict), ('refer', 'none'))
+        self.assertEqual(interaction.answer_text, fixed_reply('refer_no_evidence', 'ar'))
+
     def test_partial_gets_the_fixed_note(self):
         interaction = self.run_ask(classified(), answered(coverage='partial'))
         self.assertEqual(interaction.decision, 'partial')

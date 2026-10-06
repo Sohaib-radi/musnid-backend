@@ -28,8 +28,9 @@ def classified(level='B', language='ar', query='هل انتشر الإسلام �
 QUOTE = 'لم ينتشر الإسلام بالسيف.'
 
 
-def answered(answer='لم ينتشر الإسلام بالسيف [Q1].', coverage='full', quote=QUOTE):
+def answered(answer='لم ينتشر الإسلام بالسيف [Q1].', coverage='full', quote=QUOTE, answers_main_ask=True):
     """A verifier output; ``answer`` may be a list of (text, quote) pairs."""
     pairs = answer if isinstance(answer, list) else [(answer, quote)]
     sentences = [SupportedSentence(text=text, quote=q) for text, q in pairs]
-    return FakeCrew(VerifiedAnswer(sentences=sentences, coverage=coverage))
+    return FakeCrew(VerifiedAnswer(main_ask='Did Islam spread by the sword?', answers_main_ask=answers_main_ask,
+                                   sentences=sentences, coverage=coverage))
