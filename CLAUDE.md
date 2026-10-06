@@ -118,7 +118,8 @@ core/              domain app
     support.py     factories (make_user, make_center, make_membership) and test-only models
     runner.py      TEST_RUNNER: test-only tables, fast password hasher
     parallel.py    --parallel worker setup; must never import models
-knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embeddings, services/search
+knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embeddings, services/search,
+                   glossary.py (official glossary, kind glossary, numbers 9001+, ingest_glossary)
   extraction/      PDF text repair and Bayyinat parsing (never imports PyMuPDF)
   management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
 qa/                Question, Interaction, AnswerRevision, Referral, HumanLabel; services.py (revise, referrals,

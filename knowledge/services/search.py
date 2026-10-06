@@ -29,17 +29,26 @@ class SearchResult:
     document: str
 
 
-def search(query, k, embedder, document=None):
+def search(query, k, embedder, document=None, glossary=False, vector=None):
     """
     Return the ``k`` questions closest to ``query``, best first.
+
+    ``glossary`` searches only the official glossary's terms (kind ``glossary``);
+    otherwise they are left out. ``vector`` reuses an embedding already computed
+    for the same query (one embedding call for both searches).
 
     The query is normalized and embedded; ``hnsw.ef_search`` is raised to the
     number of candidates fetched (default 40 is too low when several chunks
     of one question compete); the best chunk per question is kept.
     """
-    vector = embedder.embed([normalize(query)])[0]
+    if vector is None:
+        vector = embed_query(query, embedder)
     candidates = max(MIN_CANDIDATES, k * CANDIDATES_PER_RESULT)
     chunks = SourceChunk.objects.select_related('document')
+    if glossary:
+        chunks = chunks.filter(kind=SourceChunk.Kind.GLOSSARY)
+    else:
+        chunks = chunks.exclude(kind=SourceChunk.Kind.GLOSSARY)
     if document is not None:
         chunks = chunks.filter(document__slug=document)
     with transaction.atomic():
@@ -57,15 +66,20 @@ def search(query, k, embedder, document=None):
     return list(best.values())[:k]
 
 
+def embed_query(query, embedder):
+    """The embedding of a normalized query."""
+    return embedder.embed([normalize(query)])[0]
+
+
 def get_evidence(question_numbers, document=None):
     """
-    Summary and answer chunks of ``question_numbers``, in the given question
-    order, summary first, then answer pieces in reading order.
+    Summary, answer and glossary chunks of ``question_numbers``, in the given
+    question order, summary first, then answer pieces in reading order.
     """
     order = {number: index for index, number in enumerate(question_numbers)}
     chunks = SourceChunk.objects.filter(
         question_number__in=question_numbers,
-        kind__in=[SourceChunk.Kind.SUMMARY, SourceChunk.Kind.ANSWER],
+        kind__in=[SourceChunk.Kind.SUMMARY, SourceChunk.Kind.ANSWER, SourceChunk.Kind.GLOSSARY],
     )
     if document is not None:
         chunks = chunks.filter(document__slug=document)

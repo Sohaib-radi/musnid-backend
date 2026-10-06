@@ -425,6 +425,13 @@ by the verifier. Afterwards the `web` container used 389 MiB and `db` 71 MiB, wi
 
 ## Updating
 
+Once, after deploying the official glossary (docs/rag/07-official-glossary.md):
+
+```bash
+docker compose exec web python manage.py ingest_glossary
+```
+
+
 ```bash
 cd ~/musnid-backend && git pull
 ```

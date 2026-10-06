@@ -75,6 +75,7 @@ class SourceChunk(BaseModel):
         QUESTION = 'question', _('Question')
         SUMMARY = 'summary', _('Summary')
         ANSWER = 'answer', _('Answer')
+        GLOSSARY = 'glossary', _('Glossary term')
 
     document = models.ForeignKey(
         SourceDocument, on_delete=models.CASCADE, related_name='chunks', verbose_name=_('document'),

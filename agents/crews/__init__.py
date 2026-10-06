@@ -82,6 +82,8 @@ same facts, nothing added. Answer "not_supported" if the sentence adds anything 
 does not state: a conclusion or inference ("which shows that", "مما يدل على", "this means"),
 a contrast ("rather than", "instead of"), a cause, a generalization, a summary, a date,
 a number, a place or any other detail. Judge meaning across languages. Ignore [Q<n>] markers.
+A glossary entry written "term (English): rule" states that the English in parentheses is the
+term's English equivalent (its translation), and the rule says how the term is explained.
 Return exactly one verdict per pair, in order."""
 
 

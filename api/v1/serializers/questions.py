@@ -12,6 +12,7 @@ from rest_framework import serializers
 
 from agents.replies import notes
 from api.exceptions import AskingUnavailable, DailyCapacityReached
+from knowledge.glossary import citation_label
 from knowledge.models import SourceChunk
 from qa.models import Question, Referral
 from qa.services import REFERABLE_DECISIONS
@@ -115,7 +116,9 @@ def describe_sources(pairs):
     base gets an empty description rather than an error.
     """
     numbers = {number for _language, number in pairs}
-    chunks = (SourceChunk.objects.filter(question_number__in=numbers, kind=SourceChunk.Kind.QUESTION)
+    # A Bayyinat question is described by its question chunk, a glossary term by its own chunk
+    chunks = (SourceChunk.objects.filter(question_number__in=numbers,
+                                         kind__in=[SourceChunk.Kind.QUESTION, SourceChunk.Kind.GLOSSARY])
               .select_related('document').order_by('document__created_at'))
     found = {}
     for chunk in chunks:
@@ -125,6 +128,10 @@ def describe_sources(pairs):
         chunk = found.get(number)
         if chunk is None:
             sources[(language, number)] = {'number': number, 'title': '', 'pages': None, 'url': '', 'pdf_url': ''}
+            continue
+        if chunk.kind == SourceChunk.Kind.GLOSSARY:  # the official glossary: a label, no Bayyinat page
+            sources[(language, number)] = {'number': number, 'title': citation_label(chunk.metadata.get('term', '')),
+                                           'pages': None, 'url': '', 'pdf_url': ''}
             continue
         start, end = chunk.metadata.get('page_start'), chunk.metadata.get('page_end')
         sources[(language, number)] = {

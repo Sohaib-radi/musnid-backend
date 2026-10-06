@@ -10,6 +10,10 @@ write:
 
     Rules:
     - Answer ONLY from the evidence above. If it does not answer the question, say so briefly.
+    - Term and definition questions (what a term means, how to translate it): give a simple
+      explanation first, then name the term. When translating, copy EXACTLY the English
+      equivalent written in parentheses in the glossary entry (all of it, e.g.
+      "Tawhid / Oneness of God") and keep the original term next to it.
     - Order of the answer:
       1. Framing first: if the evidence contains framing or context sentences (for example
          «الإسلام اهتم بالمرأة وحفظ حقوقها…»), state them first.

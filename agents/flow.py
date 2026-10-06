@@ -27,12 +27,14 @@ from pydantic import BaseModel
 
 from agents.replies import fixed_reply, notes
 from knowledge.normalize import normalize
-from knowledge.services.search import get_evidence, search
+from knowledge.services.search import embed_query, get_evidence, search
 
 # CrewAI's first-run trace prompt is declined in AgentsConfig.ready(), before this
 # import of CrewAI (agents/tracing.py).
 
 SEARCH_K = 8
+#: Glossary terms searched per question; all of them above LOW_THRESHOLD go into the evidence
+GLOSSARY_K = 3
 CITATION = re.compile(r'\s*\[Q(\d+)\]')
 SECRET = re.compile(r'(sk-[A-Za-z0-9_\-]{4})[A-Za-z0-9_\-]+|(Bearer\s+)\S+')
 MIN_QUOTE_CHARS = 15
@@ -137,16 +139,24 @@ class AskFlow(Flow[QAState]):
 
     def _retrieve(self):
         try:
-            results = search(self.state.search_query, SEARCH_K, self.embedder)
+            vector = embed_query(self.state.search_query, self.embedder)
+            results = search(self.state.search_query, SEARCH_K, self.embedder, vector=vector)
+            # Every glossary term above the threshold goes first in the evidence (docs/rag/07)
+            terms = [term for term in search(self.state.search_query, GLOSSARY_K, self.embedder, glossary=True,
+                                             vector=vector) if term.score >= settings.LOW_THRESHOLD]
         except Exception as error:
             self._fail('retrieval', error)
             return 'abstain'
         self.state.retrieved = [
-            {'question_number': r.question_number, 'score': round(r.score, 4), 'kind': r.kind} for r in results
+            {'question_number': r.question_number, 'score': round(r.score, 4), 'kind': r.kind}
+            for r in [*terms, *results]
         ]
-        if not results or results[0].score < settings.LOW_THRESHOLD:
+        # Bayyinat as before: its top questions when its best one passes the threshold
+        books = ([r.question_number for r in results[:settings.EVIDENCE_QUESTIONS]]
+                 if results and results[0].score >= settings.LOW_THRESHOLD else [])
+        if not terms and not books:
             return 'abstain'
-        self.state.evidence_numbers = [r.question_number for r in results[:settings.EVIDENCE_QUESTIONS]]
+        self.state.evidence_numbers = [*[term.question_number for term in terms], *books]
         chunks = get_evidence(self.state.evidence_numbers)
         texts = {}
         for chunk in chunks:

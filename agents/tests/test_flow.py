@@ -363,3 +363,15 @@ class NoteTests(SimpleTestCase):
             {'code': 'partial', 'text': fixed_reply('partial', 'fr')},
             {'code': 'level_c', 'text': fixed_reply('disagreement', 'fr')},
         ])
+
+
+class GlossaryEvidenceTests(FlowTestCase):
+    """Glossary terms above the threshold come first in the evidence, before Bayyinat."""
+
+    def test_matching_term_goes_first(self):
+        from knowledge.glossary import FIRST_NUMBER, TERMS, chunk_text, ingest_glossary
+        ingest_glossary(self.embedder)
+        interaction = self.run_ask(classified('A', 'ar', chunk_text(*TERMS[1])))
+        self.assertEqual(interaction.evidence_question_numbers[0], FIRST_NUMBER + 1)
+        self.assertTrue(interaction.evidence.startswith(f'[Q{FIRST_NUMBER + 1}] التوحيد (Tawhid / Oneness of God)'))
+

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: musnid-backend\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 00:59+0000\n"
+"POT-Creation-Date: 2026-10-06 09:14+0000\n"
 "PO-Revision-Date: 2026-10-04 08:30+0000\n"
 "Last-Translator: Musnid team\n"
 "Language-Team: French\n"
@@ -143,7 +143,7 @@ msgstr "Un centre portant ce nom existe déjà."
 msgid "Unknown country code."
 msgstr "Code de pays inconnu."
 
-#: api/v1/serializers/questions.py:27
+#: api/v1/serializers/questions.py:28
 msgid "Use 8 to 64 letters, digits, \"-\" or \"_\"."
 msgstr "Utilisez de 8 à 64 lettres, chiffres, « - » ou « _ »."
 
@@ -183,7 +183,7 @@ msgstr "Questions"
 msgid "Tickets"
 msgstr "Tickets"
 
-#: config/unfold.py:118 qa/admin.py:367 qa/models.py:181
+#: config/unfold.py:118 qa/admin.py:372 qa/models.py:181
 msgid "AI verdicts"
 msgstr "Verdicts sur l’IA"
 
@@ -384,7 +384,7 @@ msgstr ""
 "Modèle pour l’étape de vérification uniquement, par exemple gpt-4o. Vide : "
 "le modèle de conversation."
 
-#: core/models/base.py:28 qa/admin.py:120
+#: core/models/base.py:28 qa/admin.py:125
 msgid "created at"
 msgstr "créé le"
 
@@ -893,14 +893,14 @@ msgstr "Fermer"
 msgid "chunks"
 msgstr "extraits"
 
-#: knowledge/models.py:26 knowledge/models.py:85
+#: knowledge/models.py:26 knowledge/models.py:86
 #: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:12
 msgid "title"
 msgstr "titre"
 
-#: knowledge/models.py:27 knowledge/models.py:84
+#: knowledge/models.py:27 knowledge/models.py:85
 #: knowledge/templates/admin/knowledge/sourcedocument/list_help.html:13
-#: qa/admin.py:117 qa/admin.py:582 qa/models.py:59
+#: qa/admin.py:122 qa/admin.py:605 qa/models.py:59
 msgid "language"
 msgstr "langue"
 
@@ -934,7 +934,7 @@ msgstr "documents sources"
 
 #: knowledge/models.py:75
 #: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:13
-#: qa/admin.py:165 qa/templates/admin/qa/question/label.html:9
+#: qa/admin.py:170 qa/templates/admin/qa/question/label.html:9
 #: qa/templates/admin/qa/question/revise.html:9
 msgid "Question"
 msgstr "Question"
@@ -946,45 +946,49 @@ msgstr "Résumé"
 
 #: knowledge/models.py:77
 #: knowledge/templates/admin/knowledge/sourcechunk/list_help.html:17
-#: qa/admin.py:166 qa/models.py:108
+#: qa/admin.py:171 qa/models.py:108
 #: qa/templates/admin/qa/question/change_help.html:36
 #: qa/templates/admin/qa/question/list_help.html:35
 msgid "Answer"
 msgstr "Réponse"
 
-#: knowledge/models.py:80
+#: knowledge/models.py:78
+msgid "Glossary term"
+msgstr "Terme du glossaire"
+
+#: knowledge/models.py:81
 msgid "document"
 msgstr "document"
 
-#: knowledge/models.py:82
+#: knowledge/models.py:83
 msgid "question number"
 msgstr "numéro de la question"
 
-#: knowledge/models.py:83 telegram_bot/models.py:39
+#: knowledge/models.py:84 telegram_bot/models.py:39
 msgid "kind"
 msgstr "type"
 
-#: knowledge/models.py:86 qa/models.py:58 telegram_bot/models.py:43
+#: knowledge/models.py:87 qa/models.py:58 telegram_bot/models.py:43
 msgid "text"
 msgstr "texte"
 
-#: knowledge/models.py:87
+#: knowledge/models.py:88
 msgid "normalized text"
 msgstr "texte normalisé"
 
-#: knowledge/models.py:88
+#: knowledge/models.py:89
 msgid "embedding"
 msgstr "plongement vectoriel"
 
-#: knowledge/models.py:89
+#: knowledge/models.py:90
 msgid "metadata"
 msgstr "métadonnées"
 
-#: knowledge/models.py:92
+#: knowledge/models.py:93
 msgid "source chunk"
 msgstr "extrait de source"
 
-#: knowledge/models.py:93
+#: knowledge/models.py:94
 msgid "source chunks"
 msgstr "extraits de sources"
 
@@ -1086,182 +1090,182 @@ msgstr "Citation introuvable dans les sources"
 msgid "Quote does not support the sentence"
 msgstr "La citation n’étaye pas la phrase"
 
-#: qa/admin.py:87
+#: qa/admin.py:92
 msgid "Revisions shown to the asker (newest first)"
 msgstr "Révisions affichées à la personne (la plus récente d’abord)"
 
-#: qa/admin.py:118 qa/admin.py:322
+#: qa/admin.py:123 qa/admin.py:327
 msgid "answered by"
 msgstr "répondu par"
 
-#: qa/admin.py:119 qa/admin.py:326
+#: qa/admin.py:124 qa/admin.py:331
 #: qa/templates/admin/qa/question/list_help.html:53
 msgid "Center"
 msgstr "Centre"
 
-#: qa/admin.py:119 qa/admin.py:327
+#: qa/admin.py:124 qa/admin.py:332
 #: qa/templates/admin/qa/question/list_help.html:51
 msgid "AI"
 msgstr "IA"
 
-#: qa/admin.py:125 qa/admin.py:329 qa/models.py:117
+#: qa/admin.py:130 qa/admin.py:334 qa/models.py:117
 msgid "level"
 msgstr "niveau"
 
-#: qa/admin.py:127 qa/admin.py:415
+#: qa/admin.py:132 qa/admin.py:420
 msgid "response time"
 msgstr "temps de réponse"
 
-#: qa/admin.py:127 qa/admin.py:418
+#: qa/admin.py:132 qa/admin.py:423
 #, python-format
 msgid "%(seconds).1f s"
 msgstr "%(seconds).1f s"
 
-#: qa/admin.py:130 qa/admin.py:420
+#: qa/admin.py:135 qa/admin.py:425
 msgid "tokens"
 msgstr "jetons"
 
-#: qa/admin.py:130 qa/admin.py:425
+#: qa/admin.py:135 qa/admin.py:430
 #, python-format
 msgid "%(input)s in, %(output)s out"
 msgstr "%(input)s en entrée, %(output)s en sortie"
 
-#: qa/admin.py:132 qa/admin.py:427 qa/admin.py:434 qa/models.py:142
+#: qa/admin.py:137 qa/admin.py:432 qa/admin.py:439 qa/models.py:142
 #: telegram_bot/admin.py:88 telegram_bot/models.py:44
 msgid "error"
 msgstr "erreur"
 
-#: qa/admin.py:133 qa/admin.py:440
+#: qa/admin.py:138 qa/admin.py:445
 #: qa/templates/admin/qa/question/list_help.html:88
 msgid "Yes"
 msgstr "Oui"
 
-#: qa/admin.py:133 qa/admin.py:440
+#: qa/admin.py:138 qa/admin.py:445
 #: qa/templates/admin/qa/question/list_help.html:86
 msgid "No"
 msgstr "Non"
 
-#: qa/admin.py:137 qa/models.py:301
+#: qa/admin.py:142 qa/models.py:301
 msgid "ticket"
 msgstr "ticket"
 
-#: qa/admin.py:139
+#: qa/admin.py:144
 msgid "follow-up number"
 msgstr "numéro de suivi"
 
-#: qa/admin.py:158
+#: qa/admin.py:163
 msgid "Search by question text or asker email, or paste a follow-up number."
 msgstr ""
 "Recherchez par le texte de la question ou l’e-mail de son auteur, ou collez "
 "un numéro de suivi."
 
-#: qa/admin.py:167 qa/templates/admin/qa/question/change_help.html:48
+#: qa/admin.py:172 qa/templates/admin/qa/question/change_help.html:48
 msgid "Retrieval"
 msgstr "Recherche"
 
-#: qa/admin.py:168 qa/templates/admin/qa/question/change_help.html:51
+#: qa/admin.py:173 qa/templates/admin/qa/question/change_help.html:51
 #: qa/templates/admin/qa/question/list_help.html:74
 msgid "Run"
 msgstr "Exécution"
 
-#: qa/admin.py:227
+#: qa/admin.py:232
 msgid "Your verdict on the AI answer was saved."
 msgstr "Votre verdict sur la réponse de l’IA a été enregistré."
 
-#: qa/admin.py:231 qa/models.py:180
+#: qa/admin.py:236 qa/models.py:180
 #: qa/templates/admin/qa/question/change_help.html:13
 msgid "AI verdict"
 msgstr "Verdict sur l’IA"
 
-#: qa/admin.py:265
+#: qa/admin.py:270
 msgid "The revised answer is now shown to the asker."
 msgstr "La réponse révisée est désormais affichée à la personne."
 
-#: qa/admin.py:269 qa/templates/admin/qa/question/change_help.html:7
+#: qa/admin.py:274 qa/templates/admin/qa/question/change_help.html:7
 msgid "Revise the answer"
 msgstr "Réviser la réponse"
 
-#: qa/admin.py:306 qa/admin.py:480 qa/admin.py:484 qa/admin.py:567
-#: qa/admin.py:571 qa/models.py:73 qa/models.py:115 qa/models.py:210
+#: qa/admin.py:311 qa/admin.py:485 qa/admin.py:489 qa/admin.py:581
+#: qa/admin.py:585 qa/models.py:73 qa/models.py:115 qa/models.py:210
 #: qa/models.py:277 telegram_bot/admin.py:84
 msgid "question"
 msgstr "question"
 
-#: qa/admin.py:310 qa/models.py:67
+#: qa/admin.py:315 qa/models.py:67
 msgid "asker"
 msgstr "auteur de la question"
 
-#: qa/admin.py:313
+#: qa/admin.py:318
 msgid "Anonymous"
 msgstr "Anonyme"
 
-#: qa/admin.py:315 qa/models.py:135
+#: qa/admin.py:320 qa/models.py:135
 msgid "decision"
 msgstr "décision"
 
-#: qa/admin.py:334 qa/models.py:127 qa/models.py:216
+#: qa/admin.py:339 qa/models.py:127 qa/models.py:216
 msgid "answer"
 msgstr "réponse"
 
-#: qa/admin.py:338
+#: qa/admin.py:343
 msgid "No answer was saved for this question."
 msgstr "Aucune réponse n’a été enregistrée pour cette question."
 
-#: qa/admin.py:341
+#: qa/admin.py:346
 msgid "kept sentences"
 msgstr "phrases conservées"
 
-#: qa/admin.py:350 qa/admin.py:394
+#: qa/admin.py:355 qa/admin.py:399
 #, python-format
 msgid "Bayyinat question %(number)s"
 msgstr "Bayyinat, question %(number)s"
 
-#: qa/admin.py:354
+#: qa/admin.py:359
 msgid "removed sentences"
 msgstr "phrases retirées"
 
-#: qa/admin.py:381 qa/models.py:118
+#: qa/admin.py:386 qa/models.py:118
 msgid "search query"
 msgstr "requête de recherche"
 
-#: qa/admin.py:386 qa/models.py:119
+#: qa/admin.py:391 qa/models.py:119
 msgid "retrieved"
 msgstr "résultats récupérés"
 
-#: qa/admin.py:398 qa/models.py:125
+#: qa/admin.py:403 qa/models.py:125
 msgid "evidence given to the writer"
 msgstr "preuves données au rédacteur"
 
-#: qa/admin.py:407 qa/models.py:137
+#: qa/admin.py:412 qa/models.py:137
 msgid "model"
 msgstr "modèle"
 
-#: qa/admin.py:490 qa/models.py:280 telegram_bot/admin.py:80
+#: qa/admin.py:495 qa/admin.py:504 qa/models.py:280 telegram_bot/admin.py:80
 #: telegram_bot/models.py:42
 msgid "status"
 msgstr "statut"
 
-#: qa/admin.py:494 qa/models.py:281
+#: qa/admin.py:499 qa/admin.py:508 qa/models.py:281
 msgid "mode"
 msgstr "mode"
 
-#: qa/admin.py:499
+#: qa/admin.py:512
 msgid "Assign selected referrals to me"
 msgstr "M’attribuer les transmissions sélectionnées"
 
-#: qa/admin.py:504 qa/admin.py:510
+#: qa/admin.py:517 qa/admin.py:523
 #: qa/templates/admin/qa/referral/close_selected.html:20
 msgid "Close selected referrals without an answer"
 msgstr "Clôturer sans réponse les transmissions sélectionnées"
 
-#: qa/admin.py:530
+#: qa/admin.py:543
 #, python-format
 msgid "%(count)d referral was updated."
 msgid_plural "%(count)d referrals were updated."
 msgstr[0] "%(count)d transmission a été mise à jour."
 msgstr[1] "%(count)d transmissions ont été mises à jour."
 
-#: qa/admin.py:534
+#: qa/admin.py:547
 #, python-format
 msgid "%(count)d referral could not be updated: %(reasons)s"
 msgid_plural "%(count)d referrals could not be updated: %(reasons)s"
@@ -1269,9 +1273,13 @@ msgstr[0] "%(count)d transmission n’a pas pu être mise à jour : %(reasons)s"
 msgstr[1] ""
 "%(count)d transmissions n’ont pas pu être mises à jour : %(reasons)s"
 
-#: qa/admin.py:578 qa/models.py:175
+#: qa/admin.py:592 qa/admin.py:596 qa/models.py:175
 msgid "verdict"
 msgstr "verdict"
+
+#: qa/admin.py:600 qa/templates/admin/qa/question/label.html:11
+msgid "AI answer"
+msgstr "Réponse de l’IA"
 
 #: qa/models.py:60
 msgid "session"
@@ -1700,10 +1708,6 @@ msgid ""
 msgstr ""
 "Le modèle utilisé, le temps de réponse, les jetons et une éventuelle erreur. "
 "Cliquez sur le titre pour l’ouvrir."
-
-#: qa/templates/admin/qa/question/label.html:11
-msgid "AI answer"
-msgstr "Réponse de l’IA"
 
 #: qa/templates/admin/qa/question/label.html:13
 msgid ""

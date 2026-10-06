@@ -385,3 +385,15 @@ class SpecialistRequestTests(QuestionAPITestCase):
         self.assertEqual([q['uuid'] for q in self.client.get(self.url('my-questions')).data['results']],
                          [str(question.uuid)])
 
+
+class GlossarySourceTests(QuestionAPITestCase):
+    """A sentence quoted from the official glossary shows its label, without a Bayyinat link."""
+
+    def test_glossary_source_label(self):
+        from knowledge.glossary import FIRST_NUMBER, ingest_glossary
+        ingest_glossary(FakeEmbedder())
+        question = self.saved(sentences=[{'text': 'التوحيد: إفراد الله.', 'quote': 'إفراد الله', 'number': FIRST_NUMBER + 1}]).question
+        source = self.client.get(self.url('question', question.uuid)).json()['sentences'][0]['source']
+        self.assertEqual((source['title'], source['url'], source['pdf_url'], source['pages']),
+                         ('نماذج قاموس المصطلحات الأساسية: التوحيد', '', '', None))
+
