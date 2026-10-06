@@ -290,7 +290,7 @@ grep -E '^[A-Z_]+=' .env | sed -E 's/(SECRET_KEY|PASSWORD|KEYS|API_KEY|TOKEN|SEC
 | `DJANGO_SECRET_KEY`, `POSTGRES_PASSWORD`, `FIELD_ENCRYPTION_KEYS` | generated above |
 | `DJANGO_DEBUG` | empty (off) |
 | `DJANGO_ALLOWED_HOSTS` | `api.musnid.online` |
-| `DJANGO_CORS_ALLOWED_ORIGINS` | empty until the Vercel frontend exists (see [To do](#to-do)) |
+| `DJANGO_CORS_ALLOWED_ORIGINS` | `https://www.musnid.online,https://musnid.online,https://musnid-frontend-nine.vercel.app` (set 2026-10-06; restart with `docker compose --profile web up -d --force-recreate web`; long values are best set in short steps, as long pasted lines wrap) |
 | `DJANGO_HTTPS` | `True` |
 | `DJANGO_HSTS_SECONDS` | `0` (see [To do](#to-do)) |
 | `DJANGO_NUM_PROXIES` | `1` (nginx) |
@@ -447,7 +447,6 @@ Recommended for the competition, not done yet:
 
 | Item | Why | How |
 | --- | --- | --- |
-| CORS for the frontend | Browsers block the Vercel frontend until its origin is listed | Set `DJANGO_CORS_ALLOWED_ORIGINS` to the Vercel origin(s) in `.env`, then `docker compose --profile web up -d` |
 | OpenAI spending limit | The ask API is public and each answer costs tokens | A monthly limit in the OpenAI account (Billing → Limits) |
 | Daily limit | 150 questions per day may be too few or too many during judging | Set `ASK_DAILY_LIMIT` to match the OpenAI limit |
 | Daily backups | The database exists only on this server | A cron job: `pg_dump -Fc` from the `db` container to `~/backups`, keeping 14 days; copy the dumps off the server |
