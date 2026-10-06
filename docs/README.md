@@ -25,7 +25,7 @@ contract is in [Frontend integration](#frontend-integration).
 | 2 | [How a question is answered](architecture/decisions/0016-question-answering-flow.md) | The flow: classify, search, write, verify, decide |
 | 3 | [RAG pipeline](rag/02-pipeline.md) and [validation](rag/03-validation.md) | From the book's PDF to cited answers, with measured results |
 | 4 | [Telegram bot](reference/telegram-bot.md) | How specialists receive and answer questions, with a real example |
-| 5 | [Admin](reference/admin.md) | What a platform administrator sees: every question, its evidence and checks |
+| 5 | [Admin user guide](guides/admin-user-guide.md) | How to use every admin page: questions with their evidence and checks, tickets, centers, users |
 | 6 | [Fine-tuning dataset](rag/06-finetuning-dataset.md) | How reviewed answers become training data |
 | 7 | [Sources and credits](sources-and-credits.md) | Where the answers come from, and the tools used |
 
@@ -58,6 +58,7 @@ translated texts, never generated.
 
 | Guide | For |
 | --- | --- |
+| [Admin user guide](guides/admin-user-guide.md) | Platform administrators and the jury: how to use every admin page, common tasks first |
 | [Approve a center](guides/approve-a-center.md) | Platform administrators: approve a registered center and make it the default |
 
 ### Getting started

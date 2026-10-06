@@ -13,6 +13,7 @@ receive and answer them.
 | Admin (platform administrator) | [api.musnid.online/admin](https://api.musnid.online/admin/) |
 | Admin login and password | In the submission form, field **«وصف المشروع»** of **«بيانات تسليم التحكيم النهائي»** (not published in this repository) |
 | API documentation | [api.musnid.online/api/docs](https://api.musnid.online/api/docs/) |
+| **How to use the admin** | **[Admin user guide](docs/guides/admin-user-guide.md)**: every page (Centers, Questions, Tickets, Users…), what you can do there and where to click |
 
 > [!IMPORTANT]
 > **Crucial before using a center on the website or testing the Telegram bot: approve it.**
