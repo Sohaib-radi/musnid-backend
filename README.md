@@ -5,6 +5,14 @@ questions about Islam from vetted sources using retrieval-augmented generation (
 AI agents. Questions the AI must not answer are routed to centers of specialists, who
 receive and answer them.
 
+> [!IMPORTANT]
+> **Crucial before testing the Telegram bot: approve your center.**
+> A center registered on the website stays *pending review* and receives nothing. A
+> platform administrator must **approve** it in the admin and tick **"Also make it the
+> default center"**: only the default center receives the questions askers send to
+> specialists, so only its linked specialists get them in Telegram.
+> **→ [Step-by-step guide with screenshots: Approve a center](docs/guides/approve-a-center.md)**
+
 ## Related repository
 
 The website (asking, dashboards, Telegram connection) is in

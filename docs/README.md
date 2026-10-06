@@ -12,6 +12,10 @@ The website that calls this backend is a separate repository:
 **[musnid-frontend](https://github.com/Sohaib-radi/musnid-frontend)**. Its integration
 contract is in [Frontend integration](#frontend-integration).
 
+> [!IMPORTANT]
+> **Crucial before testing the Telegram bot:** a center must be **approved** and made the
+> **default center** to receive questions. See [Approve a center](guides/approve-a-center.md).
+
 ## Start here (jury and first-time readers)
 
 | Step | Read | What you learn |
