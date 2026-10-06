@@ -1,5 +1,11 @@
 {% load i18n %}
-{# Approve / Reject buttons for one pending center, each opening a confirmation dialog. #}
+{% comment %}
+Approve / Reject buttons for one pending center, each opening a confirmation dialog.
+In the centers list these dialogs sit inside the changelist <form>, and browsers drop a form
+nested in another: the confirm buttons therefore carry their own target (formaction,
+formmethod) and skip validation (formnovalidate) so other rows' hidden fields cannot block
+them; the server checks the reason. Each reason field is named per center.
+{% endcomment %}
 <div class="musnid-review">
     <button type="button" class="musnid-btn musnid-btn-primary"
             onclick="document.getElementById('approve-{{ center.pk }}').showModal()">{% translate "Approve" %}</button>
@@ -14,7 +20,8 @@
             <p>{% blocktranslate with name=center.name %}“{{ name }}” will become operational and its center admins will get access to their dashboard.{% endblocktranslate %}</p>
             <div class="musnid-dialog-actions">
                 <button type="button" class="musnid-btn musnid-btn-outline" onclick="this.closest('dialog').close()">{% translate "Cancel" %}</button>
-                <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Approve" %}</button>
+                <button type="submit" class="musnid-btn musnid-btn-primary" formaction="{{ approve_url }}" formmethod="post"
+                        formnovalidate>{% translate "Approve" %}</button>
             </div>
         </form>
     </dialog>
@@ -25,10 +32,11 @@
             <input type="hidden" name="next" value="{{ next }}">
             <h2>{% translate "Reject this center?" %}</h2>
             <label for="reason-{{ center.pk }}">{% translate "Reason (shown to the applicant)" %}</label>
-            <textarea id="reason-{{ center.pk }}" name="rejection_reason" rows="4" required></textarea>
+            <textarea id="reason-{{ center.pk }}" name="rejection_reason_{{ center.pk }}" rows="4"></textarea>
             <div class="musnid-dialog-actions">
                 <button type="button" class="musnid-btn musnid-btn-outline" onclick="this.closest('dialog').close()">{% translate "Cancel" %}</button>
-                <button type="submit" class="musnid-btn musnid-btn-primary">{% translate "Reject" %}</button>
+                <button type="submit" class="musnid-btn musnid-btn-primary" formaction="{{ reject_url }}" formmethod="post"
+                        formnovalidate>{% translate "Reject" %}</button>
             </div>
         </form>
     </dialog>

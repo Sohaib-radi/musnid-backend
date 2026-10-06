@@ -268,3 +268,11 @@ a few places; `core/static/core/css/admin.css` corrects those found by screensho
 
 In translations, a left-to-right value inside Arabic text (such as the example group ID
 in a help text) is wrapped in Unicode isolates (U+2066 … U+2069).
+
+## Dialogs inside lists
+
+A list's rows sit inside Django's changelist `<form>`, and browsers drop a `<form>` nested
+in another. Confirm buttons of dialogs shown in a list (the centers' Approve and Reject)
+therefore carry their own target (`formaction`, `formmethod="post"`) and `formnovalidate`;
+fields are named per row (`rejection_reason_<pk>`) and the server validates them.
+

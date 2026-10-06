@@ -281,7 +281,7 @@ class CenterReviewAdminTests(AdminTestCase):
         self.assertContains(response, f'id="approve-{self.pending.pk}"')
         self.assertContains(response, f'id="reject-{self.pending.pk}"')
         self.assertNotContains(response, f'id="approve-{self.approved.pk}"')
-        self.assertContains(response, 'name="rejection_reason" rows="4" required')
+        self.assertContains(response, f'name="rejection_reason_{self.pending.pk}" rows="4"')
 
     def test_buttons_on_the_pending_change_page_only(self):
         self.assertContains(self.client.get(self.url(Center, 'change', self.pending.pk)),
@@ -313,6 +313,22 @@ class CenterReviewAdminTests(AdminTestCase):
     def test_unsafe_next_falls_back_to_the_changelist(self):
         response = self.client.post(self.review_url(self.pending, 'approve'), {'next': 'https://evil.example/'})
         self.assertRedirects(response, self.url(Center, 'changelist'), fetch_redirect_response=False)
+
+    def test_review_dialogs_work_inside_the_changelist_form(self):
+        # Browsers drop forms nested in the changelist form: the confirm buttons target their URL
+        response = self.client.get(self.url(Center, 'changelist'))
+        html = response.content.decode()
+        self.assertIn(f'formaction="{self.review_url(self.pending, "approve")}"', html)
+        self.assertIn(f'formaction="{self.review_url(self.pending, "reject")}"', html)
+        self.assertIn('formnovalidate', html)
+        self.assertIn(f'name="rejection_reason_{self.pending.pk}"', html)
+        # What the browser sends: the whole changelist form, with every row's (empty) reason
+        other = make_center(status=Center.Status.PENDING)
+        self.client.post(self.review_url(self.pending, 'reject'), {
+            f'rejection_reason_{self.pending.pk}': 'Incomplete file.', f'rejection_reason_{other.pk}': '',
+            'action': '', 'next': self.url(Center, 'changelist')})
+        self.pending.refresh_from_db()
+        self.assertEqual((self.pending.status, self.pending.rejection_reason), (Center.Status.REJECTED, 'Incomplete file.'))
 
     def test_staff_who_are_not_superusers_cannot_enter(self):
         viewer = make_user(is_staff=True)

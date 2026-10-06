@@ -219,8 +219,9 @@ class CenterAdmin(ModelAdmin):
                                  _('“%(center)s” was approved.'))
 
     def reject_view(self, request, object_id):
-        """POST: reject one pending center with the reason typed in the dialog."""
-        reason = request.POST.get('rejection_reason', '')
+        """POST: reject one pending center with the reason typed in its dialog (field named per center)."""
+        # Per-center name: in the list every row's dialog is posted with the changelist form
+        reason = request.POST.get(f'rejection_reason_{unquote(object_id)}') or request.POST.get('rejection_reason', '')
         return self._review_view(request, object_id, lambda center: centers.reject(center, request.user, reason),
                                  _('“%(center)s” was rejected.'))
 
