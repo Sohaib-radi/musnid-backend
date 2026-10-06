@@ -157,7 +157,7 @@ class QuestionAdmin(ModelAdmin):
     fieldsets = [
         (_('Question'), {'fields': ['text', 'uuid', 'asked_by', 'lang', 'center', 'session_id', 'created_at']}),
         (_('Answer'), {'fields': ['decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences']}),
-        (_('Retrieval'), {'fields': ['search_query', 'retrieved'], 'classes': ['collapse']}),
+        (_('Retrieval'), {'fields': ['search_query', 'retrieved', 'evidence_given'], 'classes': ['collapse']}),
         (_('Run'), {
             'fields': ['model_used', 'latency', 'tokens', 'error'],
             'classes': ['collapse'],
@@ -167,7 +167,7 @@ class QuestionAdmin(ModelAdmin):
     readonly_fields = [
         'text', 'uuid', 'asked_by', 'lang', 'center', 'session_id', 'created_at',
         'decision', 'level', 'answer', 'kept_sentences', 'dropped_sentences',
-        'search_query', 'retrieved', 'model_used', 'latency', 'tokens', 'error',
+        'search_query', 'retrieved', 'evidence_given', 'model_used', 'latency', 'tokens', 'error',
     ]
 
     def has_add_permission(self, request):
@@ -332,6 +332,14 @@ class QuestionAdmin(ModelAdmin):
             ((_('Bayyinat question %(number)s') % {'number': r.get('question_number')}, r.get('kind', ''),
               r.get('score', '')) for r in interaction.retrieved),
         ))
+
+    @display(description=_('evidence given to the writer'))
+    def evidence_given(self, question):
+        """The exact evidence text the writer received (saved since 2026-10-06), right to left."""
+        interaction = interaction_of(question)
+        if interaction is None or not interaction.evidence:
+            return '-'
+        return format_html('<pre dir="rtl" lang="ar" class="musnid-pre">{}</pre>', interaction.evidence)
 
     # Not "model": ModelAdmin.model is the admin's model class
     @display(description=_('model'))

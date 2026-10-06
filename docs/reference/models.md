@@ -247,6 +247,7 @@ Every question and how it was answered ([ADR 0016](../architecture/decisions/001
 | `Interaction` | `decision`, `level`, `answer_text`, `citations` | What was returned, the classifier's level, the shown text, the valid `[Q<n>]` numbers. |
 | `Interaction` | `sentences` | Kept sentences: `text` (markers removed), `quote`, `number` (the evidence question containing the quote, found in code). Empty for fixed replies. |
 | `Interaction` | `dropped` | Sentences removed by the checks: `text`, `quote`, `reason` (`quote` or `entailment`). |
+| `Interaction` | `evidence` | The exact evidence text the writer received (Bayyinat passages with `[Q<n>]` markers); empty for fixed replies and for answers saved before 2026-10-06. Kept so an answer can be rebuilt as the model saw it (fine-tuning dataset). Never returned by the API. |
 | `Interaction` | `retrieved`, `evidence_question_numbers`, `verifier_verdict`, `model_name`, `prompt_version`, `latency_ms`, `tokens_in`, `tokens_out`, `error` | The trace, for review; never returned by the API. |
 
 `QuestionQuerySet` (the manager of `Question`, based on `CenterQuerySet`):

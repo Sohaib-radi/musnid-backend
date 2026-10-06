@@ -119,6 +119,11 @@ class Interaction(BaseModel):
     retrieved = models.JSONField(_('retrieved'), default=list, blank=True,
                                  help_text=_('Ranked results: question number, score, chunk kind.'))
     evidence_question_numbers = models.JSONField(_('evidence question numbers'), default=list, blank=True)
+    # Kept so each answer can be rebuilt exactly as the writer saw it, e.g. for a
+    # fine-tuning dataset, even after the books are re-imported (empty before 2026-10-06)
+    evidence = models.TextField(
+        _('evidence given to the writer'), blank=True,
+        help_text=_('The exact evidence text the writer received; empty for fixed replies.'))
     answer_text = models.TextField(_('answer'), blank=True)
     citations = models.JSONField(_('citations'), default=list, blank=True)
     sentences = models.JSONField(

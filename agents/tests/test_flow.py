@@ -59,6 +59,7 @@ class RoutingTests(FlowTestCase):
 
     def test_level_d_is_referred_without_search(self):
         interaction = self.run_ask(classified('D', 'ar'))
+        self.assertEqual(interaction.evidence, '')  # nothing given to a writer
         self.assertEqual((interaction.decision, interaction.level), ('refer', 'D'))
         self.assertEqual(interaction.answer_text, fixed_reply('refer_personal', 'ar'))  # says why
         self.assertEqual(interaction.retrieved, [])
@@ -200,6 +201,9 @@ class SavingTests(FlowTestCase):
         self.assertEqual((interaction.tokens_in, interaction.tokens_out), (23, 11))  # two crews + entailment
         self.assertGreaterEqual(interaction.latency_ms, 0)
         self.assertEqual(interaction.search_query, QUESTION)
+        # The exact evidence the writer received is kept with the answer
+        self.assertEqual(interaction.evidence, self.answer_crew.inputs[0]['evidence'])
+        self.assertIn('[Q1]', interaction.evidence)
 
     def test_asker_is_saved_when_given(self):
         user = make_user()

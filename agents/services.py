@@ -66,7 +66,7 @@ def ask(text, session_id='', asker=None, embedder=None, classify_crew=None, answ
         state.sentences = []
     interaction = Interaction(
         level=state.level, search_query=state.search_query, retrieved=state.retrieved,
-        evidence_question_numbers=state.evidence_numbers, answer_text=state.answer,
+        evidence_question_numbers=state.evidence_numbers, evidence=state.evidence, answer_text=state.answer,
         citations=state.citations, sentences=state.sentences, dropped=state.dropped,
         decision=state.decision, verifier_verdict=state.coverage,
         model_name=AISettings.load().chat_model, prompt_version=prompt_version(),
