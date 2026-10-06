@@ -121,7 +121,8 @@ core/              domain app
 knowledge/         RAG: SourceDocument, SourceChunk, normalize, chunking, embeddings, services/search
   extraction/      PDF text repair and Bayyinat parsing (never imports PyMuPDF)
   management/commands/  extract_bayyinat (PyMuPDF), ingest_bayyinat, search_test
-qa/                Question, Interaction, AnswerRevision, Referral, HumanLabel; services.py (revise, referrals); admin
+qa/                Question, Interaction, AnswerRevision, Referral, HumanLabel; services.py (revise, referrals,
+                   label); dataset.py + export_finetuning (fine-tuning JSONL, docs/rag/06); admin
 agents/            CrewAI: flow.py (steps, routing, fixed replies), services.py (ask), crews/ (YAML)
 telegram_bot/      Telegram channel (ADR 0022, 0023): client.py (Bot API over httpx), services.py (notify_referral,
                    resend), receivers.py (qa.signals.referral_opened), linking.py (one-time t.me links),

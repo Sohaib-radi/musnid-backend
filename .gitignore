@@ -29,6 +29,7 @@ staticfiles/
 # Source books and extracted text (never committed)
 data/raw/
 data/processed/
+data/finetuning/
 
 # Editors
 .vscode/
