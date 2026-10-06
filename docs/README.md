@@ -18,6 +18,7 @@ Markdown and reads directly on GitHub.
 | 4 | [Telegram bot](reference/telegram-bot.md) | How specialists receive and answer questions, with a real example |
 | 5 | [Admin](reference/admin.md) | What a platform administrator sees: every question, its evidence and checks |
 | 6 | [Fine-tuning dataset](rag/06-finetuning-dataset.md) | How reviewed answers become training data |
+| 7 | [Sources and credits](sources-and-credits.md) | Where the answers come from, and the tools used |
 
 ## How it works, in one picture
 
@@ -98,6 +99,7 @@ translated texts, never generated.
 | [Translations](development/translations.md) | Arabic and French workflow, glossary, right-to-left |
 | [Migrations](development/migrations.md) | Migration history and conventions |
 | [Technology stack](technology-stack.md) | Every dependency with its version, role and license |
+| [Sources and credits](sources-and-credits.md) | Knowledge sources (Bayyinat, official glossary), AI services, tools used to build Musnid (Claude Code) |
 
 ### Decision records
 

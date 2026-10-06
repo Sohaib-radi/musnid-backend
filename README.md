@@ -16,7 +16,8 @@ development.
 Quick links: [Introduction](docs/intro.md) ·
 [How a question is answered](docs/architecture/decisions/0016-question-answering-flow.md) ·
 [RAG pipeline](docs/rag/02-pipeline.md) · [REST API](docs/reference/api.md) ·
-[Telegram bot](docs/reference/telegram-bot.md) · [Deployment](docs/getting-started/deployment.md)
+[Telegram bot](docs/reference/telegram-bot.md) · [Deployment](docs/getting-started/deployment.md) ·
+[Sources and credits](docs/sources-and-credits.md)
 
 ## Setup
 

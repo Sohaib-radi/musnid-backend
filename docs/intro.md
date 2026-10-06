@@ -68,6 +68,7 @@ alert, and HSTS.
 - [Configuration](getting-started/configuration.md): every environment variable.
 - [Deployment](getting-started/deployment.md): the production VPS, step by step.
 - [Technology stack](technology-stack.md): dependencies, versions and licenses.
+- [Sources and credits](sources-and-credits.md): knowledge sources, AI services and tools.
 - [Models](reference/models.md) and [Data model](architecture/data-model.md).
 - [Tenancy](architecture/tenancy.md): how data is scoped to centers.
 - [Admin](reference/admin.md): every admin page and the sidebar.
