@@ -14,7 +14,9 @@ and the Telegram connection. The
 same step can make it the **default center**, the one that receives the questions askers
 send to specialists.
 
-Admin address: `https://api.musnid.online/admin/` (sign in with a superuser account).
+Admin address: `https://api.musnid.online/admin/` (sign in with a superuser account; for
+the jury, the login and password are in the submission form, field «وصف المشروع» of
+«بيانات تسليم التحكيم النهائي»).
 
 ## 1. Open the centers list and click Approve
 

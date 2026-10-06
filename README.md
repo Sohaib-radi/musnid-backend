@@ -5,6 +5,15 @@ questions about Islam from vetted sources using retrieval-augmented generation (
 AI agents. Questions the AI must not answer are routed to centers of specialists, who
 receive and answer them.
 
+## Access for the jury
+
+| What | Where |
+| --- | --- |
+| Website | [www.musnid.online](https://www.musnid.online) |
+| Admin (platform administrator) | [api.musnid.online/admin](https://api.musnid.online/admin/) |
+| Admin login and password | In the submission form, field **«وصف المشروع»** of **«بيانات تسليم التحكيم النهائي»** (not published in this repository) |
+| API documentation | [api.musnid.online/api/docs](https://api.musnid.online/api/docs/) |
+
 > [!IMPORTANT]
 > **Crucial before using a center on the website or testing the Telegram bot: approve it.**
 > A center registered on the website stays *pending review*: its center admin cannot use
