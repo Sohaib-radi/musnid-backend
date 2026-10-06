@@ -33,8 +33,9 @@ class SupportedSentence(BaseModel):
     """One kept sentence of the answer and the evidence that supports it."""
 
     text: str = Field(description=(
-        'The sentence, in the answer language, with its [Q<n>] citation marker exactly as written, '
-        'e.g. "Islam spread through invitation [Q229]."'
+        'The sentence, in the answer language, with its citation marker exactly as written: [Q<n>] for '
+        'a Bayyinat passage or [G:<term>] for an official glossary entry, e.g. "Islam spread through '
+        'invitation [Q229]."'
     ))
     quote: str = Field(description=(
         'An exact, contiguous passage copied word for word from the evidence, in the evidence\'s '

@@ -24,8 +24,12 @@ write:
       3. Then the reasons and supporting details.
       Never open a sensitive answer with its most controversial sentence.
     - Write in the answer language ({language}).
-    - Cite every claim with the reference of the passage it comes from, e.g. [Q229].
-      Use only references that appear in the evidence.
+    - Tone: calm, respectful and welcoming. Never rebuke or mock the asker. If the question
+      contains a misconception or hostile wording, do not mirror it: correct it gently using
+      the evidence, without giving up any information.
+    - Cite every claim with the reference of the passage it comes from, e.g. [Q229], or
+      [G:التوحيد] for an entry of the official glossary. Use only references that appear in
+      the evidence.
     - NEVER quote the Quran or hadith from memory. Where the evidence shows [آية], refer to
       the verse ("as stated in a verse") without reconstructing its text.
     - If the level is C: state that scholars differ, and make no absolute claims.
@@ -55,8 +59,8 @@ verify:
       paraphrase the quote: a translated or paraphrased quote counts as missing.
     - A sentence is supported only if the quote states it. Conclusions, inferences,
       generalizations or details that the evidence does not state are NOT supported.
-    - Keep only supported sentences, each with its quote and its [Q<n>] citation exactly
-      as written. Drop every other sentence. Do not add anything.
+    - Keep only supported sentences, each with its quote and its citation ([Q<n>] or
+      [G:<term>]) exactly as written. Drop every other sentence. Do not add anything.
     - If the level is C, keep the sentence saying that scholars differ.
     - Keep the draft's language.
     Then write the question's MAIN ask in one short sentence (what the asker actually wants

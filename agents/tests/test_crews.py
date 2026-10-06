@@ -32,7 +32,8 @@ class CrewDefinitionTests(TestCase):
         write = crew.tasks[0].description
         for rule in ('ONLY from the evidence', '[آية]', 'NEVER quote the Quran or hadith', 'scholars differ',
                      'your FIRST', 'Framing first', 'Never open a sensitive answer',
-                     'Term and definition questions', 'copy EXACTLY the English'):
+                     'Term and definition questions', 'copy EXACTLY the English', 'Tone: calm, respectful',
+                     'do not mirror it', '[G:التوحيد]'):
             self.assertIn(rule, write)
         verify = crew.tasks[1].description
         for rule in ('MAIN ask', 'answers_main_ask', 'never "partial"'):

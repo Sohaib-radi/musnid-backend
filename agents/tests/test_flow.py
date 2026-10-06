@@ -366,12 +366,38 @@ class NoteTests(SimpleTestCase):
 
 
 class GlossaryEvidenceTests(FlowTestCase):
-    """Glossary terms above the threshold come first in the evidence, before Bayyinat."""
+    """Glossary terms come first in the evidence with their own reference, cited end to end."""
+
+    def glossary_answer(self, sentence):
+        from knowledge.glossary import TERMS, chunk_text, ingest_glossary
+        ingest_glossary(self.embedder)
+        return self.run_ask(classified('A', 'ar', chunk_text(*TERMS[1])),
+                            answered(sentence, quote='إفراد الله بالربوبية والألوهية'))
+
+    def test_glossary_citation_end_to_end(self):
+        from api.v1.serializers.questions import QuestionSerializer
+        from knowledge.glossary import FIRST_NUMBER
+        interaction = self.glossary_answer('التوحيد هو إفراد الله بالربوبية والألوهية [G:التوحيد].')
+        self.assertIn('[G:التوحيد] التوحيد (Tawhid / Oneness of God)', interaction.evidence)  # own reference
+        self.assertEqual(interaction.decision, 'answer')  # a valid citation: not referred
+        self.assertEqual(interaction.citations, [FIRST_NUMBER + 1])
+        self.assertEqual(interaction.sentences[0]['number'], FIRST_NUMBER + 1)
+        self.assertEqual(interaction.sentences[0]['text'], 'التوحيد هو إفراد الله بالربوبية والألوهية.')  # stripped
+        data = QuestionSerializer(type(interaction.question).objects.with_answers().get(pk=interaction.question.pk),
+                                  context={}).data
+        self.assertEqual(data['sentences'][0]['source']['title'], 'نماذج قاموس المصطلحات الأساسية: التوحيد')
+        self.assertEqual(data['sentences'][0]['source']['url'], '')
+
+    def test_a_glossary_term_not_in_the_evidence_is_not_a_valid_citation(self):
+        interaction = self.glossary_answer('التوحيد هو إفراد الله بالربوبية والألوهية [G:مصطلح غير موجود].')
+        self.assertEqual(interaction.decision, 'refer')  # no valid citation left
+        self.assertNotIn('[G:', interaction.answer_text)
+
 
     def test_matching_term_goes_first(self):
         from knowledge.glossary import FIRST_NUMBER, TERMS, chunk_text, ingest_glossary
         ingest_glossary(self.embedder)
         interaction = self.run_ask(classified('A', 'ar', chunk_text(*TERMS[1])))
         self.assertEqual(interaction.evidence_question_numbers[0], FIRST_NUMBER + 1)
-        self.assertTrue(interaction.evidence.startswith(f'[Q{FIRST_NUMBER + 1}] التوحيد (Tawhid / Oneness of God)'))
+        self.assertTrue(interaction.evidence.startswith('[G:التوحيد] التوحيد (Tawhid / Oneness of God)'))
 

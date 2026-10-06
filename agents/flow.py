@@ -27,6 +27,7 @@ from pydantic import BaseModel
 
 from agents.replies import fixed_reply, notes
 from knowledge.normalize import normalize
+from knowledge.models import SourceChunk
 from knowledge.services.search import embed_query, get_evidence, search
 
 # CrewAI's first-run trace prompt is declined in AgentsConfig.ready(), before this
@@ -36,6 +37,8 @@ SEARCH_K = 8
 #: Glossary terms searched per question; all of them above LOW_THRESHOLD go into the evidence
 GLOSSARY_K = 3
 CITATION = re.compile(r'\s*\[Q(\d+)\]')
+#: The writer's reference to an official glossary term, e.g. [G:التوحيد] (docs/rag/07)
+GLOSSARY_CITATION = re.compile(r'\[G:\s*([^\]]+?)\s*\]')
 SECRET = re.compile(r'(sk-[A-Za-z0-9_\-]{4})[A-Za-z0-9_\-]+|(Bearer\s+)\S+')
 MIN_QUOTE_CHARS = 15
 # A quote matches when this share of its words appears, in order, in one passage of
@@ -84,6 +87,7 @@ class QAState(BaseModel):
     error: str = ''
     tokens_in: int = 0
     tokens_out: int = 0
+    glossary_refs: dict[str, int] = {}  # glossary term → its internal question number (evidence [G:term])
     sentences: list[dict] = []  # kept sentences: text (no markers), quote, source number
     dropped: list[dict] = []  # sentences removed by the quote or entailment check, with the reason
 
@@ -162,8 +166,12 @@ class AskFlow(Flow[QAState]):
         for chunk in chunks:
             texts.setdefault(chunk.question_number, []).append(chunk.text)
         self.state.evidence_by_number = {number: _comparable('\n'.join(parts)) for number, parts in texts.items()}
+        # Glossary terms carry their own reference, [G:<term>]; Bayyinat keeps [Q<n>]
+        self.state.glossary_refs = {chunk.metadata['term']: chunk.question_number for chunk in chunks
+                                    if chunk.kind == SourceChunk.Kind.GLOSSARY}
         self.state.evidence = '\n\n'.join(
-            f'[Q{chunk.question_number}] {chunk.text}' for chunk in chunks
+            f'[G:{chunk.metadata["term"]}] {chunk.text}' if chunk.kind == SourceChunk.Kind.GLOSSARY
+            else f'[Q{chunk.question_number}] {chunk.text}' for chunk in chunks
         )
         return 'answer'
 
@@ -180,6 +188,8 @@ class AskFlow(Flow[QAState]):
             })
             self._count_tokens(output)
             verified = output.pydantic
+            for sentence in verified.sentences:
+                sentence.text = self.internal_citations(sentence.text)
             kept = self.entailed(self.quoted(verified.sentences))
             self.state.sentences = [
                 {'text': CITATION.sub('', sentence.text).strip(), 'quote': sentence.quote, 'number': number}
@@ -206,6 +216,17 @@ class AskFlow(Flow[QAState]):
         self._fixed('abstain')
 
     # Decision
+
+    def internal_citations(self, text):
+        """
+        Turn the writer's glossary references ([G:<term>]) into the term's internal [Q<n>],
+        so citation checks, sources and the payload treat them like Bayyinat citations.
+        A term not in the evidence is removed: only references in the evidence are valid.
+        """
+        def replace(match):
+            number = self.state.glossary_refs.get(match.group(1))
+            return f'[Q{number}]' if number else ''
+        return GLOSSARY_CITATION.sub(replace, text)
 
     def quoted(self, sentences):
         """

@@ -31,6 +31,11 @@ Terms: الإسلام (Islam), التوحيد (Tawhid / Oneness of God), الع�
   excluded, unchanged rules) and the glossary (top 3 terms).
 - Every glossary term scoring at least `LOW_THRESHOLD` (0.30) goes into the evidence
   **before** the Bayyinat evidence. The flow abstains only when neither source passes.
+- In the evidence, a glossary entry carries its own reference, `[G:<term>]` (Bayyinat keeps
+  `[Q<n>]`). The writer and verifier cite it as written; right after the crew the flow turns
+  it into the term's internal `[Q<n>]` (9001+), so citation checks, the "no valid citation →
+  refer" rule, the sentence's source and the payload are unchanged. A `[G:…]` naming a term
+  absent from the evidence is removed.
 - A sentence quoted from a glossary term shows the source «نماذج قاموس المصطلحات الأساسية:
   <term>», with no Bayyinat page or PDF link.
 - The entailment check knows the format: «term (English): rule» states the English
