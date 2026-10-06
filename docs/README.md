@@ -45,6 +45,12 @@ translated texts, never generated.
 
 ## Sections
 
+### Guides (step by step, with screenshots)
+
+| Guide | For |
+| --- | --- |
+| [Approve a center](guides/approve-a-center.md) | Platform administrators: approve a registered center and make it the default |
+
 ### Getting started
 
 | Page | About |
